@@ -28,7 +28,7 @@ public class InfraApiAccessLogServiceImpl implements InfraApiAccessLogService {
         if (accessLog.getUpdateTime() == null) {
             accessLog.setUpdateTime(LocalDateTime.now());
         }
-        accessLog.setDeleted(0);
+        accessLog.setDeleted(false);
         infraApiAccessLogMapper.insert(accessLog);
     }
 }

@@ -134,5 +134,5 @@ public class InfraApiAccessLog {
     /**
      * 是否删除
      */
-    private Integer deleted;
+    private Boolean deleted;
 }
