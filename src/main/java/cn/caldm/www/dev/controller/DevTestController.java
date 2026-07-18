@@ -52,6 +52,23 @@ public class DevTestController {
     }
 
     /**
+     * 测试场景三：模拟人为制造的运行时崩溃异常
+     * 预期：
+     * 1. 浏览器/ApiFox 收到全局异常处理器返回的标准 500 JSON 提示（包含 traceId）
+     * 2. 数据库表 infra_api_error_log 自动插入一条记录，准确捕获到由除以零引发的 ArithmeticException 堆栈、文件名、代码行号
+     */
+    @GetMapping("/exception")
+    public Map<String, Object> mockException() {
+        // 人为制造一个经典的运行时算术异常（除以 0）
+        int result = 10 / 0;
+
+        Map<String, Object> successResult = new HashMap<>();
+        successResult.put("code", 200);
+        successResult.put("data", result);
+        return successResult;
+    }
+
+    /**
      * 模拟测试专用的 DTO 参数类
      */
     @Data
