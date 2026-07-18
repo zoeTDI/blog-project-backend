@@ -1,0 +1,10 @@
+info:
+  name: test
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+  variables:
+    - name: folder-url
+      value: "{{base-url}}/dev-api/test"

@@ -1,0 +1,23 @@
+info:
+  name: article
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{folder-url}}/article"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "我的第一篇博客文章",
+        "content": "Hello World! 这是一篇测试内容。",
+        "tags": ["Java", "SpringBoot"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
