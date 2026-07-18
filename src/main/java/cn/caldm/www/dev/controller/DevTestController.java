@@ -1,7 +1,10 @@
 package cn.caldm.www.dev.controller;
 
 import cn.caldm.www.infra.annotation.ApiAccessLog;
+import cn.caldm.www.infra.domain.InfraConfig;
+import cn.caldm.www.infra.service.InfraConfigService;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -16,6 +19,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/dev-api/test")
 public class DevTestController {
+
+    @Autowired
+    private InfraConfigService infraConfigService;
+
     /**
      * 测试场景一：模拟无参数的 GET 查询请求
      * 预期：日志记录操作模块为"测试模块"，评分为"基础获取"
@@ -66,6 +73,44 @@ public class DevTestController {
         successResult.put("code", 200);
         successResult.put("data", result);
         return successResult;
+    }
+
+    /**
+     * 测试场景四：获取系统参数配置（高频内存读取）
+     * 路由：GET /dev-api/test/config/get
+     * 预期：
+     * 1. 首次或频繁访问该接口时，控制台不会频繁打印 SQL 语句，因为全部走内存 Map。
+     * 2. 传入不存在的 key 时，控制台应触发“参数配置缓存未命中，触发数据库降级查询”的警告。
+     */
+    @GetMapping("/config/get")
+    public Map<String, Object> getConfigValue(@RequestParam("key") String key) {
+        String value = infraConfigService.getConfigValueByKey(key);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 200);
+        result.put("configKey", key);
+        result.put("configValue", value);
+        result.put("timestamp", System.currentTimeMillis());
+        return result;
+    }
+
+    /**
+     * 测试场景五：动态修改系统参数配置（缓存实时刷写）
+     * 路由：PUT /dev-api/test/config/update
+     * 预期：
+     * 1. 数据库对应的配置值被成功修改。
+     * 2. 本地缓存同步刷新，紧接着调用场景四获取该 key 时，无延迟直接返回最新的数据。
+     */
+    @PutMapping("/config/update")
+    public Map<String, Object> updateConfigValue(@RequestBody InfraConfig config) {
+        // 为了方便冒烟测试，要求入参必须包含 id
+        infraConfigService.updateConfig(config);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 200);
+        result.put("msg", "参数配置更新成功，本地缓存已刷新");
+        result.put("timestamp", System.currentTimeMillis());
+        return result;
     }
 
     /**
