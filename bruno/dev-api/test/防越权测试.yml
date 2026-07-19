@@ -1,0 +1,26 @@
+info:
+  name: 防越权测试
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{folder-url}}/file/upload"
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - C:\Users\admin\Pictures\默认资源库\ogA9DEwfEwqA3mAnIEJAJeFAOC53GEfR7NArp6~tplv-dy-aweme-images_q75.webp
+        contentType: image/webp
+      - name: creator
+        type: text
+        value: '"Hacker"'
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

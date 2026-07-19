@@ -1,0 +1,19 @@
+info:
+  name: 切换主存储桶
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{folder-url}}/file/switch-master?configId=29"
+  params:
+    - name: configId
+      value: "29"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
