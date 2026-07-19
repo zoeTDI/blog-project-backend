@@ -1,0 +1,23 @@
+info:
+  name: file-upload
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{folder-url}}/file/upload"
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - C:\Users\admin\Pictures\默认资源库\oIpwOJG6AwpAR7eq9S7EE3fnnEIAEAFJAAACfD~tplv-dy-aweme-images_q75.webp
+        contentType: image/webp
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
