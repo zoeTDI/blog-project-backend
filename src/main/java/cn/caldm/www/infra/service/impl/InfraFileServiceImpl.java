@@ -1,5 +1,6 @@
 package cn.caldm.www.infra.service.impl;
 
+import cn.caldm.www.common.utils.SecurityUtils;
 import cn.caldm.www.infra.domain.InfraFile;
 import cn.caldm.www.infra.framework.file.core.client.FileClient;
 import cn.caldm.www.infra.framework.file.core.client.FileClientFactory;
@@ -55,7 +56,10 @@ public class InfraFileServiceImpl {
         if (name != null && name.contains(".")) {
             fileRecord.setType(name.substring(name.lastIndexOf(".") + 1));
         }
-        fileRecord.setCreator("system_user");
+
+        String currentOperator = SecurityUtils.getLoginUsername();
+        fileRecord.setCreator(currentOperator);
+        fileRecord.setUpdater(currentOperator);
 
         fileMapper.insert(fileRecord);
         return url;

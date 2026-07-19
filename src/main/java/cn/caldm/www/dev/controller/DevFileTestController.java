@@ -3,6 +3,7 @@ package cn.caldm.www.dev.controller;
 import cn.caldm.www.infra.framework.file.core.client.FileClient;
 import cn.caldm.www.infra.framework.file.core.client.FileClientFactory;
 import cn.caldm.www.infra.service.impl.InfraFileConfigServiceImpl;
+import cn.caldm.www.infra.service.impl.InfraFileServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,13 @@ import java.util.UUID;
 @RequestMapping("/dev-api/test/file")
 public class DevFileTestController {
     @Resource
-    private FileClientFactory fileClientFactory;
+    private InfraFileServiceImpl infraFileService;
 
     @Resource
     private InfraFileConfigServiceImpl infraFileConfigService;
 
-    private Long debugMasterConfigIdOverride = null;
+    @Resource
+    private FileClientFactory fileClientFactory;
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, Object>> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -35,29 +37,19 @@ public class DevFileTestController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            Long activeConfigId = debugMasterConfigIdOverride != null ?
-                    debugMasterConfigIdOverride : infraFileConfigService.getMasterConfigId();
-
-            if (activeConfigId == null) {
-                response.put("code", 500);
-                response.put("msg", "未指派默认主存储客户端，请检查配置");
-                return ResponseEntity.status(500).body(response);
-            }
-
-            FileClient masterClient = fileClientFactory.getFileClient(activeConfigId);
-
             String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
+            String extension = originalFilename != null && originalFilename.contains(".") ?
+                    originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
             String path = "test/" + UUID.randomUUID().toString().replace("-", "") + extension;
 
             byte[] content = file.getBytes();
-            String uploadUrl = masterClient.upload(content, path);
-            log.info("[测试上传] 成功通过客户端 [{}] 上传文件至路径: {}, 访问URL: {}", activeConfigId, path, uploadUrl);
+
+            String uploadUrl = infraFileService.uploadFile(originalFilename, path, content);
+            log.info("[测试上传] 成功通过 Service 服务上传文件至路径: {}, 访问URL: {}", path, uploadUrl);
 
             response.put("code", 200);
             response.put("msg", "上传成功");
             response.put("data", Map.of(
-                    "configId", activeConfigId,
                     "path", path,
                     "url", uploadUrl
             ));
@@ -71,20 +63,11 @@ public class DevFileTestController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Map<String, Object>> deleteFile(@RequestParam("configId") Long configId,
-                                                          @RequestParam("path") String path) {
+    public ResponseEntity<Map<String, Object>> deleteFile(@RequestParam("id") Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            FileClient client = fileClientFactory.getFileClient(configId);
-            if (client == null) {
-                response.put("code", 400);
-                response.put("msg", "找不到对应的存储客户端实例");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            // 调用双参接口删除
-            client.delete(path);
-            log.info("[测试删除] 已清理客户端 [{}] 上的物理文件: {}", configId, path);
+            infraFileService.deleteFile(id);
+            log.info("[测试删除] 已通过 Service 清理文件记录及物理资产，ID: {}", id);
 
             response.put("code", 200);
             response.put("msg", "物理删除请求执行成功");
@@ -109,8 +92,8 @@ public class DevFileTestController {
             }
 
             // 本地变量覆盖实现无侵入式动态测试切换
-            this.debugMasterConfigIdOverride = configId;
-            log.info("[动态切换] 测试主客户端已临时切换至配置编号: {}", configId);
+            infraFileConfigService.switchMasterConfig(configId);
+            log.info("[动态切换] 系统主存储客户端已成功切换至有效配置编号: {}", configId);
 
             response.put("code", 200);
             response.put("msg", "测试环境主存储客户端已成功切换为 " + configId);
