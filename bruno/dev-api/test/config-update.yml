@@ -6,6 +6,15 @@ info:
 http:
   method: PUT
   url: "{{folder-url}}/config/update"
+  body:
+    type: json
+    data: |-
+      {
+        "id": 2,
+        "configKey": "system.user.init-password",
+        "value": "123456",
+        "updater": "admin"
+      }
   auth: inherit
 
 settings:

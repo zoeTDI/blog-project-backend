@@ -5,7 +5,15 @@ info:
 
 http:
   method: GET
-  url: "{{folder-url}}/config"
+  url: "{{folder-url}}/config/get?key=system.user.init-password"
+  params:
+    - name: key
+      value: system.user.init-password
+      type: query
+    - name: key
+      value: not.exist.key
+      type: query
+      disabled: true
   auth: inherit
 
 settings:
