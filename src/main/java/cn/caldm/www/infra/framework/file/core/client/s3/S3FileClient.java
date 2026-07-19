@@ -31,11 +31,16 @@ public class S3FileClient extends AbstractFileClient<S3FileClientConfig> {
                 .pathStyleAccessEnabled(config.getEnablePathStyleAccess())
                 .build();
 
+        String endpoint = config.getEndpoint();
+        if (endpoint != null && !endpoint.startsWith("http://") && !endpoint.startsWith("https://")) {
+            endpoint = "https://" + endpoint;
+        }
+
         this.client = S3Client.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(config.getAccessKey(), config.getAccessSecret())
                 ))
-                .endpointOverride(URI.create(config.getEndpoint()))
+                .endpointOverride(URI.create(endpoint))
                 .region(config.getRegion() != null ? Region.of(config.getRegion()) : Region.US_EAST_1)
                 .build();
     }
