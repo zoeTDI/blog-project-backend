@@ -5,6 +5,7 @@ import cn.caldm.www.infra.domain.InfraFileConfig;
 import cn.caldm.www.infra.framework.file.core.client.FileClientFactory;
 import cn.caldm.www.infra.mapper.InfraFileConfigMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class InfraFileConfigServiceImpl {
         return this.masterConfigId;
     }
 
-    @Transactional(rollbackFor =  Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public void updateFileConfig(InfraFileConfig updateParam) throws Exception {
         fileConfigMapper.updateById(updateParam);
 
@@ -80,5 +81,23 @@ public class InfraFileConfigServiceImpl {
         if (newest.getMaster()) {
             this.masterConfigId = newest.getId();
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void switchMasterConfig(Long configId) {
+        fileConfigMapper.update(null, new LambdaUpdateWrapper<InfraFileConfig>()
+                .eq(InfraFileConfig::getDeleted, false)
+                .setSql("master = b'0'")
+        );
+        boolean success = fileConfigMapper.update(null, new LambdaUpdateWrapper<InfraFileConfig>()
+                .eq(InfraFileConfig::getId, configId)
+                .eq(InfraFileConfig::getDeleted, false)
+                .setSql("master = b'1'")
+        ) > 0;
+        if (!success) {
+            throw new IllegalArgumentException("切换主存储失败：找不到对应的有效配置记录(ID: " + configId + ")");
+        }
+        this.masterConfigId = configId;
+        log.info("[动态切换] 业务配置层已将主存储器变量内存与数据库同步变更为: {}", configId);
     }
 }
