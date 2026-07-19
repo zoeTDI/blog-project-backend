@@ -1,6 +1,6 @@
 package cn.caldm.www.infra.framework.file.core.client.local;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
+import cn.caldm.www.infra.framework.file.core.client.FileClientConfig;
 import lombok.Data;
 
 /**
@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class LocalFileClientConfig implements FileClientConfig {
     /**
-     * 基础存储物理路径，例如：/Users/caldm/tmp/file 或者 D:\upload
+     * 基础存储物理路径，例如：/Users/caldm/tmp/file 或者 D:\\upload
      */
     private String basePath;
 

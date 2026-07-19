@@ -1,4 +1,4 @@
-package cn.caldm.www.infra.annotation;
+package cn.caldm.www.infra.framework.file.core.client;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *
  * @author caldm
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property =  "@classes")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property =  "@class")
 public interface FileClientConfig {
     // 作为一个标识接口，用来规范各类存储厂商的配置类
 }

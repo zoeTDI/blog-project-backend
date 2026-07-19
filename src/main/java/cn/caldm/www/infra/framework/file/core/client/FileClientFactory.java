@@ -1,7 +1,5 @@
 package cn.caldm.www.infra.framework.file.core.client;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
-
 /**
  * 文件客户端工厂接口
  *

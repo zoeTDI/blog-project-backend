@@ -1,6 +1,5 @@
 package cn.caldm.www.infra.framework.file.core.client;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
 import cn.caldm.www.infra.framework.file.core.client.local.LocalFileClient;
 import cn.caldm.www.infra.framework.file.core.client.local.LocalFileClientConfig;
 import cn.caldm.www.infra.framework.file.core.client.s3.S3FileClient;

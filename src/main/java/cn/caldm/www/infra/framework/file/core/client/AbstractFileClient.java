@@ -1,6 +1,5 @@
 package cn.caldm.www.infra.framework.file.core.client;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**

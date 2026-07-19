@@ -1,6 +1,6 @@
 package cn.caldm.www.infra.framework.file.core.client.s3;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
+import cn.caldm.www.infra.framework.file.core.client.FileClientConfig;
 import lombok.Data;
 
 /**

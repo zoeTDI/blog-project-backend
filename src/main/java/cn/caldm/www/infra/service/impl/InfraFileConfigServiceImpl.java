@@ -1,6 +1,6 @@
 package cn.caldm.www.infra.service.impl;
 
-import cn.caldm.www.infra.annotation.FileClientConfig;
+import cn.caldm.www.infra.framework.file.core.client.FileClientConfig;
 import cn.caldm.www.infra.domain.InfraFileConfig;
 import cn.caldm.www.infra.framework.file.core.client.FileClientFactory;
 import cn.caldm.www.infra.mapper.InfraFileConfigMapper;
