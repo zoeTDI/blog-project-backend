@@ -1,8 +1,10 @@
 package cn.caldm.www.dev.controller;
 
+import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.infra.annotation.ApiAccessLog;
 import cn.caldm.www.infra.domain.InfraConfig;
 import cn.caldm.www.infra.service.InfraConfigService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +31,8 @@ public class DevTestController {
      */
     @ApiAccessLog(operateModule = "测试模块", operateName = "基础获取", operateType = 1)
     @GetMapping("/hello")
-    public Map<String, Object> sayHello() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("msg", "基础设施 AOP 拦截测试成功");
-        result.put("timestamp", System.currentTimeMillis());
-        return result;
+    public Result<Void> sayHello() {
+        return Result.successMsg("基础设施 AOP 拦截测试成功");
     }
 
     /**
@@ -43,7 +41,7 @@ public class DevTestController {
      */
     @ApiAccessLog(operateModule = "测试模块", operateName = "提交模拟文章", operateType = 2)
     @PostMapping("/article")
-    public Map<String, Object> mockCreateArticle(@RequestBody MockArticleParams params) {
+    public Result<Void> mockCreateArticle(@RequestBody MockArticleParams params) {
         // 模拟业务耗时（让日志里的 duration 字段有明显数字）
         try {
             Thread.sleep(150);
@@ -51,11 +49,7 @@ public class DevTestController {
             Thread.currentThread().interrupt();
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("msg", "文章接收成功");
-        result.put("data", params);
-        return result;
+        return Result.successMsg("文章接收成功");
     }
 
     /**
@@ -65,14 +59,11 @@ public class DevTestController {
      * 2. 数据库表 infra_api_error_log 自动插入一条记录，准确捕获到由除以零引发的 ArithmeticException 堆栈、文件名、代码行号
      */
     @GetMapping("/exception")
-    public Map<String, Object> mockException() {
+    public Result<Void> mockException() {
         // 人为制造一个经典的运行时算术异常（除以 0）
         int result = 10 / 0;
 
-        Map<String, Object> successResult = new HashMap<>();
-        successResult.put("code", 200);
-        successResult.put("data", result);
-        return successResult;
+        return Result.success();
     }
 
     /**
@@ -83,15 +74,11 @@ public class DevTestController {
      * 2. 传入不存在的 key 时，控制台应触发“参数配置缓存未命中，触发数据库降级查询”的警告。
      */
     @GetMapping("/config/get")
-    public Map<String, Object> getConfigValue(@RequestParam("key") String key) {
+    public Result<ConfigTestVo> getConfigValue(@RequestParam("key") String key) {
         String value = infraConfigService.getConfigValueByKey(key);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("configKey", key);
-        result.put("configValue", value);
-        result.put("timestamp", System.currentTimeMillis());
-        return result;
+        ConfigTestVo vo = new ConfigTestVo(key, value);
+        return Result.success(vo);
     }
 
     /**
@@ -102,15 +89,11 @@ public class DevTestController {
      * 2. 本地缓存同步刷新，紧接着调用场景四获取该 key 时，无延迟直接返回最新的数据。
      */
     @PutMapping("/config/update")
-    public Map<String, Object> updateConfigValue(@RequestBody InfraConfig config) {
+    public Result<Void> updateConfigValue(@RequestBody InfraConfig config) {
         // 为了方便冒烟测试，要求入参必须包含 id
         infraConfigService.updateConfig(config);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("msg", "参数配置更新成功，本地缓存已刷新");
-        result.put("timestamp", System.currentTimeMillis());
-        return result;
+        return Result.successMsg("参数配置更新成功，本地缓存已刷新");
     }
 
     /**
@@ -121,5 +104,12 @@ public class DevTestController {
         private String title;
         private String content;
         private String[] tags;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ConfigTestVo {
+        private String configKey;
+        private String configValue;
     }
 }
