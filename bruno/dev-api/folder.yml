@@ -7,4 +7,4 @@ request:
   auth: inherit
   variables:
     - name: folder-url
-      value: "{{base-url}}/dev-api"
+      value: "{{base-url}}/api/dev-api"

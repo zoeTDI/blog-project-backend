@@ -1,4 +1,4 @@
 name: 开发
 variables:
   - name: base-url
-    value: http://localhost:8080
+    value: http://localhost:18080
