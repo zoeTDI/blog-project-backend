@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author caldm
  */
+@Component
 public class JwtUtils {
     @Value("${jwt.secret}")
     private String secretKey;
@@ -64,6 +66,10 @@ public class JwtUtils {
 
     public static Map<String, Claim> verifyToken(String token) {
         try {
+            if (isBlacklisted(token)) {
+                LogUtils.error("Token 已在黑名单中（已登出或作废）");
+                return null;
+            }
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SECRET)).build();
             DecodedJWT jwt = verifier.verify(token);
             return jwt.getClaims();
