@@ -1,4 +1,4 @@
-package cn.caldm.www.auth.utils;
+package cn.caldm.www.shared_kernel.security;
 
 import java.util.HashMap;
 import java.util.Map;

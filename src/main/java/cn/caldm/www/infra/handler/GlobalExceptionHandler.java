@@ -1,6 +1,6 @@
 package cn.caldm.www.infra.handler;
 
-import cn.caldm.www.auth.utils.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.infra.domain.InfraApiErrorLog;
 import cn.caldm.www.infra.service.InfraApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package cn.caldm.www.infra.aspect;
 
-import cn.caldm.www.auth.utils.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.infra.annotation.ApiAccessLog;
 import cn.caldm.www.infra.domain.InfraApiAccessLog;
 import cn.caldm.www.infra.service.InfraApiAccessLogService;
