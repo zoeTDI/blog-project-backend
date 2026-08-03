@@ -1,0 +1,67 @@
+package cn.caldm.www.auth_context.application.service;
+
+import cn.caldm.www.auth_context.domain.model.SysUser;
+import cn.caldm.www.auth_context.domain.model.TokenPair;
+import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
+import cn.caldm.www.auth_context.domain.repository.UserRepository;
+import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * 登录状态编排
+ *
+ * @author caldm
+ */
+@Service
+public class AuthApplicationService {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private TokenBlacklistRepository blacklistRepository;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    public TokenPair login(String username, String password) {
+        SysUser user = userRepository.findByUsername(username);
+
+        // todo 使用密码Encoder比对
+        if (user == null || !user.getPassword().equals(password)) {
+            throw new RuntimeException("用户名或密码错误");
+        }
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
+        return new TokenPair(accessToken, refreshToken);
+    }
+
+    public void logout(String accessToken, String refreshToken) {
+        if (accessToken != null && !accessToken.isEmpty()) {
+            long expire = jwtTokenProvider.getRemainingExpiration(accessToken);
+            blacklistRepository.addBlacklist(accessToken, expire);
+        }
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            long expire = jwtTokenProvider.getRemainingExpiration(refreshToken);
+            blacklistRepository.addBlacklist(refreshToken, expire);
+        }
+    }
+
+    public TokenPair refreshToken(String oldRefreshToken) {
+        if (blacklistRepository.isBlacklisted(oldRefreshToken)) {
+            throw new RuntimeException("Refresh Token 已失效");
+        }
+        var claims = jwtTokenProvider.verifyToken(oldRefreshToken);
+        if (claims == null || !"refresh".equals(claims.get("type").asString())) {
+            throw new RuntimeException("非法的 Refresh Token");
+        }
+
+        Long id = claims.get("id").asLong();
+        SysUser user = userRepository.findById(id);
+
+        blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
+        return new TokenPair(
+                jwtTokenProvider.createAccessToken(user),
+                jwtTokenProvider.createRefreshToken(user)
+        );
+    }
+}
