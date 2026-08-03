@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +45,30 @@ public class JwtFilter implements Filter {
             return;
         }
 
-        final String token = request.getHeader("Authorization");
-        if (token == null || token.isEmpty()) {
+        String accessToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (accessToken == null || accessToken.isEmpty()) {
             writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "未携带Token授权信息");
             return;
         }
 
-        Map<String, Claim> userData = JwtUtils.verifyToken(token);
+        Map<String, Claim> userData = JwtUtils.verifyToken(accessToken);
         if (userData == null) {
             writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "Token不合法、已过期或已注销");
+            return;
+        }
+
+        Claim tokenTypeClaim = userData.get("type");
+        if (tokenTypeClaim == null || !"access".equals(tokenTypeClaim.asString())) {
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "令牌类型错误，无法访问业务接口");
             return;
         }
 

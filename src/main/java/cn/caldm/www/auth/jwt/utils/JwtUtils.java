@@ -30,10 +30,14 @@ public class JwtUtils {
     private String secretKey;
 
     @Value("${jwt.expiration}")
-    private long expirationSeconds;
+    private long accessTokenExpirationSeconds; // Access Token 过期时间
+
+    @Value("${jwt.refresh-expiration:604800}")
+    private long refreshTokenExpirationSeconds; // Refresh Token 过期时间（默认7天）
 
     private static String SECRET;
-    private static long EXPIRATION;
+    private static long ACCESS_EXPIRATION;
+    private static long REFRESH_EXPIRATION;
     private static StringRedisTemplate STATIC_REDIS_TEMPLATE;
 
     private static final String TOKEN_BLACK_LIST_PREFIX = "auth:token:blacklist:";
@@ -45,12 +49,27 @@ public class JwtUtils {
     @PostConstruct
     public void init() {
         SECRET = secretKey;
-        EXPIRATION = expirationSeconds;
+        ACCESS_EXPIRATION = accessTokenExpirationSeconds;
+        REFRESH_EXPIRATION = refreshTokenExpirationSeconds;
         STATIC_REDIS_TEMPLATE = redisTemplate;
     }
 
-    public static String createToken(SysUser user) {
-        Date expireDate = new Date(System.currentTimeMillis() + EXPIRATION * 1000);
+    /**
+     * 生成 Access Token（短效）
+     */
+    public static String createAccessToken(SysUser user) {
+        return createToken(user, ACCESS_EXPIRATION, "access");
+    }
+
+    /**
+     * 生成 Refresh Token（长效）
+     */
+    public static String createRefreshToken(SysUser user) {
+        return createToken(user, REFRESH_EXPIRATION, "refresh");
+    }
+
+    private static String createToken(SysUser user, long expireSeconds, String tokenType) {
+        Date expireDate = new Date(System.currentTimeMillis() + expireSeconds * 1000);
         Map<String, Object> map = new HashMap<>();
         map.put("alg", "HS256");
         map.put("typ", "JWT");
@@ -59,6 +78,7 @@ public class JwtUtils {
                 .withHeader(map)
                 .withClaim("id", user.getId())
                 .withClaim("username", user.getUsername())
+                .withClaim("type", tokenType) // 区分 Token 类型
                 .withExpiresAt(expireDate)
                 .withIssuedAt(new Date())
                 .sign(Algorithm.HMAC256(SECRET));

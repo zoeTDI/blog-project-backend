@@ -6,8 +6,13 @@ import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.login.domain.SysUser;
+import com.auth0.jwt.interfaces.Claim;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,20 +44,42 @@ public class JwtTestController {
     }
 
     @RequestMapping("/login")
-    public Result<LoginResDTO> login(@RequestBody SysUser user) {
+    public Result<LoginResDTO> login(@RequestBody SysUser user, HttpServletResponse response) {
 
         for (SysUser dbUser: userMap.values()) {
             if (dbUser.getUsername().equals(user.getUsername())
                     && dbUser.getPassword().equals(user.getPassword())) {
-                LogUtils.info("登录成功！生成token！");
+                LogUtils.info("登录成功！生成双 token！");
                 user.setId(dbUser.getId());
-                String token = JwtUtils.createToken(user);
+
+                String accessToken = JwtUtils.createAccessToken(user);
+                String refreshToken = JwtUtils.createRefreshToken(user);
+
+                ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(3600)
+                        .sameSite("Lax")
+                        .build();
+
+                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(7L * 24 * 60 * 60)
+                        .sameSite("Lax")
+                        .build();
+
+                // 将 ResponseCookie 写入 HttpServletResponse 的 Set-Cookie 响应头
+                response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
                 LoginResDTO dto = new LoginResDTO();
                 dto.setId(dbUser.getId());
                 dto.setEmail("example@email.com");
                 dto.setUsername(dbUser.getUsername());
                 dto.setNickname("Admin");
-                dto.setToken(token);
                 dto.setRole("暂未实现该功能");
                 List<String> menus = new ArrayList<>();
                 menus.add("暂未实现该功能");
@@ -63,11 +90,76 @@ public class JwtTestController {
         return Result.error(ResultCodeEnum.BAD_REQUEST);
     }
 
+    @RequestMapping("/secure/refresh")
+    public Result<Map<String, String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return Result.error(ResultCodeEnum.UNAUTHORIZED, "未携带 Refresh Token");
+        }
+
+        Map<String, Claim> claims = JwtUtils.verifyToken(refreshToken);
+        if (claims == null) {
+            return Result.error(ResultCodeEnum.UNAUTHORIZED, "令牌类型错误，无法用于刷新");
+        }
+
+        Long id = claims.get("id").asLong();
+        String username = claims.get("username").asString();
+
+        SysUser user = new SysUser();
+        user.setId(id);
+        user.setUsername(username);
+
+        String newAccessToken = JwtUtils.createAccessToken(user);
+        JwtUtils.invalidateToken(refreshToken);
+        String newRefreshToken = JwtUtils.createRefreshToken(user);
+
+        Cookie accessCookie = new Cookie("accessToken", newAccessToken);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(15 * 60);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie("refreshToken", newRefreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+        response.addCookie(refreshCookie);
+
+        return Result.successMsg("Token 刷新成功");
+    }
+
     @RequestMapping("/secure/logout")
-    public Result<String> logout(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token != null && !token.isEmpty()) {
-            JwtUtils.invalidateToken(token);
+    public Result<String> logout(HttpServletRequest request ) {
+        String accessToken = null;
+        String refreshToken = null;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                }
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                }
+            }
+        }
+
+        if (accessToken != null && !accessToken.isEmpty()) {
+            JwtUtils.invalidateToken(accessToken);
+        }
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            JwtUtils.invalidateToken(refreshToken);
         }
         return Result.successMsg("登出成功");
     }
