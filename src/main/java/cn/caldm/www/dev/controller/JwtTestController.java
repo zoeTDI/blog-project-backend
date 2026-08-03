@@ -70,7 +70,6 @@ public class JwtTestController {
     public Result<String> getUserInfo(HttpServletRequest request) {
         Long id = (Long) request.getAttribute("id");
         String username = request.getAttribute("username").toString();
-        String password= request.getAttribute("password").toString();
-        return Result.success("当前用户信息id=" + id + ",username=" + username+ ",password=" + password);
+        return Result.success("当前用户信息id=" + id + ",username=" + username);
     }
 }
