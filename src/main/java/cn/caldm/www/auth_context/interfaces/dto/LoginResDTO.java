@@ -1,4 +1,4 @@
-package cn.caldm.www.auth.jwt.dto;
+package cn.caldm.www.auth_context.interfaces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
