@@ -1,5 +1,6 @@
 package cn.caldm.www.infra.handler;
 
+import cn.caldm.www.auth.utils.SecurityContextHolder;
 import cn.caldm.www.infra.domain.InfraApiErrorLog;
 import cn.caldm.www.infra.service.InfraApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
         InfraApiErrorLog errorLog = new InfraApiErrorLog();
 
         errorLog.setTraceId(traceId);
-        errorLog.setUserId(0L); // TODO: 后续对接登录框架后动态获取
+        errorLog.setUserId(SecurityContextHolder.getUserId());
         errorLog.setUserType(1);
         errorLog.setApplicationName("blog-backend");
 

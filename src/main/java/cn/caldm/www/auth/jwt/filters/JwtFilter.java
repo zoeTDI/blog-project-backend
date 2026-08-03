@@ -1,6 +1,7 @@
 package cn.caldm.www.auth.jwt.filters;
 
 import cn.caldm.www.auth.jwt.utils.JwtUtils;
+import cn.caldm.www.auth.utils.SecurityContextHolder;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import com.auth0.jwt.interfaces.Claim;
@@ -51,17 +52,24 @@ public class JwtFilter implements Filter {
 
         Map<String, Claim> userData = JwtUtils.verifyToken(token);
         if (userData == null) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "Token不合法或已过期");
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "Token不合法、已过期或已注销");
             return;
         }
 
         Long id = userData.get("id").asLong();
         String username = userData.get("username").asString();
 
-        request.setAttribute("id", id);
-        request.setAttribute("username", username);
+        try {
+            SecurityContextHolder.setUserId(id);
+            SecurityContextHolder.setUsername(username);
 
-        chain.doFilter(req, res);
+            request.setAttribute("id", id);
+            request.setAttribute("username", username);
+
+            chain.doFilter(req, res);
+        } finally {
+            SecurityContextHolder.clear();
+        }
     }
 
     private void writeErrorResponse(HttpServletResponse response, ResultCodeEnum resultCode, String customMessage) throws IOException {

@@ -8,11 +8,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -29,11 +32,19 @@ public class JwtUtils {
 
     private static String SECRET;
     private static long EXPIRATION;
+    private static StringRedisTemplate STATIC_REDIS_TEMPLATE;
+
+    private static final String TOKEN_BLACK_LIST_PREFIX = "auth:token:blacklist:";
+    // private static final String TOKEN_BLACK_LIST_PREFIX = "Bearer ";
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @PostConstruct
     public void init() {
         SECRET = secretKey;
         EXPIRATION = expirationSeconds;
+        STATIC_REDIS_TEMPLATE = redisTemplate;
     }
 
     public static String createToken(SysUser user) {
@@ -60,5 +71,30 @@ public class JwtUtils {
             LogUtils.error("token解码异常: " + e.getMessage());
             return null;
         }
+    }
+
+    public static void invalidateToken(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            Date expiresAt = jwt.getExpiresAt();
+            long expireTime = expiresAt.getTime() - System.currentTimeMillis();
+            if (expireTime > 0) {
+                STATIC_REDIS_TEMPLATE.opsForValue().set(
+                        TOKEN_BLACK_LIST_PREFIX + token,
+                        "1",
+                        expireTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        } catch (Exception e) {
+            LogUtils.error("作废 Token 失败: " + e.getMessage());
+        }
+    }
+
+    public static boolean isBlacklisted(String token) {
+        if (STATIC_REDIS_TEMPLATE == null) {
+            return false;
+        }
+        return Boolean.TRUE.equals(STATIC_REDIS_TEMPLATE.hasKey(TOKEN_BLACK_LIST_PREFIX + token));
     }
 }

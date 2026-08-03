@@ -63,6 +63,15 @@ public class JwtTestController {
         return Result.error(ResultCodeEnum.BAD_REQUEST);
     }
 
+    @RequestMapping("/secure/logout")
+    public Result<String> logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && !token.isEmpty()) {
+            JwtUtils.invalidateToken(token);
+        }
+        return Result.successMsg("登出成功");
+    }
+
     /**
      * 查询 用户信息，登录后携带JWT才能访问
      */

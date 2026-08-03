@@ -1,5 +1,6 @@
 package cn.caldm.www.infra.aspect;
 
+import cn.caldm.www.auth.utils.SecurityContextHolder;
 import cn.caldm.www.infra.annotation.ApiAccessLog;
 import cn.caldm.www.infra.domain.InfraApiAccessLog;
 import cn.caldm.www.infra.service.InfraApiAccessLogService;
@@ -60,7 +61,7 @@ public class ApiAccessLogAspect {
                 try {
                     InfraApiAccessLog accessLog = new InfraApiAccessLog();
                     accessLog.setTraceId(traceId);
-                    accessLog.setUserId(0L); // TODO: 后续对接登录框架后动态获取
+                    accessLog.setUserId(SecurityContextHolder.getUserId());
                     accessLog.setUserType(1); // 假设 1 为后台管理用户
                     accessLog.setApplicationName("blog-backend");
 
