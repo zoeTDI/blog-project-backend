@@ -1,6 +1,6 @@
 package cn.caldm.www.common.utils;
 
-import cn.caldm.www.auth.utils.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 
 /**
  * 安全服务工具类
