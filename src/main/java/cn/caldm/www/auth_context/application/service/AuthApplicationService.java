@@ -30,6 +30,10 @@ public class AuthApplicationService {
         if (user == null || !user.getPassword().equals(password)) {
             throw new RuntimeException("用户名或密码错误");
         }
+        // 已封禁或已删除用户不允许登录
+        if (user.getStatus() == 1 || user.getDeleted()) {
+            return null;
+        }
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
         return new TokenPair(accessToken, refreshToken);
@@ -57,7 +61,10 @@ public class AuthApplicationService {
 
         Long id = claims.get("id").asLong();
         AuthUser user = userRepository.findById(id);
-
+        // 已封禁或已删除用户不允许刷新 token
+        if (user.getStatus() == 1 || user.getDeleted()) {
+            return null;
+        }
         blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
         return new TokenPair(
                 jwtTokenProvider.createAccessToken(user),
