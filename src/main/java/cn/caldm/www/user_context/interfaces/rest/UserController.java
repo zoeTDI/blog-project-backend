@@ -6,6 +6,7 @@ import cn.caldm.www.infra.annotation.ApiAccessLog;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,5 +58,20 @@ public class UserController {
         } else {
             return Result.success(newUser);
         }
+    }
+
+    @PostMapping("/ban")
+    public Result ban(@RequestBody BanReqDTO banReqDTO) {
+        Long updaterId = banReqDTO.getUpdaterId();
+        Long targetUserId = banReqDTO.getTargetUserId();
+        if (updaterId == null || targetUserId == null) {
+            return Result.error(ResultCodeEnum.BAD_REQUEST);
+        }
+        if (userService.ban(updaterId, targetUserId)) {
+            return Result.success();
+        } else {
+            return Result.error(ResultCodeEnum.FORBIDDEN);
+        }
+
     }
 }

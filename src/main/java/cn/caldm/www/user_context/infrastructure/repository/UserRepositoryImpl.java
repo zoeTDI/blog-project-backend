@@ -11,6 +11,7 @@ import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -134,5 +135,11 @@ public class UserRepositoryImpl implements UserRepository {
         SysUser sysUser = UserAssembler.toDomain(sysUserPO);
         sysUser.setRoles(roles);
         return sysUser;
+    }
+
+    @Override
+    public boolean update(SysUserPO sysUserPO) {
+        int i = userMapper.updateById(sysUserPO);
+        return i == 1;
     }
 }

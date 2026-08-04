@@ -4,9 +4,11 @@ import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
+import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -36,5 +38,29 @@ public class UserApplicationService {
             return null;
         }
         return userRepository.insert(creator.getUsername(), username, password, roles);
+    }
+
+    public boolean ban(Long updaterId, Long targetUserId) {
+        SysUser updater = userRepository.findById(updaterId);
+        // 不是管理员，不允许进行该操作
+        if (!updater.hasRole(RoleEnum.ADMIN)) {
+            return false;
+        }
+        SysUser targetUser = userRepository.findById(targetUserId);
+        // 不允许封禁管理员
+        if (targetUser.hasRole(RoleEnum.ADMIN)) {
+            return false;
+        }
+        // 不允许封禁软删除用户
+        if (targetUser.getDeleted()) {
+            return false;
+        }
+
+        SysUserPO updatePo = new SysUserPO();
+        updatePo.setId(targetUserId);
+        updatePo.setStatus((short) 1);
+        updatePo.setUpdater(updater.getUsername());
+        updatePo.setUpdateTime(LocalDateTime.now());
+        return userRepository.update(updatePo);
     }
 }
