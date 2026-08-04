@@ -40,7 +40,7 @@ public class AuthController {
         return Result.successMsg("登录成功");
     }
 
-    @RequestMapping("/secure/logout")
+    @RequestMapping("/logout")
     public Result<String> logout(HttpServletRequest request, HttpServletResponse response ) {
         String accessToken = extractCookie(request, "accessToken");
         String refreshToken = extractCookie(request, "refreshToken");
@@ -54,7 +54,7 @@ public class AuthController {
         return Result.successMsg("登出成功");
     }
 
-    @PostMapping("/secure/refresh")
+    @PostMapping("/refresh")
     public Result<String> refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractCookie(request, "refreshToken");
         TokenPair tokenPair = authService.refreshToken(refreshToken);

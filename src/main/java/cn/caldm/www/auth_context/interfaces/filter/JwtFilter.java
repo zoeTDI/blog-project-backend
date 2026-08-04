@@ -12,8 +12,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,9 +26,18 @@ import java.util.Map;
  * @author caldm
  */
 
-@WebFilter(filterName = "JwtFilter", urlPatterns = "/auth/secure/*")
+@WebFilter(filterName = "JwtFilter", urlPatterns = "/*")
 public class JwtFilter implements Filter {
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    // 白名单
+    private static final List<String> WHITELIST = Arrays.asList(
+            // 放行登录端口
+            "/api/auth/login",
+            // 访问文件资源端口 todo 暂未实现
+            "/api/file/**"
+    );
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
@@ -45,6 +57,16 @@ public class JwtFilter implements Filter {
             response.setStatus(HttpServletResponse.SC_OK);
             chain.doFilter(request, response);
             return;
+        }
+
+        // 白名单校验
+        String requestUri = request.getRequestURI();
+        for (String pattern : WHITELIST) {
+            if (pathMatcher.match(pattern, requestUri)) {
+                // 校验通过，直接放行
+                chain.doFilter(request, response);
+                return;
+            }
         }
 
         String accessToken = null;
