@@ -8,6 +8,7 @@ import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
+import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,6 +69,21 @@ public class UserController {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
         if (userService.ban(updaterId, targetUserId)) {
+            return Result.success();
+        } else {
+            return Result.error(ResultCodeEnum.FORBIDDEN);
+        }
+
+    }
+
+    @PostMapping("/softDelete")
+    public Result softDelete(@RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
+        Long updaterId = softDeleteReqDTO.getUpdaterId();
+        Long targetUserId = softDeleteReqDTO.getTargetUserId();
+        if (updaterId == null || targetUserId == null) {
+            return Result.error(ResultCodeEnum.BAD_REQUEST);
+        }
+        if (userService.softDelete(updaterId, targetUserId)) {
             return Result.success();
         } else {
             return Result.error(ResultCodeEnum.FORBIDDEN);

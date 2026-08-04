@@ -63,4 +63,30 @@ public class UserApplicationService {
         updatePo.setUpdateTime(LocalDateTime.now());
         return userRepository.update(updatePo);
     }
+
+    public boolean softDelete(Long updaterId, Long targetUserId) {
+        SysUser updater = userRepository.findById(updaterId);
+        if (updater == null) {
+            return false;
+        }
+        // 操作者不是管理员或者自身，不允许删除
+        if (updater.hasRole(RoleEnum.ADMIN) || !updaterId.equals(targetUserId)) {
+            return false;
+        }
+        SysUser targetUser = userRepository.findById(targetUserId);
+        if (targetUser == null) {
+            return false;
+        }
+        // 不允许删除管理员
+        if (targetUser.hasRole(RoleEnum.ADMIN)) {
+            return false;
+        }
+
+        SysUserPO updatePo = new SysUserPO();
+        updatePo.setId(targetUserId);
+        updatePo.setDeleted(true);
+        updatePo.setUpdater(updater.getUsername());
+        updatePo.setUpdateTime(LocalDateTime.now());
+        return userRepository.update(updatePo);
+    }
 }
