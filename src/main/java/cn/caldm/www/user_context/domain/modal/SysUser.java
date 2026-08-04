@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -30,6 +32,11 @@ public class SysUser {
      * 密码（密文）
      */
     private String password;
+
+    /**
+     * 用户角色
+     */
+    private List<RoleEnum> roles = new ArrayList<>();
 
     /**
      * 昵称
@@ -90,4 +97,21 @@ public class SysUser {
      * 是否删除（0 不删除 1 删除）
      */
     private Boolean deleted;
+
+    /**
+     * 判断当前用户是否具备某个角色
+     * @param targetRole 目标角色
+     * @return 是否拥有该角色
+     */
+    public boolean hasRole(RoleEnum targetRole) {
+        if (roles == null || targetRole == null) {
+            return false;
+        }
+        for (RoleEnum role : roles) {
+            if (role.equalsRole(targetRole)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
