@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 /**
  *
  *
@@ -40,5 +42,28 @@ public class UserRepositoryImpl implements UserRepository {
         }
         SysUserPO po = userMapper.selectById(id);
         return UserAssembler.toDomain(po);
+    }
+
+    @Override
+    public SysUser insert(String creator, String username, String password) {
+        SysUserPO sysUserPO = new SysUserPO();
+        sysUserPO.setUsername(username);
+        sysUserPO.setPassword(password);
+        sysUserPO.setStatus((short) 0);
+        sysUserPO.setDeleted(false);
+        sysUserPO.setCreator(creator);
+        sysUserPO.setCreateTime(LocalDateTime.now());
+        sysUserPO.setUpdater(creator);
+        sysUserPO.setUpdateTime(LocalDateTime.now());
+
+        sysUserPO.setNickname(username);
+        sysUserPO.setEmail("example@xx.com");
+        sysUserPO.setSalt("salt");
+        int inserted = userMapper.insert(sysUserPO);
+        if (inserted == 1) {
+            return UserAssembler.toDomain(sysUserPO);
+        } else {
+            return null;
+        }
     }
 }
