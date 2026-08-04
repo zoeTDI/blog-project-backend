@@ -1,4 +1,4 @@
-package cn.caldm.www.auth_context.infrastructure.persistence.po;
+package cn.caldm.www.user_context.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -1,6 +1,6 @@
 package cn.caldm.www.auth_context.infrastructure.security;
 
-import cn.caldm.www.auth_context.domain.model.SysUser;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
@@ -28,15 +28,15 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expiration:604800}")
     private long refreshTokenExpirationSeconds;
 
-    public String createAccessToken(SysUser user) {
+    public String createAccessToken(AuthUser user) {
         return createToken(user, accessTokenExpirationSeconds, "access");
     }
 
-    public String createRefreshToken(SysUser user) {
+    public String createRefreshToken(AuthUser user) {
         return createToken(user, refreshTokenExpirationSeconds, "refresh");
     }
 
-    private String createToken(SysUser user, long expireSeconds, String tokenType) {
+    private String createToken(AuthUser user, long expireSeconds, String tokenType) {
         Date expireDate = new Date(System.currentTimeMillis() + expireSeconds * 1000);
         return JWT.create()
                 .withClaim("id", user.getId())

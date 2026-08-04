@@ -1,6 +1,6 @@
 package cn.caldm.www.auth_context.application.service;
 
-import cn.caldm.www.auth_context.domain.model.SysUser;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.domain.repository.UserRepository;
@@ -24,7 +24,7 @@ public class AuthApplicationService {
     private JwtTokenProvider jwtTokenProvider;
 
     public TokenPair login(String username, String password) {
-        SysUser user = userRepository.findByUsername(username);
+        AuthUser user = userRepository.findByUsername(username);
 
         // todo 使用密码Encoder比对
         if (user == null || !user.getPassword().equals(password)) {
@@ -56,7 +56,7 @@ public class AuthApplicationService {
         }
 
         Long id = claims.get("id").asLong();
-        SysUser user = userRepository.findById(id);
+        AuthUser user = userRepository.findById(id);
 
         blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
         return new TokenPair(

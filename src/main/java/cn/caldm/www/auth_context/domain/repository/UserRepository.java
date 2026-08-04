@@ -1,8 +1,8 @@
 package cn.caldm.www.auth_context.domain.repository;
 
-import cn.caldm.www.auth_context.domain.model.SysUser;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 
 public interface UserRepository {
-    SysUser findByUsername(String username);
-    SysUser findById(Long id);
+    AuthUser findByUsername(String username);
+    AuthUser findById(Long id);
 }

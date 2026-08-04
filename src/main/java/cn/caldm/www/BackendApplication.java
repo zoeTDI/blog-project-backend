@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 @MapperScan("cn.caldm.www.infra.mapper")
-@MapperScan("cn.caldm.www.auth_context.infrastructure.persistence.mapper")
+@MapperScan("cn.caldm.www.user_context.infrastructure.persistence.mapper")
 @ServletComponentScan(basePackages = "cn.caldm.www.auth_context.interfaces.filter")
 public class BackendApplication {
 

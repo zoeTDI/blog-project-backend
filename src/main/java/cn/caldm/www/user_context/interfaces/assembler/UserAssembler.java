@@ -1,7 +1,7 @@
-package cn.caldm.www.auth_context.interfaces.assembler;
+package cn.caldm.www.user_context.interfaces.assembler;
 
-import cn.caldm.www.auth_context.domain.model.SysUser;
-import cn.caldm.www.auth_context.infrastructure.persistence.po.SysUserPO;
+import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 
 /**
  *
