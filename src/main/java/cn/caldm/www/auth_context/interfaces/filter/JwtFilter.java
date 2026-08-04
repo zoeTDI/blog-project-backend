@@ -1,5 +1,7 @@
 package cn.caldm.www.auth_context.interfaces.filter;
 
+import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.domain.repository.UserRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.common.domain.Result;
@@ -12,7 +14,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,9 +29,11 @@ import java.util.Map;
  *
  * @author caldm
  */
-
-@WebFilter(filterName = "JwtFilter", urlPatterns = "/*")
-public class JwtFilter implements Filter {
+@Component
+// @WebFilter(filterName = "JwtFilter", urlPatterns = "/*")
+public class JwtFilter extends OncePerRequestFilter {
+    @Autowired
+    private UserRepository userRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -43,28 +49,21 @@ public class JwtFilter implements Filter {
     private JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
-
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        final HttpServletRequest request = (HttpServletRequest) req;
-        final HttpServletResponse response = (HttpServletResponse) res;
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
         if ("OPTIONS".equals(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
-            chain.doFilter(request, response);
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // 白名单校验
         String requestUri = request.getRequestURI();
         for (String pattern : WHITELIST) {
             if (pathMatcher.match(pattern, requestUri)) {
                 // 校验通过，直接放行
-                chain.doFilter(request, response);
+                filterChain.doFilter(request, response);
                 return;
             }
         }
@@ -99,11 +98,17 @@ public class JwtFilter implements Filter {
         Long id = userData.get("id").asLong();
         String username = userData.get("username").asString();
 
+        AuthUser user = userRepository.findById(id);
+        if (user == null || user.getStatus() == 1 || user.getDeleted()) {
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "该账户已被封禁或已注销");
+            return;
+        }
+
         try {
             SecurityContextHolder.setUserId(id);
             SecurityContextHolder.setUsername(username);
 
-            chain.doFilter(req, res);
+            filterChain.doFilter(request, response);
         } finally {
             SecurityContextHolder.clear();
         }
