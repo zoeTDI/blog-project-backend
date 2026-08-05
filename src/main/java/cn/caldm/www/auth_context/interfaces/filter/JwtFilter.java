@@ -42,7 +42,9 @@ public class JwtFilter extends OncePerRequestFilter {
     // 白名单
     private static final List<String> WHITELIST = Arrays.asList(
             // 放行登录端口
-            "/api/auth/login",
+            "/api/auth/login/username-password",
+            "/api/auth/login/email-password",
+            "/api/auth/login/eamil-code",
             // 访问文件资源端口 todo 暂未实现
             "/api/file/**"
     );
