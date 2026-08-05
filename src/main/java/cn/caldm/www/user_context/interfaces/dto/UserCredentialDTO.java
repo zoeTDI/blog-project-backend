@@ -1,5 +1,7 @@
 package cn.caldm.www.user_context.interfaces.dto;
 
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import lombok.Data;
 
 /**
@@ -14,6 +16,6 @@ public class UserCredentialDTO {
     private String username;
     private String password;
     private String salt;
-    private short status;
-    private Boolean deleted;
+    private SysUserStatusEnum status;
+    private SysUserDeletedEnum deleted;
 }

@@ -2,6 +2,8 @@ package cn.caldm.www.user_context.infrastructure.repository;
 
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
@@ -92,8 +94,8 @@ public class UserRepositoryImpl implements UserRepository {
         SysUserPO sysUserPO = new SysUserPO();
         sysUserPO.setUsername(username);
         sysUserPO.setPassword(password);
-        sysUserPO.setStatus((short) 0);
-        sysUserPO.setDeleted(false);
+        sysUserPO.setStatus(SysUserStatusEnum.NORMAL);
+        sysUserPO.setDeleted(SysUserDeletedEnum.NORMAL);
         sysUserPO.setCreator(creator);
         sysUserPO.setCreateTime(LocalDateTime.now());
         sysUserPO.setUpdater(creator);

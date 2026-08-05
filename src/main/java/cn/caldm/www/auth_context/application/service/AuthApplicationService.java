@@ -6,6 +6,8 @@ import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.domain.repository.UserRepository;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.common.utils.SlowHashUtils;
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +33,9 @@ public class AuthApplicationService {
             throw new RuntimeException("用户名或密码错误");
         }
         // 已封禁或已删除用户不允许登录
-        if (user.getStatus() == 1 || user.getDeleted()) {
+        if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
+            || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
+        ) {
             return null;
         }
         String accessToken = jwtTokenProvider.createAccessToken(user);
@@ -62,7 +66,9 @@ public class AuthApplicationService {
         Long id = claims.get("id").asLong();
         AuthUser user = userRepository.findById(id);
         // 已封禁或已删除用户不允许刷新 token
-        if (user.getStatus() == 1 || user.getDeleted()) {
+        if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
+            || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
+        ) {
             return null;
         }
         blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));

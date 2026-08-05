@@ -4,6 +4,8 @@ import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.common.utils.SlowHashUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.email.EmailSender;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
@@ -67,14 +69,14 @@ public class UserApplicationService {
         if (
             targetUser == null
             || targetUser.hasRole(RoleEnum.ADMIN)
-            || targetUser.getDeleted()
+            || targetUser.isDeleted()
         ) {
             return false;
         }
 
         SysUserPO updatePo = new SysUserPO();
         updatePo.setId(targetUserId);
-        updatePo.setStatus((short) 1);
+        updatePo.setStatus(SysUserStatusEnum.DISABLED);
         updatePo.setUpdater(updater.getUsername());
         updatePo.setUpdateTime(LocalDateTime.now());
         return userRepository.update(updatePo);
@@ -90,7 +92,7 @@ public class UserApplicationService {
             return false;
         }
         // 已删除的用户不能再次删除
-        if (targetUser.getDeleted()) {
+        if (targetUser.isDeleted()) {
             return false;
         }
 
@@ -109,7 +111,7 @@ public class UserApplicationService {
 
         SysUserPO updatePo = new SysUserPO();
         updatePo.setId(targetUserId);
-        updatePo.setDeleted(true);
+        updatePo.setDeleted(SysUserDeletedEnum.DELETED);
         updatePo.setUpdater(updater.getUsername());
         updatePo.setUpdateTime(LocalDateTime.now());
         return userRepository.update(updatePo);
@@ -138,7 +140,7 @@ public class UserApplicationService {
         if (sysUser == null) {
             return false;
         }
-        if (sysUser.getStatus() == (short) 1 || sysUser.getDeleted()) {
+        if (sysUser.isDisabled() || sysUser.isDeleted()) {
             LogUtils.warn("用户「" + targetUserId + "」状态异常，无法重置密码");
             return false;
         }

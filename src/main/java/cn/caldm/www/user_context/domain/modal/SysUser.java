@@ -56,7 +56,7 @@ public class SysUser {
     /**
      * 状态（0正常 1停用）
      */
-    private short status;
+    private SysUserStatusEnum status;
 
     /**
      * 上次登录ip
@@ -91,7 +91,7 @@ public class SysUser {
     /**
      * 是否删除（0 不删除 1 删除）
      */
-    private Boolean deleted;
+    private SysUserDeletedEnum deleted;
 
     /**
      * 判断当前用户是否具备某个角色
@@ -108,5 +108,23 @@ public class SysUser {
             }
         }
         return false;
+    }
+
+    /**
+     * 判断当前用户是否被停用
+     *
+     * @return true 表示已停用，false 表示未停用（包含状态为 null 的情况）
+     */
+    public boolean isDisabled() {
+        return SysUserStatusEnum.DISABLED.equals(this.status);
+    }
+
+    /**
+     * 判断当前用户是否已被软删除
+     *
+     * @return true 表示已删除，false 表示未删除或删除状态为 null
+     */
+    public boolean isDeleted() {
+        return SysUserDeletedEnum.DELETED.equals(this.deleted);
     }
 }

@@ -6,6 +6,8 @@ import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
@@ -99,7 +101,10 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = userData.get("username").asString();
 
         AuthUser user = userRepository.findById(id);
-        if (user == null || user.getStatus() == 1 || user.getDeleted()) {
+        if (user == null
+            || SysUserStatusEnum.DISABLED.equals(user.getStatus())
+            || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
+        ) {
             writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "该账户已被封禁或已注销");
             return;
         }
