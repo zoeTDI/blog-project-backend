@@ -4,12 +4,17 @@ import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
+import cn.caldm.www.user_context.infrastructure.email.EmailSender;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -21,6 +26,14 @@ import java.util.List;
 public class UserApplicationService {
     @Autowired
     private UserRepository userRepository;
+
+    @Resource
+    private EmailSender emailSender;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    private static final String RESET_PWD_PREFIX = "user:reset:code:";
 
     public SysUser create(Long creatorId, String username, String password, List<RoleEnum> roles) {
         // 禁止创建管理员角色的用户
@@ -88,5 +101,17 @@ public class UserApplicationService {
         updatePo.setUpdater(updater.getUsername());
         updatePo.setUpdateTime(LocalDateTime.now());
         return userRepository.update(updatePo);
+    }
+
+    public boolean sendPasswordRestEmail(Long userId) {
+        SysUser sysUser = userRepository.findById(userId);
+        if (sysUser == null) {
+            return false;
+        }
+        String email = sysUser.getEmail();
+        String code = String.format("%06d", new Random().nextInt(999999));
+        stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX+email, code, 5, TimeUnit.MINUTES);
+        emailSender.sendVerificationCode(email, code);
+        return true;
     }
 }

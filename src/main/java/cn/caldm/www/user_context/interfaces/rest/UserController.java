@@ -3,6 +3,7 @@ package cn.caldm.www.user_context.interfaces.rest;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infra.annotation.ApiAccessLog;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
@@ -87,6 +88,21 @@ public class UserController {
             return Result.success();
         } else {
             return Result.error(ResultCodeEnum.FORBIDDEN);
+        }
+
+    }
+
+    @PostMapping("/sendResetPasswordEmail")
+    public Result sendResetPasswordEmail() {
+        Long userId = SecurityContextHolder.getUserId();
+        if (userId == null) {
+            return Result.error(ResultCodeEnum.BAD_REQUEST);
+        }
+        boolean isSuccess = userService.sendPasswordRestEmail(userId);
+        if (isSuccess) {
+            return Result.success();
+        } else {
+            return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
         }
 
     }
