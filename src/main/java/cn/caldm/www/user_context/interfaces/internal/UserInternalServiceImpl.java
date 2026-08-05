@@ -18,6 +18,15 @@ public class UserInternalServiceImpl implements UserInternalService {
     private UserRepository userRepository;
 
     @Override
+    public UserCredentialDTO getCredentialByEmail(String email) {
+        SysUser sysUser = userRepository.findByEmail(email);
+        if (sysUser == null) {
+            return null;
+        }
+        return toDto(sysUser);
+    }
+
+    @Override
     public UserCredentialDTO getCredentialByUsername(String username) {
         SysUser user = userRepository.findByUsername(username);
         if (user == null) {
