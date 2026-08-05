@@ -1,6 +1,7 @@
 package cn.caldm.www.user_context.application.service;
 
 import cn.caldm.www.common.utils.LogUtils;
+import cn.caldm.www.common.utils.SlowHashUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
@@ -11,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -109,9 +110,44 @@ public class UserApplicationService {
             return false;
         }
         String email = sysUser.getEmail();
-        String code = String.format("%06d", new Random().nextInt(999999));
+        String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
+
+        try {
+            emailSender.sendVerificationCode(email, code);
+        } catch (Exception e) {
+            LogUtils.error("用户「" + userId + "」密码重置邮件发送失败: " + e.getMessage());
+            return false;
+        }
         stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX+email, code, 5, TimeUnit.MINUTES);
-        emailSender.sendVerificationCode(email, code);
         return true;
+    }
+
+    public boolean resetPassword(Long targetUserId, String code, String newPassword) {
+        SysUser sysUser = userRepository.findById(targetUserId);
+        if (sysUser == null) {
+            return false;
+        }
+        if (sysUser.getStatus() == (short) 1 || sysUser.getDeleted()) {
+            LogUtils.warn("用户「" + targetUserId + "」状态异常，无法重置密码");
+            return false;
+        }
+        String redisKey = RESET_PWD_PREFIX + sysUser.getEmail();
+        String tokenCode = stringRedisTemplate.opsForValue().get(redisKey);
+        if (tokenCode == null || !tokenCode.equals(code)) {
+            return false;
+        }
+
+        SysUserPO po = new SysUserPO();
+        String encode = SlowHashUtils.bcryptEncode(newPassword);
+        po.setId(targetUserId);
+        po.setPassword(encode);
+        po.setUpdater(sysUser.getUsername());
+        po.setUpdateTime(LocalDateTime.now());
+
+        boolean updated = userRepository.update(po);
+        if (updated) {
+            stringRedisTemplate.delete(redisKey);
+        }
+        return updated;
     }
 }

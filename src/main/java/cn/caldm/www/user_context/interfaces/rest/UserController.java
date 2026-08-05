@@ -9,6 +9,7 @@ import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
+import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -105,5 +106,20 @@ public class UserController {
             return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @PostMapping("/resetPassword")
+    public Result resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
+        Long id = SecurityContextHolder.getUserId();
+        String code = resetPasswordReqDTO.getCode();
+        String newPassword = resetPasswordReqDTO.getNewPassword();
+        if (id == 0L || code == null || code.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return Result.error(ResultCodeEnum.BAD_REQUEST);
+        }
+        if (userService.resetPassword(id, code, newPassword)) {
+            return Result.success();
+        } else {
+            return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
+        }
     }
 }
