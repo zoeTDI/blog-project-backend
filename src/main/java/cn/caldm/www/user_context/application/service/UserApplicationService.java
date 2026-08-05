@@ -56,17 +56,19 @@ public class UserApplicationService {
 
     public boolean ban(Long updaterId, Long targetUserId) {
         SysUser updater = userRepository.findById(updaterId);
-        // 不是管理员，不允许进行该操作
-        if (!updater.hasRole(RoleEnum.ADMIN)) {
+        if (
+            updater == null
+            || !updater.hasRole(RoleEnum.ADMIN)
+        ) {
             return false;
         }
+
         SysUser targetUser = userRepository.findById(targetUserId);
-        // 不允许封禁管理员
-        if (targetUser.hasRole(RoleEnum.ADMIN)) {
-            return false;
-        }
-        // 不允许封禁软删除用户
-        if (targetUser.getDeleted()) {
+        if (
+            targetUser == null
+            || targetUser.hasRole(RoleEnum.ADMIN)
+            || targetUser.getDeleted()
+        ) {
             return false;
         }
 
@@ -83,16 +85,25 @@ public class UserApplicationService {
         if (updater == null) {
             return false;
         }
-        // 操作者不是管理员或者自身，不允许删除
-        if (updater.hasRole(RoleEnum.ADMIN) || !updaterId.equals(targetUserId)) {
-            return false;
-        }
         SysUser targetUser = userRepository.findById(targetUserId);
         if (targetUser == null) {
             return false;
         }
-        // 不允许删除管理员
-        if (targetUser.hasRole(RoleEnum.ADMIN)) {
+        // 已删除的用户不能再次删除
+        if (targetUser.getDeleted()) {
+            return false;
+        }
+
+        boolean updaterIsAdmin = updater.hasRole(RoleEnum.ADMIN);
+        boolean targetIsAdmin = targetUser.hasRole(RoleEnum.ADMIN);
+        boolean isSelf = updaterId.equals(targetUserId);
+
+        // 管理员不能删除管理员用户
+        if (updaterIsAdmin && targetIsAdmin) {
+            return false;
+        }
+        // 非管理员用户无权删除他人
+        if (!updaterIsAdmin && !isSelf) {
             return false;
         }
 
@@ -104,7 +115,7 @@ public class UserApplicationService {
         return userRepository.update(updatePo);
     }
 
-    public boolean sendPasswordRestEmail(Long userId) {
+    public boolean sendPasswordResetEmail(Long userId) {
         SysUser sysUser = userRepository.findById(userId);
         if (sysUser == null) {
             return false;

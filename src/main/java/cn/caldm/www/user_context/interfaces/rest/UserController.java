@@ -99,7 +99,7 @@ public class UserController {
         if (userId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        boolean isSuccess = userService.sendPasswordRestEmail(userId);
+        boolean isSuccess = userService.sendPasswordResetEmail(userId);
         if (isSuccess) {
             return Result.success();
         } else {
