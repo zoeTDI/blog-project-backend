@@ -7,7 +7,6 @@ import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import cn.caldm.www.user_context.infrastructure.email.EmailSender;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +29,8 @@ public class UserApplicationService {
     @Autowired
     private UserRepository userRepository;
 
-    @Resource
-    private EmailSender emailSender;
+    @Autowired
+    private UserNotificationFacadeService userNotificationFacadeService;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -126,7 +125,7 @@ public class UserApplicationService {
         String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
 
         try {
-            emailSender.sendVerificationCode(email, code);
+            userNotificationFacadeService.sendPasswordResetCode(email, code);
         } catch (Exception e) {
             LogUtils.error("用户「" + userId + "」密码重置邮件发送失败: " + e.getMessage());
             return false;

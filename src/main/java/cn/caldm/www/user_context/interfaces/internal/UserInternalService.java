@@ -10,6 +10,8 @@ import cn.caldm.www.user_context.interfaces.dto.UserCredentialDTO;
  */
 public interface UserInternalService {
 
+    UserCredentialDTO getCredentialByEmail(String email);
+
     UserCredentialDTO getCredentialByUsername(String username);
 
     UserCredentialDTO getCredentialById(Long id);

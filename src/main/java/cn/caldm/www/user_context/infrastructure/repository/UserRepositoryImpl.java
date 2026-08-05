@@ -13,11 +13,11 @@ import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -40,52 +40,42 @@ public class UserRepositoryImpl implements UserRepository {
     SysUserRoleMapper userRoleMapper;
 
     @Override
-    public SysUser findByUsername(String username) {
-        if (username == null || username.isEmpty()) {
-            return null;
-        }
-
+    public SysUser findByEmail(String email) {
         LambdaQueryWrapper<SysUserPO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SysUserPO::getUsername, username)
-                .eq(SysUserPO::getDeleted, false);
+        queryWrapper.eq(SysUserPO::getEmail, email);
         SysUserPO po = userMapper.selectOne(queryWrapper);
         if (po == null) {
             return null;
         }
 
         SysUser sysUser = UserAssembler.toDomain(po);
-        List<SysRolePO> rolePOS = roleMapper.selectRolesByUserId(sysUser.getId());
+        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
+        return sysUser;
+    }
 
-        if (rolePOS != null && !rolePOS.isEmpty()) {
-            List<RoleEnum> roles = rolePOS.stream()
-                    .map(rolePO -> RoleEnum.fromCode(rolePO.getCode()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            sysUser.setRoles(roles);
+    @Override
+    public SysUser findByUsername(String username) {
+        LambdaQueryWrapper<SysUserPO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysUserPO::getUsername, username);
+        SysUserPO po = userMapper.selectOne(queryWrapper);
+        if (po == null) {
+            return null;
         }
+
+        SysUser sysUser = UserAssembler.toDomain(po);
+        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
         return sysUser;
     }
 
     @Override
     public SysUser findById(Long id) {
-        if (id == null) {
-            return null;
-        }
         SysUserPO po = userMapper.selectById(id);
         if (po == null) {
             return null;
         }
 
         SysUser sysUser = UserAssembler.toDomain(po);
-        List<SysRolePO> rolePOS = roleMapper.selectRolesByUserId(sysUser.getId());
-
-        if (rolePOS != null && !rolePOS.isEmpty()) {
-            List<RoleEnum> roles = rolePOS.stream()
-                    .map(rolePO -> RoleEnum.fromCode(rolePO.getCode()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            sysUser.setRoles(roles);
-        }
+        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
         return sysUser;
     }
 
@@ -143,4 +133,16 @@ public class UserRepositoryImpl implements UserRepository {
         int i = userMapper.updateById(sysUserPO);
         return i == 1;
     }
+
+    private List<RoleEnum> getRolesByUserId(Long userId) {
+        List<SysRolePO> rolePOS = roleMapper.selectRolesByUserId(userId);
+        if (rolePOS != null && !rolePOS.isEmpty()) {
+            return rolePOS.stream()
+                    .map(rolePO -> RoleEnum.fromCode(rolePO.getCode()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
 }
