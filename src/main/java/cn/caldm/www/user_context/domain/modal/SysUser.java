@@ -49,11 +49,6 @@ public class SysUser {
     private String email;
 
     /**
-     * 盐
-     */
-    private String salt;
-
-    /**
      * 头像
      */
     private String avatar;

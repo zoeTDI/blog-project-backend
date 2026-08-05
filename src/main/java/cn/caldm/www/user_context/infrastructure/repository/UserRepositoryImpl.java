@@ -101,7 +101,6 @@ public class UserRepositoryImpl implements UserRepository {
 
         sysUserPO.setNickname(username);
         sysUserPO.setEmail(username + "example@xx.com");
-        sysUserPO.setSalt("salt");
 
         int inserted = userMapper.insert(sysUserPO);
         if (inserted != 1 || sysUserPO.getId() == null) {

@@ -42,7 +42,6 @@ public class UserInternalServiceImpl implements UserInternalService {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setPassword(user.getPassword());
-        dto.setSalt(user.getSalt());
         dto.setStatus(user.getStatus());
         dto.setDeleted(user.getDeleted());
         return dto;

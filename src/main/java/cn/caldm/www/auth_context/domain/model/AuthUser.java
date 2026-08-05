@@ -13,7 +13,6 @@ public class AuthUser {
     private Long id;
     private String username;
     private String password;
-    private String salt;
     private short status;
     private Boolean deleted;
 }

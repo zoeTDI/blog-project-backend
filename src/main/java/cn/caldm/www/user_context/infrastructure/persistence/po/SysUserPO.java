@@ -15,7 +15,6 @@ public class SysUserPO {
     private String password;
     private String nickname;
     private String email;
-    private String salt;
     private String avatar;
     private short status;
     private String loginIp;

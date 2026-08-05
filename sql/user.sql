@@ -2,10 +2,11 @@ DROP TABLE IF EXISTS `system_user`;
 CREATE TABLE `system_user` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户 ID',
   `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户账号(管理员设置，不可变)',
-  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '登录密码(加密存储)',
+  `password` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '登录密码(加密存储)',
   `nickname` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
   `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '电子邮箱(重置密码核心凭证)',
-  `mobile` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '手机号码',
+--   `salt` varchar(64) CHARACTER SET utf8mb4 COLLATE  utf8mb4_unicode_ci NOT NULL COMMENT '盐',
+--   `mobile` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '手机号码',
   `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '用户头像地址',
   `status` tinyint NOT NULL DEFAULT 0 COMMENT '帐号状态（0正常 1停用）',
   `login_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '最后登录IP',
@@ -21,8 +22,11 @@ CREATE TABLE `system_user` (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户核心表';
 
 BEGIN;
-INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `mobile`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) 
-VALUES (1, 'admin', '$2a$10$cR.b2g2kC9/G4K/885Y3I.iXoUeeA8J9W4q.3eU3m2M1Q6nK2sJ4K', '超级管理员', 'admin@caldm.com', '13800000000', '', 0, '', NULL, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, b'0');
+INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES ('1', 'admin', '$2a$10$zoekKX9z61Y.UWT2um12SuhPX.mWc/1suY.Kj9fY3NGLYX1AF0mim', '系统管理员', '1832400547@qq.com', 'https://example.com/avatar/admin.png', 0, '127.0.0.1', '2026-08-03 14:57:47', 'system', '2026-08-03 14:57:47', 'system', '2026-08-05 12:03:50', unhex('00'));
+INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES ('2', 'zhangsan', 'password123', '张三', 'zhangsan@example.com', 'https://example.com/avatar/zhangsan.png', 0, '192.168.1.100', '2026-08-03 14:57:58', 'admin', '2026-08-03 14:57:58', 'admin', '2026-08-03 14:57:58', unhex('00'));
+INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES ('3', 'lisi', 'abc123456', '李四（已停用）', 'lisi@example.com', '', 0, '', NULL, 'admin', '2026-08-03 14:58:00', 'admin', '2026-08-04 17:03:32', unhex('00'));
+INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES ('4', 'user1', '123456', 'user1', 'example@xx.com', '', 0, '', NULL, 'admin', '2026-08-04 14:21:24', 'admin', '2026-08-04 14:21:24', unhex('00'));
+INSERT INTO `system_user` (`id`, `username`, `password`, `nickname`, `email`, `avatar`, `status`, `login_ip`, `login_date`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES ('8', 'user2', '123456', 'user2', 'user2example@xx.com', '', 1, '', NULL, 'admin', '2026-08-05 00:02:47', 'admin', '2026-08-05 01:04:25', unhex('00'));
 COMMIT;
 
 DROP TABLE IF EXISTS `system_role`;

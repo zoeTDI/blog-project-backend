@@ -23,7 +23,6 @@ public class UserAssembler {
         domainUser.setPassword(po.getPassword());
         domainUser.setNickname(po.getNickname());
         domainUser.setEmail(po.getEmail());
-        domainUser.setSalt(po.getSalt());
         domainUser.setAvatar(po.getAvatar());
         domainUser.setStatus(po.getStatus());
         domainUser.setLoginIp(po.getLoginIp());

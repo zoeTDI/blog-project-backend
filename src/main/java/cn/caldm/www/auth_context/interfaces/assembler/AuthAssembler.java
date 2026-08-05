@@ -18,7 +18,6 @@ public class AuthAssembler {
         AuthUser user = new AuthUser();
         user.setId(dto.getId());
         user.setUsername(dto.getUsername());user.setPassword(dto.getPassword());
-        user.setSalt(dto.getSalt());
         user.setStatus(dto.getStatus());
         user.setDeleted(dto.getDeleted());
         return user;
