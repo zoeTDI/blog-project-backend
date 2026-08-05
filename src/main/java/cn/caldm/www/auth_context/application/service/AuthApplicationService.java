@@ -5,6 +5,7 @@ import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.domain.repository.UserRepository;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
+import cn.caldm.www.common.utils.SlowHashUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,7 @@ public class AuthApplicationService {
     public TokenPair login(String username, String password) {
         AuthUser user = userRepository.findByUsername(username);
 
-        // todo 使用密码Encoder比对
-        if (user == null || !user.getPassword().equals(password)) {
+        if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
         // 已封禁或已删除用户不允许登录
