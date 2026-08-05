@@ -1,7 +1,7 @@
 package cn.caldm.www.auth_context.interfaces.filter;
 
+import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
-import cn.caldm.www.auth_context.domain.repository.UserRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.common.domain.Result;
@@ -11,7 +11,6 @@ import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,10 +31,9 @@ import java.util.Map;
  * @author caldm
  */
 @Component
-// @WebFilter(filterName = "JwtFilter", urlPatterns = "/*")
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired
-    private UserRepository userRepository;
+    private AuthUserFacadeService authUserFacadeService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -104,7 +102,7 @@ public class JwtFilter extends OncePerRequestFilter {
         Long id = userData.get("id").asLong();
         String username = userData.get("username").asString();
 
-        AuthUser user = userRepository.findById(id);
+        AuthUser user = authUserFacadeService.getCredentialById(id);
         if (user == null
             || SysUserStatusEnum.DISABLED.equals(user.getStatus())
             || SysUserDeletedEnum.DELETED.equals(user.getDeleted())

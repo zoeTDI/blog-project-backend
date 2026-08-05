@@ -1,8 +1,9 @@
-package cn.caldm.www.user_context.interfaces.internal;
+package cn.caldm.www.user_context.adapter;
 
+import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import cn.caldm.www.user_context.interfaces.dto.UserCredentialDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,12 @@ import org.springframework.stereotype.Service;
  * @author caldm
  */
 @Service
-public class UserInternalServiceImpl implements UserInternalService {
+public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
     @Autowired
     private UserRepository userRepository;
 
     @Override
-    public UserCredentialDTO getCredentialByEmail(String email) {
+    public AuthUser getCredentialByEmail(String email) {
         SysUser sysUser = userRepository.findByEmail(email);
         if (sysUser == null) {
             return null;
@@ -27,7 +28,7 @@ public class UserInternalServiceImpl implements UserInternalService {
     }
 
     @Override
-    public UserCredentialDTO getCredentialByUsername(String username) {
+    public AuthUser getCredentialByUsername(String username) {
         SysUser user = userRepository.findByUsername(username);
         if (user == null) {
             return null;
@@ -37,7 +38,7 @@ public class UserInternalServiceImpl implements UserInternalService {
     }
 
     @Override
-    public UserCredentialDTO getCredentialById(Long id) {
+    public AuthUser getCredentialById(Long id) {
         SysUser user = userRepository.findById(id);
         if (user == null) {
             return null;
@@ -46,8 +47,8 @@ public class UserInternalServiceImpl implements UserInternalService {
         return toDto(user);
     }
 
-    private UserCredentialDTO toDto(SysUser user) {
-        UserCredentialDTO dto = new UserCredentialDTO();
+    private AuthUser toDto(SysUser user) {
+        AuthUser dto = new AuthUser();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setPassword(user.getPassword());
