@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class LoginReqDTO {
+public class LoginUPReqDTO {
     private String username;
     private String password;
 }
