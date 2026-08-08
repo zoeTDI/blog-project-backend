@@ -39,6 +39,11 @@ public class SysUser {
     private List<RoleEnum> roles = new ArrayList<>();
 
     /**
+     * 用户菜单
+     */
+    private List<String> menus = new ArrayList<>();
+
+    /**
      * 昵称
      */
     private String nickname;

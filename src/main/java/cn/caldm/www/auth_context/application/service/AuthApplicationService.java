@@ -35,24 +35,30 @@ public class AuthApplicationService {
 
     private final String LOGIN_PREFIX = "user:login:code:";
 
-    public TokenPair loginByUP(String username, String password) {
+    public AuthUser loginByUP(String username, String password) {
         AuthUser user = authUserFacadeService.getCredentialByUsername(username);
 
         if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
-        return generateTokenForUser(user);
+        TokenPair tokenPair = generateTokenForUser(user);
+        user.setRefreshToken(tokenPair.getRefreshToken());
+        user.setAccessToken(tokenPair.getAccessToken());
+        return user;
     }
 
-    public TokenPair loginByEP(String email, String password) {
+    public AuthUser loginByEP(String email, String password) {
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
             throw new RuntimeException("邮箱或密码错误");
         }
-        return generateTokenForUser(user);
+        TokenPair tokenPair = generateTokenForUser(user);
+        user.setRefreshToken(tokenPair.getRefreshToken());
+        user.setAccessToken(tokenPair.getAccessToken());
+        return user;
     }
 
-    public TokenPair loginByEC(String email, String code) {
+    public AuthUser loginByEC(String email, String code) {
         String key = LOGIN_PREFIX + email;
         boolean isValid = verificationCodeRepository.verifyCode(key, code);
         if (!isValid) {
@@ -62,7 +68,10 @@ public class AuthApplicationService {
         if (user == null) {
             throw new RuntimeException("该邮箱尚未注册");
         }
-        return generateTokenForUser(user);
+        TokenPair tokenPair = generateTokenForUser(user);
+        user.setRefreshToken(tokenPair.getRefreshToken());
+        user.setAccessToken(tokenPair.getAccessToken());
+        return user;
     }
 
     /**

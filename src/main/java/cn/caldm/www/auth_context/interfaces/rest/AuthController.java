@@ -1,6 +1,7 @@
 package cn.caldm.www.auth_context.interfaces.rest;
 
 import cn.caldm.www.auth_context.application.service.AuthApplicationService;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.interfaces.dto.*;
 import cn.caldm.www.common.domain.Result;
@@ -33,11 +34,11 @@ public class AuthController {
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        TokenPair tokenPair = authService.loginByUP(username, password);
-        if (tokenPair == null) {
+        AuthUser authUser = authService.loginByUP(username, password);
+        if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        return handleLoginSuccess(response, tokenPair);
+        return handleLoginSuccess(response, authUser);
     }
 
     @PostMapping("/login/email-password")
@@ -47,11 +48,11 @@ public class AuthController {
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        TokenPair tokenPair = authService.loginByEP(email, password);
-        if (tokenPair == null) {
+        AuthUser authUser = authService.loginByEP(email, password);
+        if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        return handleLoginSuccess(response, tokenPair);
+        return handleLoginSuccess(response, authUser);
     }
 
     @PostMapping("/login/email-code")
@@ -61,11 +62,11 @@ public class AuthController {
         if (email == null || email.trim().isEmpty() || code == null || code.trim().isEmpty()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        TokenPair tokenPair = authService.loginByEC(email, code);
-        if (tokenPair == null) {
+        AuthUser authUser = authService.loginByEC(email, code);
+        if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        return handleLoginSuccess(response, tokenPair);
+        return handleLoginSuccess(response, authUser);
     }
 
     @PostMapping("/send-login-code")
@@ -129,9 +130,18 @@ public class AuthController {
         return null;
     }
 
-    private Result<LoginResDTO> handleLoginSuccess(HttpServletResponse response, TokenPair tokenPair) {
-        setCookie(response, "accessToken", tokenPair.getAccessToken(), 3600);
-        setCookie(response, "refreshToken", tokenPair.getRefreshToken(), 7 * 24 * 3600);
-        return Result.successMsg("登录成功");
+    private Result<LoginResDTO> handleLoginSuccess(HttpServletResponse response, AuthUser authUser) {
+        setCookie(response, "accessToken", authUser.getAccessToken(), 3600);
+        setCookie(response, "refreshToken", authUser.getRefreshToken(), 7 * 24 * 3600);
+        LoginResDTO resDTO = new LoginResDTO();
+        resDTO.setId(authUser.getId());
+        resDTO.setEmail(authUser.getEmail());
+        resDTO.setUsername(authUser.getUsername());
+        resDTO.setNickname(authUser.getNickname());
+        resDTO.setRoles(authUser.getRoles());
+        resDTO.setAvatar(authUser.getAvatar());
+        resDTO.setMenus(authUser.getMenus());
+
+        return Result.success("登录成功", resDTO);
     }
 }

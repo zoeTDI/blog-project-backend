@@ -50,8 +50,13 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
     private AuthUser toDto(SysUser user) {
         AuthUser dto = new AuthUser();
         dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
         dto.setUsername(user.getUsername());
         dto.setPassword(user.getPassword());
+        dto.setNickname(user.getNickname());
+        dto.setAvatar(user.getAvatar());
+        dto.setRoles(user.getRoles());
+        dto.setMenus(user.getMenus());
         dto.setStatus(user.getStatus());
         dto.setDeleted(user.getDeleted());
         return dto;
