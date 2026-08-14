@@ -2,15 +2,14 @@ package cn.caldm.www.dev.controller;
 
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
-import cn.caldm.www.infra.framework.file.core.client.FileClient;
-import cn.caldm.www.infra.framework.file.core.client.FileClientFactory;
-import cn.caldm.www.infra.service.impl.InfraFileConfigServiceImpl;
-import cn.caldm.www.infra.service.impl.InfraFileServiceImpl;
+import cn.caldm.www.infrastructure.file.core.client.FileClient;
+import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
+import cn.caldm.www.system_context.application.service.InfraFileConfigServiceImpl;
+import cn.caldm.www.system_context.application.service.InfraFileServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

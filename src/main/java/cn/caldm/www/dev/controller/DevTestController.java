@@ -1,16 +1,13 @@
 package cn.caldm.www.dev.controller;
 
 import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.infra.annotation.ApiAccessLog;
-import cn.caldm.www.infra.domain.InfraConfig;
-import cn.caldm.www.infra.service.InfraConfigService;
+import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
+import cn.caldm.www.system_context.infrastructure.persistence.po.InfraConfigPO;
+import cn.caldm.www.system_context.application.service.InfraConfigService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 统一开发调试与冒烟测试接口
@@ -89,7 +86,7 @@ public class DevTestController {
      * 2. 本地缓存同步刷新，紧接着调用场景四获取该 key 时，无延迟直接返回最新的数据。
      */
     @PutMapping("/config/update")
-    public Result<Void> updateConfigValue(@RequestBody InfraConfig config) {
+    public Result<Void> updateConfigValue(@RequestBody InfraConfigPO config) {
         // 为了方便冒烟测试，要求入参必须包含 id
         infraConfigService.updateConfig(config);
 

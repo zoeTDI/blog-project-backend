@@ -2,7 +2,7 @@ package cn.caldm.www.user_context.interfaces.rest;
 
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
-import cn.caldm.www.infra.annotation.ApiAccessLog;
+import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
