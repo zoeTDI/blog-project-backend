@@ -2,11 +2,8 @@ package cn.caldm.www.post_context.interfaces.assembler;
 
 import cn.caldm.www.post_context.domain.model.PostBlog;
 import cn.caldm.www.post_context.infrastructure.persistence.po.PostBlogPO;
+import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -15,7 +12,8 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Component
-public class PostBlogAssembler {
+public class PostBlogAssembler implements BaseAssembler<PostBlog, PostBlogPO> {
+    @Override
     public PostBlog toDomain(PostBlogPO po) {
         if (po == null) {
             return null;
@@ -53,15 +51,7 @@ public class PostBlogAssembler {
         return domain;
     }
 
-    public List<PostBlog> toDomainList(List<PostBlogPO> poList) {
-        if (poList == null || poList.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return poList.stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
-    }
-
+    @Override
     public PostBlogPO toPO(PostBlog domain) {
         if (domain == null) {
             return null;
@@ -97,14 +87,5 @@ public class PostBlogAssembler {
         po.setSortWeight(domain.getSortWeight());
         po.setDeleted(domain.getDeleted());
         return po;
-    }
-
-    public List<PostBlogPO> toPOList(List<PostBlog> domainList) {
-        if (domainList == null || domainList.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return domainList.stream()
-                .map(this::toPO)
-                .collect(Collectors.toList());
     }
 }

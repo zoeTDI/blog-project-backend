@@ -39,6 +39,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Autowired
     SysUserRoleMapper userRoleMapper;
 
+    @Autowired
+    UserAssembler userAssembler;
+
     @Override
     public SysUser findByEmail(String email) {
         LambdaQueryWrapper<SysUserPO> queryWrapper = new LambdaQueryWrapper<>();
@@ -48,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = UserAssembler.toDomain(po);
+        SysUser sysUser = userAssembler.toDomain(po);
         sysUser.setRoles(getRolesByUserId(sysUser.getId()));
         return sysUser;
     }
@@ -62,7 +65,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = UserAssembler.toDomain(po);
+        SysUser sysUser = userAssembler.toDomain(po);
         sysUser.setRoles(getRolesByUserId(sysUser.getId()));
         return sysUser;
     }
@@ -74,7 +77,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = UserAssembler.toDomain(po);
+        SysUser sysUser = userAssembler.toDomain(po);
         sysUser.setRoles(getRolesByUserId(sysUser.getId()));
         return sysUser;
     }
@@ -123,7 +126,7 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        SysUser sysUser = UserAssembler.toDomain(sysUserPO);
+        SysUser sysUser = userAssembler.toDomain(sysUserPO);
         sysUser.setRoles(roles);
         return sysUser;
     }
