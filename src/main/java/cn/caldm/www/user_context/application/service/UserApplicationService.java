@@ -58,27 +58,28 @@ public class UserApplicationService {
     public boolean ban(Long updaterId, Long targetUserId) {
         SysUser updater = userRepository.findById(updaterId);
         if (
-            updater == null
-            || !updater.hasRole(RoleEnum.ADMIN)
+                updater == null
+                        || !updater.hasRole(RoleEnum.ADMIN)
         ) {
             return false;
         }
 
         SysUser targetUser = userRepository.findById(targetUserId);
         if (
-            targetUser == null
-            || targetUser.hasRole(RoleEnum.ADMIN)
-            || targetUser.isDeleted()
+                targetUser == null
+                        || targetUser.hasRole(RoleEnum.ADMIN)
+                        || targetUser.isDeleted()
         ) {
             return false;
         }
 
-        SysUserPO updatePo = new SysUserPO();
-        updatePo.setId(targetUserId);
-        updatePo.setStatus(SysUserStatusEnum.DISABLED);
-        updatePo.setUpdater(updater.getUsername());
-        updatePo.setUpdateTime(LocalDateTime.now());
-        return userRepository.update(updatePo);
+        SysUser sysUser = new SysUser();
+        sysUser.setId(targetUserId);
+        sysUser.setStatus(SysUserStatusEnum.DISABLED);
+        sysUser.setUpdater(updater.getUsername());
+        sysUser.setUpdateTime(LocalDateTime.now());
+
+        return userRepository.update(sysUser);
     }
 
     public boolean softDelete(Long updaterId, Long targetUserId) {
@@ -108,12 +109,13 @@ public class UserApplicationService {
             return false;
         }
 
-        SysUserPO updatePo = new SysUserPO();
-        updatePo.setId(targetUserId);
-        updatePo.setDeleted(SysUserDeletedEnum.DELETED);
-        updatePo.setUpdater(updater.getUsername());
-        updatePo.setUpdateTime(LocalDateTime.now());
-        return userRepository.update(updatePo);
+        SysUser sysUser = new SysUser();
+        sysUser.setId(targetUserId);
+        sysUser.setDeleted(SysUserDeletedEnum.DELETED);
+        sysUser.setUpdater(updater.getUsername());
+        sysUser.setUpdateTime(LocalDateTime.now());
+
+        return userRepository.update(sysUser);
     }
 
     public boolean sendPasswordResetEmail(Long userId) {
@@ -130,7 +132,7 @@ public class UserApplicationService {
             LogUtils.error("用户「" + userId + "」密码重置邮件发送失败: " + e.getMessage());
             return false;
         }
-        stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX+email, code, 5, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX + email, code, 5, TimeUnit.MINUTES);
         return true;
     }
 
@@ -149,14 +151,14 @@ public class UserApplicationService {
             return false;
         }
 
-        SysUserPO po = new SysUserPO();
+        SysUser updateUser = new SysUser();
         String encode = SlowHashUtils.bcryptEncode(newPassword);
-        po.setId(targetUserId);
-        po.setPassword(encode);
-        po.setUpdater(sysUser.getUsername());
-        po.setUpdateTime(LocalDateTime.now());
+        updateUser.setId(targetUserId);
+        updateUser.setPassword(encode);
+        updateUser.setUpdater(sysUser.getUpdater());
+        updateUser.setUpdateTime(LocalDateTime.now());
 
-        boolean updated = userRepository.update(po);
+        boolean updated = userRepository.update(updateUser);
         if (updated) {
             stringRedisTemplate.delete(redisKey);
         }

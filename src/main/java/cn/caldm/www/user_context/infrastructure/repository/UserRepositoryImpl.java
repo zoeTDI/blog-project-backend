@@ -132,8 +132,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean update(SysUserPO sysUserPO) {
-        int i = userMapper.updateById(sysUserPO);
+    public boolean update(SysUser sysUser) {
+        SysUserPO po = userAssembler.toPO(sysUser);
+        int i = userMapper.updateById(po);
         return i == 1;
     }
 

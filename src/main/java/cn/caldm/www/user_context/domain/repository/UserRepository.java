@@ -11,5 +11,5 @@ public interface UserRepository {
     SysUser findByUsername(String username);
     SysUser findById(Long id);
     SysUser insert(String creator, String username, String password, List<RoleEnum> roles);
-    boolean update(SysUserPO sysUserPO);
+    boolean update(SysUser sysUser);
 }
