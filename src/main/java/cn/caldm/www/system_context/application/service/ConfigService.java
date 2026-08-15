@@ -7,7 +7,7 @@ import cn.caldm.www.system_context.infrastructure.persistence.po.InfraConfigPO;
  *
  * @author caldm
  */
-public interface InfraConfigService {
+public interface ConfigService {
 
     /**
      * 初始化/刷新本地参数配置缓存

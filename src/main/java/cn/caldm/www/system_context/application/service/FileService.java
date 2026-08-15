@@ -17,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Service
-public class InfraFileServiceImpl {
+public class FileService {
 
     @Autowired
     private InfraFileMapper fileMapper;
 
     @Autowired
-    private InfraFileConfigServiceImpl fileConfigService;
+    private FileConfigService fileConfigService;
 
     @Autowired
     private FileClientFactory fileClientFactory;
@@ -40,7 +40,8 @@ public class InfraFileServiceImpl {
     public String uploadFile(String name, String path, byte[] content) throws Exception {
         Long configId = fileConfigService.getMasterConfigId();
         if (configId == null) {
-            throw new IllegalStateException("当前系统未配置任何主存储器，请先检查 infra_file_config 表");        }
+            throw new IllegalStateException("当前系统未配置任何主存储器，请先检查 infra_file_config 表");
+        }
 
         FileClient fileClient = fileClientFactory.getFileClient(configId);
 

@@ -4,8 +4,8 @@ import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
-import cn.caldm.www.system_context.application.service.InfraFileConfigServiceImpl;
-import cn.caldm.www.system_context.application.service.InfraFileServiceImpl;
+import cn.caldm.www.system_context.application.service.FileConfigService;
+import cn.caldm.www.system_context.application.service.FileService;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,10 +22,10 @@ import java.util.UUID;
 @RequestMapping("/dev-api/test/file")
 public class DevFileTestController {
     @Resource
-    private InfraFileServiceImpl infraFileService;
+    private FileService infraFileService;
 
     @Resource
-    private InfraFileConfigServiceImpl infraFileConfigService;
+    private FileConfigService infraFileConfigService;
 
     @Resource
     private FileClientFactory fileClientFactory;

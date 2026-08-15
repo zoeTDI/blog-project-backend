@@ -1,5 +1,6 @@
-package cn.caldm.www.system_context.application.service;
+package cn.caldm.www.system_context.application.service.impl;
 
+import cn.caldm.www.system_context.application.service.ConfigService;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraConfigPO;
 import cn.caldm.www.system_context.infrastructure.persistence.mapper.InfraConfigMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Service
-public class InfraConfigServiceImpl implements InfraConfigService, CommandLineRunner {
+public class ConfigServiceImpl implements ConfigService, CommandLineRunner {
 
     @Autowired
     private InfraConfigMapper infraConfigMapper;

@@ -3,7 +3,7 @@ package cn.caldm.www.dev.controller;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraConfigPO;
-import cn.caldm.www.system_context.application.service.InfraConfigService;
+import cn.caldm.www.system_context.application.service.ConfigService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class DevTestController {
 
     @Autowired
-    private InfraConfigService infraConfigService;
+    private ConfigService configService;
 
     /**
      * 测试场景一：模拟无参数的 GET 查询请求
@@ -72,7 +72,7 @@ public class DevTestController {
      */
     @GetMapping("/config/get")
     public Result<ConfigTestVo> getConfigValue(@RequestParam("key") String key) {
-        String value = infraConfigService.getConfigValueByKey(key);
+        String value = configService.getConfigValueByKey(key);
 
         ConfigTestVo vo = new ConfigTestVo(key, value);
         return Result.success(vo);
@@ -88,7 +88,7 @@ public class DevTestController {
     @PutMapping("/config/update")
     public Result<Void> updateConfigValue(@RequestBody InfraConfigPO config) {
         // 为了方便冒烟测试，要求入参必须包含 id
-        infraConfigService.updateConfig(config);
+        configService.updateConfig(config);
 
         return Result.successMsg("参数配置更新成功，本地缓存已刷新");
     }

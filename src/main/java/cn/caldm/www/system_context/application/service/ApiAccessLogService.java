@@ -7,6 +7,6 @@ import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessL
  *
  * @author caldm
  */
-public interface InfraApiAccessLogService {
+public interface ApiAccessLogService {
     void createApiAccessLogAsync(InfraApiAccessLogPO accessLog);
 }

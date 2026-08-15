@@ -2,7 +2,7 @@ package cn.caldm.www.infrastructure.handler;
 
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLogPO;
-import cn.caldm.www.system_context.application.service.InfraApiErrorLogService;
+import cn.caldm.www.system_context.application.service.ApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @Autowired
-    private InfraApiErrorLogService infraApiErrorLogService;
+    private ApiErrorLogService apiErrorLogService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler {
             errorLog.setExceptionLineNumber(-1);
         }
 
-        infraApiErrorLogService.createApiErrorLogAsync(errorLog);
+        apiErrorLogService.createApiErrorLogAsync(errorLog);
     }
 
     /**

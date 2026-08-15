@@ -4,7 +4,7 @@ import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
 import cn.caldm.www.system_context.domain.model.ApiAccessLogUserTypeEnum;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessLogPO;
-import cn.caldm.www.system_context.application.service.InfraApiAccessLogService;
+import cn.caldm.www.system_context.application.service.ApiAccessLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,7 +28,7 @@ import java.util.UUID;
 public class ApiAccessLogAspect {
 
     @Autowired
-    private InfraApiAccessLogService infraApiAccessLogService;
+    private ApiAccessLogService apiAccessLogService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -91,7 +91,7 @@ public class ApiAccessLogAspect {
                     accessLog.setResultCode(resultCode);
                     accessLog.setResultMsg(resultMsg);
 
-                    infraApiAccessLogService.createApiAccessLogAsync(accessLog);
+                    apiAccessLogService.createApiAccessLogAsync(accessLog);
                 } catch (Exception ex) {
                     System.err.println("解析或保存 API 访问日志失败: " + ex.getMessage());                }
             }

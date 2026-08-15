@@ -1,5 +1,6 @@
-package cn.caldm.www.system_context.application.service;
+package cn.caldm.www.system_context.application.service.impl;
 
+import cn.caldm.www.system_context.application.service.ApiAccessLogService;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessLogPO;
 import cn.caldm.www.system_context.infrastructure.persistence.mapper.InfraApiAccessLogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
  * @author caldm
  */
 @Service
-public class InfraApiAccessLogServiceImpl implements InfraApiAccessLogService {
+public class ApiAccessLogServiceImpl implements ApiAccessLogService {
     @Autowired
     private InfraApiAccessLogMapper infraApiAccessLogMapper;
 

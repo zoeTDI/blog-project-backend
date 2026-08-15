@@ -7,7 +7,7 @@ import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLo
  *
  * @author caldm
  */
-public interface InfraApiErrorLogService {
+public interface ApiErrorLogService {
     /**
      * 异步创建系统异常日志
      *

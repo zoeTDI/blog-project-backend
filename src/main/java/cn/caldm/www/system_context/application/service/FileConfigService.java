@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class InfraFileConfigServiceImpl {
+public class FileConfigService {
     @Autowired
     private InfraFileConfigMapper fileConfigMapper;
 
