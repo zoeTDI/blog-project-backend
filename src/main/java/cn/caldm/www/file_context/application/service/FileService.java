@@ -1,10 +1,10 @@
-package cn.caldm.www.system_context.application.service;
+package cn.caldm.www.file_context.application.service;
 
 import cn.caldm.www.common.utils.SecurityUtils;
-import cn.caldm.www.system_context.infrastructure.persistence.po.InfraFilePO;
+import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
-import cn.caldm.www.system_context.infrastructure.persistence.mapper.InfraFileMapper;
+import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

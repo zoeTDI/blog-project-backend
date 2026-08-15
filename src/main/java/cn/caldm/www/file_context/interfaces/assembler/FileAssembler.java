@@ -1,7 +1,7 @@
-package cn.caldm.www.system_context.interfaces.assembler;
+package cn.caldm.www.file_context.interfaces.assembler;
 
-import cn.caldm.www.system_context.domain.model.File;
-import cn.caldm.www.system_context.infrastructure.persistence.po.InfraFilePO;
+import cn.caldm.www.file_context.domain.model.File;
+import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
 
 /**
  * 文件装配器

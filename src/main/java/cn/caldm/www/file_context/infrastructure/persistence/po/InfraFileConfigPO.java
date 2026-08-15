@@ -1,4 +1,4 @@
-package cn.caldm.www.system_context.infrastructure.persistence.po;
+package cn.caldm.www.file_context.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -6,27 +6,25 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 文件记录表实体
+ * 文件配置表实体
  *
  * @author caldm
  */
 @Data
-@TableName("infra_file")
-public class InfraFilePO {
-    @TableId(type = IdType.AUTO)
+@TableName("infra_file_config")
+public class InfraFileConfigPO {
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-    private Long configId;
 
     private String name;
 
-    private String path;
+    private Integer storage;
 
-    private String url;
+    private String remark;
 
-    private String type;
+    private Boolean master;
 
-    private Integer size;
+    private String config;
 
     private String creator;
 

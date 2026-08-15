@@ -1,19 +1,22 @@
-package cn.caldm.www.system_context.infrastructure.persistence.po;
+package cn.caldm.www.file_context.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 /**
- * 文件配置表实体
+ *
+ *
  *
  * @author caldm
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
-@TableName("infra_file_config")
-public class InfraFileConfigPO {
-    @TableId(value = "id", type = IdType.AUTO)
+public class FileConfig {
+
     private Long id;
 
     private String name;
@@ -28,14 +31,11 @@ public class InfraFileConfigPO {
 
     private String creator;
 
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     private String updater;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
-    @TableLogic
     private Boolean deleted;
 }

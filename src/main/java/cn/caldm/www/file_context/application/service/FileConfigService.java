@@ -1,9 +1,9 @@
-package cn.caldm.www.system_context.application.service;
+package cn.caldm.www.file_context.application.service;
 
 import cn.caldm.www.infrastructure.file.core.client.FileClientConfig;
-import cn.caldm.www.system_context.infrastructure.persistence.po.InfraFileConfigPO;
+import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFileConfigPO;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
-import cn.caldm.www.system_context.infrastructure.persistence.mapper.InfraFileConfigMapper;
+import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileConfigMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;

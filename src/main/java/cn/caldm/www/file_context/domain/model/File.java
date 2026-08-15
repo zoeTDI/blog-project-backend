@@ -1,4 +1,4 @@
-package cn.caldm.www.system_context.domain.model;
+package cn.caldm.www.file_context.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
