@@ -1,0 +1,53 @@
+package cn.caldm.www.post_context.infrastructure.persistence.po;
+
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+
+/**
+ * 文章-分类关联表 PO
+ * 对应表名：post_category_relation
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@TableName("post_category_relation")
+public class PostCategoryRelationPO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 关联记录ID
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
+    /**
+     * 文章ID
+     */
+    @TableField("post_id")
+    private Long postId;
+
+    /**
+     * 分类ID
+     */
+    @TableField("category_id")
+    private Long categoryId;
+
+    /**
+     * 是否直接关联：true-用户直接选择的分类，false-系统自动插入的祖先冗余
+     * 数据库默认值为 b'1'
+     */
+    @TableField("is_direct")
+    private Boolean isDirect;
+
+    /**
+     * 软删除标识：true-已删除，false-未删除
+     * Mybatis-Plus 逻辑删除字段
+     */
+    @TableLogic
+    @TableField("deleted")
+    private Boolean deleted;
+
+}
