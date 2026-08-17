@@ -33,7 +33,7 @@ public class BlogPostCategory implements Serializable {
     private String slug;
     private String description;
     private Integer sortWeight;
-    private CategoryStatusEnum status;
+    private BlogPostCategoryStatusEnum status;
     private String creator;
     private LocalDateTime createTime;
     private String updater;

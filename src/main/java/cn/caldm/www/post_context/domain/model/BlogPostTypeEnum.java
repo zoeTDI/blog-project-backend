@@ -8,7 +8,7 @@ import lombok.Getter;
  * 文章类型枚举
  */
 @Getter
-public enum BlogTypeEnum {
+public enum BlogPostTypeEnum {
     /**
      * 普通文章
      */
@@ -32,7 +32,7 @@ public enum BlogTypeEnum {
     @JsonValue
     private final String desc;
 
-    BlogTypeEnum(Integer code, String desc) {
+    BlogPostTypeEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }
@@ -40,9 +40,9 @@ public enum BlogTypeEnum {
     /**
      * 根据 code 获取枚举
      */
-    public static BlogTypeEnum fromCode(Integer code) {
+    public static BlogPostTypeEnum fromCode(Integer code) {
         if (code == null) return null;
-        for (BlogTypeEnum type : values()) {
+        for (BlogPostTypeEnum type : values()) {
             if (type.code.equals(code)) {
                 return type;
             }

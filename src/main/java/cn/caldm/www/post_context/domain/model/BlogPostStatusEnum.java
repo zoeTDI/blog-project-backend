@@ -8,7 +8,7 @@ import lombok.Getter;
  * 文章状态枚举
  */
 @Getter
-public enum BlogStatusEnum {
+public enum BlogPostStatusEnum {
     DRAFT(0, "草稿"),
     PUBLISHED(1, "已发布"),
     REVIEWING(2, "审核中"),
@@ -21,14 +21,14 @@ public enum BlogStatusEnum {
     @JsonValue
     private final String desc;
 
-    BlogStatusEnum(Integer code, String desc) {
+    BlogPostStatusEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }
 
-    public static BlogStatusEnum fromCode(Integer code) {
+    public static BlogPostStatusEnum fromCode(Integer code) {
         if (code == null) return null;
-        for (BlogStatusEnum status : values()) {
+        for (BlogPostStatusEnum status : values()) {
             if (status.code.equals(code)) {
                 return status;
             }

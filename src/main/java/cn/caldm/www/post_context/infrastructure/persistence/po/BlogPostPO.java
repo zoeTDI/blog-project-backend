@@ -1,7 +1,7 @@
 package cn.caldm.www.post_context.infrastructure.persistence.po;
 
-import cn.caldm.www.post_context.domain.model.BlogStatusEnum;
-import cn.caldm.www.post_context.domain.model.BlogTypeEnum;
+import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
+import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -80,22 +80,16 @@ public class BlogPostPO implements Serializable {
     private String summary;
 
     /**
-     * 文章标签（JSON 数组字符串，建议使用 JacksonTypeHandler 解析）
-     */
-    @TableField("tags")
-    private String tags;
-
-    /**
      * 文章类型（枚举）
      */
     @TableField("type")
-    private BlogTypeEnum type;
+    private BlogPostTypeEnum type;
 
     /**
      * 状态（枚举）
      */
     @TableField("status")
-    private BlogStatusEnum status;
+    private BlogPostStatusEnum status;
 
     /**
      * 是否置顶：true-置顶 false-不置顶

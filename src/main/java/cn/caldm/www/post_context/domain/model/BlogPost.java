@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -34,9 +36,10 @@ public class BlogPost implements Serializable {
     private String contentMd;
     private String contentHtml;
     private String summary;
-    private String tags;
-    private BlogTypeEnum type;
-    private BlogStatusEnum status;
+    private List<BlogPostTag> tags = new ArrayList<>();
+    private List<CategoryTreeNode> categories = new ArrayList<>();
+    private BlogPostTypeEnum type;
+    private BlogPostStatusEnum status;
     private Boolean isTop;
     private Boolean isOriginal;
     private LocalDateTime createTime;
@@ -59,8 +62,8 @@ public class BlogPost implements Serializable {
      * 发布文章（从草稿转为已发布）
      */
     public void publish() {
-        if (this.status == BlogStatusEnum.DRAFT) {
-            this.status = BlogStatusEnum.PUBLISHED;
+        if (this.status == BlogPostStatusEnum.DRAFT) {
+            this.status = BlogPostStatusEnum.PUBLISHED;
             this.publishedTime = LocalDateTime.now();
         } else {
             throw new IllegalStateException("Only draft posts can be published");
@@ -71,8 +74,8 @@ public class BlogPost implements Serializable {
      * 审核通过
      */
     public void approve() {
-        if (this.status == BlogStatusEnum.REVIEWING) {
-            this.status = BlogStatusEnum.PUBLISHED;
+        if (this.status == BlogPostStatusEnum.REVIEWING) {
+            this.status = BlogPostStatusEnum.PUBLISHED;
             this.publishedTime = LocalDateTime.now();
         } else {
             throw new IllegalStateException("Only reviewing posts can be approved");
@@ -83,8 +86,8 @@ public class BlogPost implements Serializable {
      * 归档（移入回收站）
      */
     public void archive() {
-        if (this.status == BlogStatusEnum.PUBLISHED || this.status == BlogStatusEnum.DRAFT) {
-            this.status = BlogStatusEnum.RECYCLE;
+        if (this.status == BlogPostStatusEnum.PUBLISHED || this.status == BlogPostStatusEnum.DRAFT) {
+            this.status = BlogPostStatusEnum.RECYCLE;
         } else {
             throw new IllegalStateException("Only published or draft posts can be archived");
         }

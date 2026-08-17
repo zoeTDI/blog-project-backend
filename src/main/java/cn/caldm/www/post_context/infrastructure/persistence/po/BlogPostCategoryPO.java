@@ -1,12 +1,11 @@
 package cn.caldm.www.post_context.infrastructure.persistence.po;
 
-import cn.caldm.www.post_context.domain.model.CategoryStatusEnum;
+import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -73,7 +72,7 @@ public class BlogPostCategoryPO implements Serializable {
      * 状态：0-禁用 1-启用
      */
     @TableField("status")
-    private CategoryStatusEnum status;
+    private BlogPostCategoryStatusEnum status;
 
     /**
      * 创建者

@@ -1,9 +1,12 @@
 package cn.caldm.www.post_context.interfaces.assembler;
 
 import cn.caldm.www.post_context.domain.model.BlogPost;
+import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -28,7 +31,8 @@ public class BlogPostAssembler implements BaseAssembler<BlogPost, BlogPostPO> {
         domain.setContentMd(po.getContentMd());
         domain.setContentHtml(po.getContentHtml());
         domain.setSummary(po.getSummary());
-        domain.setTags(po.getTags());
+        domain.setTags(new ArrayList<>());
+        domain.setCategories(new ArrayList<>());
         domain.setType(po.getType());
         domain.setStatus(po.getStatus());
         domain.setIsTop(po.getIsTop());
@@ -66,7 +70,6 @@ public class BlogPostAssembler implements BaseAssembler<BlogPost, BlogPostPO> {
         po.setContentMd(domain.getContentMd());
         po.setContentHtml(domain.getContentHtml());
         po.setSummary(domain.getSummary());
-        po.setTags(domain.getTags());
         po.setType(domain.getType());
         po.setStatus(domain.getStatus());
         po.setIsTop(domain.getIsTop());
