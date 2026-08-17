@@ -141,4 +141,18 @@ public class BlogPost implements Serializable {
     public boolean isPasswordProtected() {
         return password != null && !password.isEmpty();
     }
+
+    /**
+     * 设置文章标签
+     */
+    public void assignTags(List<BlogPostTag> tags) {
+        this.tags = tags != null ? tags : new ArrayList<>();
+    }
+
+    /**
+     * 设置文章分类
+     */
+    public void assignCategories(List<CategoryTreeNode> categoryTrees) {
+        this.categories = categoryTrees != null ? categoryTrees : new ArrayList<>();
+    }
 }
