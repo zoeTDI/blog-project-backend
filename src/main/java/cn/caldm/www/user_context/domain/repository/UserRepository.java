@@ -2,7 +2,6 @@ package cn.caldm.www.user_context.domain.repository;
 
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
-import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 
 import java.util.List;
 
