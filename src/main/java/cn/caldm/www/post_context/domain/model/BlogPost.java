@@ -1,7 +1,13 @@
 package cn.caldm.www.post_context.domain.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -11,7 +17,14 @@ import java.time.LocalDateTime;
  * @author caldm
  */
 @Data
-public class PostBlog {
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class BlogPost implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private Long authorId;
     private String creator;

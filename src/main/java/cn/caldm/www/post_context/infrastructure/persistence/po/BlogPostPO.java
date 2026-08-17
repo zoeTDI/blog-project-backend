@@ -3,9 +3,12 @@ package cn.caldm.www.post_context.infrastructure.persistence.po;
 import cn.caldm.www.post_context.domain.model.BlogStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogTypeEnum;
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -16,10 +19,13 @@ import java.time.LocalDateTime;
  * @author caldm
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@TableName("post_blog")
-public class PostBlogPO implements Serializable {
+@TableName("blog_post")
+public class BlogPostPO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)

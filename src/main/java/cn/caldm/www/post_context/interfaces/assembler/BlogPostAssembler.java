@@ -1,7 +1,7 @@
 package cn.caldm.www.post_context.interfaces.assembler;
 
-import cn.caldm.www.post_context.domain.model.PostBlog;
-import cn.caldm.www.post_context.infrastructure.persistence.po.PostBlogPO;
+import cn.caldm.www.post_context.domain.model.BlogPost;
+import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
  * @author caldm
  */
 @Component
-public class PostBlogAssembler implements BaseAssembler<PostBlog, PostBlogPO> {
+public class BlogPostAssembler implements BaseAssembler<BlogPost, BlogPostPO> {
     @Override
-    public PostBlog toDomain(PostBlogPO po) {
+    public BlogPost toDomain(BlogPostPO po) {
         if (po == null) {
             return null;
         }
-        PostBlog domain = new PostBlog();
+        BlogPost domain = new BlogPost();
         domain.setId(po.getId());
         domain.setAuthorId(po.getAuthorId());
         domain.setCreator(po.getCreator());
@@ -52,11 +52,11 @@ public class PostBlogAssembler implements BaseAssembler<PostBlog, PostBlogPO> {
     }
 
     @Override
-    public PostBlogPO toPO(PostBlog domain) {
+    public BlogPostPO toPO(BlogPost domain) {
         if (domain == null) {
             return null;
         }
-        PostBlogPO po = new PostBlogPO();
+        BlogPostPO po = new BlogPostPO();
         po.setId(domain.getId());
         po.setAuthorId(domain.getAuthorId());
         po.setCreator(domain.getCreator());

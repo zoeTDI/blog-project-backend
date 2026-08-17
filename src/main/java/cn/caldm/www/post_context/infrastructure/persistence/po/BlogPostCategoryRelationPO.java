@@ -1,9 +1,12 @@
 package cn.caldm.www.post_context.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -11,10 +14,13 @@ import java.io.Serializable;
  * 对应表名：post_category_relation
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@TableName("post_category_relation")
-public class PostCategoryRelationPO implements Serializable {
+@TableName("blog_post_category_relation")
+public class BlogPostCategoryRelationPO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

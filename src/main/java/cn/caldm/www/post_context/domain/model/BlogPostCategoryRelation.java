@@ -1,6 +1,10 @@
 package cn.caldm.www.post_context.domain.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  *
@@ -9,7 +13,12 @@ import lombok.Data;
  * @author caldm
  */
 @Data
-public class PostCategoryRelation {
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class BlogPostCategoryRelation {
+
     private Long id;
     private Long postId;
     private Long categoryId;

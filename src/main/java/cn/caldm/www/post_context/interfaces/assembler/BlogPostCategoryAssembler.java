@@ -1,7 +1,7 @@
 package cn.caldm.www.post_context.interfaces.assembler;
 
-import cn.caldm.www.post_context.domain.model.BlogCategory;
-import cn.caldm.www.post_context.infrastructure.persistence.po.BlogCategoryPO;
+import cn.caldm.www.post_context.domain.model.BlogPostCategory;
+import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryPO;
 import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component;
  * @author caldm
  */
 @Component
-public class BlogCategoryAssembler implements BaseAssembler<BlogCategory, BlogCategoryPO> {
+public class BlogPostCategoryAssembler implements BaseAssembler<BlogPostCategory, BlogPostCategoryPO> {
 
     @Override
-    public BlogCategory toDomain(BlogCategoryPO po) {
+    public BlogPostCategory toDomain(BlogPostCategoryPO po) {
         if (po == null) {
             return null;
         }
 
-        BlogCategory domain = new BlogCategory();
+        BlogPostCategory domain = new BlogPostCategory();
         domain.setId(po.getId());
         domain.setUserId(po.getUserId());
         domain.setParentId(po.getParentId());
@@ -39,12 +39,12 @@ public class BlogCategoryAssembler implements BaseAssembler<BlogCategory, BlogCa
     }
 
     @Override
-    public BlogCategoryPO toPO(BlogCategory domain) {
+    public BlogPostCategoryPO toPO(BlogPostCategory domain) {
         if (domain == null) {
             return null;
         }
 
-        BlogCategoryPO po = new BlogCategoryPO();
+        BlogPostCategoryPO po = new BlogPostCategoryPO();
         po.setId(domain.getId());
         po.setUserId(domain.getUserId());
         po.setParentId(domain.getParentId());
