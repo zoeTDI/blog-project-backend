@@ -1,0 +1,7 @@
+<insert id="insertBatch" parameterType="list">
+    INSERT INTO blog_post_tag_relation (post_id, tag_id, create_time)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+        (#{item.postId}, #{item.tagId}, #{item.createTime})
+    </foreach>
+</insert>

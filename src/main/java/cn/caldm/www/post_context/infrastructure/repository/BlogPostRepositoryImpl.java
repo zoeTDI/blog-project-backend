@@ -11,6 +11,7 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryR
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -30,13 +32,13 @@ import java.util.Set;
 @Repository
 public class BlogPostRepositoryImpl implements BlogPostRepository {
     @Autowired
-    private BlogPostMapper blogPostMapper;
+    private BlogPostMapper postMapper;
     @Autowired
-    private BlogPostTagRelationMapper blogPostTagRelationMapper;
+    private BlogPostTagRelationMapper tagRelationMapper;
     @Autowired
-    private BlogPostCategoryRelationMapper blogPostCategoryRelationMapper;
+    private BlogPostCategoryRelationMapper categoryRelationMapper;
     @Autowired
-    private BlogPostAssembler blogPostAssembler;
+    private BlogPostAssembler assembler;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -44,8 +46,8 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         if (blogPost == null) {
             return null;
         }
-        BlogPostPO po = blogPostAssembler.toPO(blogPost);
-        blogPostMapper.insert(po);
+        BlogPostPO po = assembler.toPO(blogPost);
+        postMapper.insert(po);
 
         blogPost.setId(po.getId());
 
@@ -76,7 +78,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         }
 
         if (!relationPOList.isEmpty()) {
-            blogPostTagRelationMapper.insert(relationPOList);
+            tagRelationMapper.insert(relationPOList);
         }
     }
 
@@ -98,7 +100,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
 
         // 2. 批量插入数据库（非循环内单独操作）
         if (!relationPOList.isEmpty()) {
-            blogPostCategoryRelationMapper.insert(relationPOList);
+            categoryRelationMapper.insert(relationPOList);
         }
     }
 
@@ -132,5 +134,25 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
                 flattenCategoryTree(postId, childNode, false, resultList, processedCategoryIds);
             }
         }
+    }
+
+    @Override
+    public List<BlogPost> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(BlogPostPO::getId, ids)
+                .eq(BlogPostPO::getDeleted, false);
+        return postMapper.selectList(wrapper).stream()
+                .map(assembler::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public BlogPost findById(Long id) {
+        if (id == null) return null;
+        BlogPostPO po = postMapper.selectById(id);
+        return assembler.toDomain(po);
     }
 }
