@@ -112,12 +112,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         try {
-            SecurityContextHolder.setUserId(id);
-            SecurityContextHolder.setUsername(username);
+            SecurityContextHolder.Manager.setCurrentUser(id, username);
 
             filterChain.doFilter(request, response);
         } finally {
-            SecurityContextHolder.clear();
+            SecurityContextHolder.Manager.clear();
         }
     }
 
