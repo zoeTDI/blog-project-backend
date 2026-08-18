@@ -1,6 +1,7 @@
 package cn.caldm.www.post_context.application.service;
 
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
+import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,17 @@ import java.util.List;
 @Service
 public class BlogPostTagService {
     @Autowired
-    private BlogPostTagRepository blogPostTagRepository;
+    private BlogPostTagRepository tagRepository;
+
+    @Autowired
+    private BlogPostTagRelationRepository tagRelationRepository;
 
     public boolean createTag(String tagName) {
         if (!StringUtils.hasText(tagName)) {
             return false;
         }
         String trimmedName = tagName.trim();
-        if (blogPostTagRepository.existsByName(trimmedName, SecurityContextHolder.getUserId())) {
+        if (tagRepository.existsByName(trimmedName, SecurityContextHolder.getUserId())) {
             return false;
         }
         String currentUser = SecurityContextHolder.getUsername();
@@ -39,7 +43,7 @@ public class BlogPostTagService {
                 .setUpdater(currentUser)
                 .setUpdateTime(now)
                 .setDeleted(false);
-        return blogPostTagRepository.add(tag);
+        return tagRepository.add(tag);
     }
 
     public boolean renameTag(Long targetTagId, String newName) {
@@ -47,7 +51,7 @@ public class BlogPostTagService {
             return false;
         }
 
-        BlogPostTag existingTag = blogPostTagRepository.findById(targetTagId);
+        BlogPostTag existingTag = tagRepository.findById(targetTagId);
         if (existingTag == null || existingTag.getDeleted()) {
             return false;
         }
@@ -56,7 +60,7 @@ public class BlogPostTagService {
         existingTag.setUpdater(SecurityContextHolder.getUsername());
         existingTag.setUpdateTime(LocalDateTime.now());
 
-        return blogPostTagRepository.update(existingTag);
+        return tagRepository.update(existingTag);
     }
 
     public boolean deleteTag(Long tagId) {
@@ -64,18 +68,22 @@ public class BlogPostTagService {
             return false;
         }
 
-        BlogPostTag tag = blogPostTagRepository.findById(tagId);
+        BlogPostTag tag = tagRepository.findById(tagId);
         if (tag == null || tag.getDeleted()) {
             return false;
         }
-        return blogPostTagRepository.deleteById(tagId);
+
+        tagRelationRepository.deleteByTagId(tagId);
+
+        return tagRepository.deleteById(tagId);
     }
 
     public int batchDeleteTags(List<Long> tagIds) {
         if (CollectionUtils.isEmpty(tagIds)) {
             return 0;
         }
-        return blogPostTagRepository.batchDeleteByIds(tagIds);
+        tagRelationRepository.deleteByTagIds(tagIds);
+        return tagRepository.batchDeleteByIds(tagIds);
     }
 
 }
