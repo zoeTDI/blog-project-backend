@@ -124,7 +124,6 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
             relationPO.setPostId(postId);
             relationPO.setCategoryId(categoryId);
             relationPO.setIsDirect(isDirect);
-            relationPO.setDeleted(false);
             resultList.add(relationPO);
         }
 
