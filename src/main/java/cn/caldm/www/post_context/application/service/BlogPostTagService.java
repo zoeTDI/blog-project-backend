@@ -53,6 +53,7 @@ public class BlogPostTagService {
         String currentUser = SecurityContextHolder.getUsername();
         LocalDateTime now = LocalDateTime.now();
         BlogPostTag tag = new BlogPostTag()
+                .setAuthorId(authorId)
                 .setName(trimmedName)
                 .setCreator(currentUser)
                 .setCreateTime(now)
