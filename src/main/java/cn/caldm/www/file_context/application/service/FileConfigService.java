@@ -44,7 +44,7 @@ public class FileConfigService {
 
                 if (config.getMaster()) {
                     this.masterConfigId = config.getId();
-                    log.info("[initFileClients] 成功指派默认主存储客户端，配置编号: {}", config.getId());
+                    log.info("[initFileClients] 成功指派默认主存储客户端，配置编号: {}，配置名称：{}", config.getId(), config.getName());
                 }
             } catch (Exception e) {
                 log.error("[initFileClients] 存储配置编号: {} 序列化转换物理驱动失败", config.getId(), e);
