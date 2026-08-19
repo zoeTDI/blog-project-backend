@@ -35,4 +35,19 @@ public interface BlogPostCategoryRelationRepository {
      * 按文章 ID 和分类 ID 集合解绑关联
      */
     void deleteByPostIdAndCategoryIds(Long postId, Collection<Long> categoryIds);
+
+    /**
+     * 根据分类 ID 集合及关联类型（直接/间接）查询关联记录
+     */
+    List<BlogPostCategoryRelation> findByCategoryIdsAndIsDirect(Collection<Long> categoryIds, Boolean isDirect);
+
+    /**
+     * 根据文章 ID 集合及关联类型（直接/间接）查询关联记录
+     */
+    List<BlogPostCategoryRelation> findByPostIdsAndIsDirect(Collection<Long> postIds, Boolean isDirect);
+
+    /**
+     * 根据文章 ID 集合及关联类型（直接/间接）批量删除关联记录
+     */
+    void deleteByPostIdsAndIsDirect(Collection<Long> postIds, Boolean isDirect);
 }
