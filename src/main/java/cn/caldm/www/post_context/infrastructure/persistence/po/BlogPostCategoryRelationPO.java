@@ -48,12 +48,4 @@ public class BlogPostCategoryRelationPO implements Serializable {
     @TableField("is_direct")
     private Boolean isDirect;
 
-    /**
-     * 软删除标识：true-已删除，false-未删除
-     * Mybatis-Plus 逻辑删除字段
-     */
-    @TableLogic
-    @TableField("deleted")
-    private Boolean deleted;
-
 }

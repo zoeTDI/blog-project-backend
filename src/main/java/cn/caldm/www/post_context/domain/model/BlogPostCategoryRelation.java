@@ -23,20 +23,12 @@ public class BlogPostCategoryRelation {
     private Long postId;
     private Long categoryId;
     private Boolean isDirect;
-    private Boolean deleted;
 
     /**
      * 判断是否为直接关联
      */
     public boolean isDirectRelation() {
         return Boolean.TRUE.equals(isDirect);
-    }
-
-    /**
-     * 判断是否已删除
-     */
-    public boolean isDeleted() {
-        return Boolean.TRUE.equals(deleted);
     }
 
     /**

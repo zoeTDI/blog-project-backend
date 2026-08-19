@@ -24,7 +24,6 @@ public class BlogPostCategoryRelationAssembler implements BaseAssembler<BlogPost
         domain.setPostId(po.getPostId());
         domain.setCategoryId(po.getCategoryId());
         domain.setIsDirect(po.getIsDirect());
-        domain.setDeleted(po.getDeleted());
         return domain;
     }
 
@@ -38,7 +37,6 @@ public class BlogPostCategoryRelationAssembler implements BaseAssembler<BlogPost
         po.setPostId(domain.getPostId());
         po.setCategoryId(domain.getCategoryId());
         po.setIsDirect(domain.getIsDirect());
-        po.setDeleted(domain.getDeleted());
         return po;
     }
 }
