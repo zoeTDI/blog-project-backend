@@ -8,7 +8,7 @@ public interface BlogPostTagRepository {
     BlogPostTag findById(Long id);
     boolean update(BlogPostTag tag);
     boolean deleteById(Long id);
-    boolean add(BlogPostTag tag);
+    Long add(BlogPostTag tag);
     int batchDeleteByIds(List<Long> ids);
     boolean existsByName(String name, Long authorId);
 

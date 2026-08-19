@@ -35,18 +35,18 @@ public class BlogPostTagService {
     @Autowired
     private BlogPostRepository postRepository;
 
-    public boolean createTag(String tagName) {
+    public Long createTag(String tagName) {
         if (!StringUtils.hasText(tagName)) {
-            return false;
+            return null;
         }
         String trimmedName = tagName.trim();
         Long authorId = SecurityContextHolder.getUserId();
         BlogPostTag existingTag = tagRepository.findByAuthorIdAndName(authorId, trimmedName);
         if (existingTag != null) {
-            return false; // 标签已存在
+            return null; // 标签已存在
         }
         if (tagRepository.existsByName(trimmedName, SecurityContextHolder.getUserId())) {
-            return false;
+            return null;
         }
         String currentUser = SecurityContextHolder.getUsername();
         LocalDateTime now = LocalDateTime.now();
@@ -255,7 +255,7 @@ public class BlogPostTagService {
                 .setUpdater(currentUser)
                 .setUpdateTime(now)
                 .setDeleted(false);
-        boolean added = tagRepository.add(newTag);
-        return added ? newTag : null;
+        Long tagId = tagRepository.add(newTag);
+        return tagRepository.findById(tagId);
     }
 }

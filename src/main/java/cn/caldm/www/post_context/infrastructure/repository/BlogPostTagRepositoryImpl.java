@@ -46,9 +46,10 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
     }
 
     @Override
-    public boolean add(BlogPostTag tag) {
+    public Long add(BlogPostTag tag) {
         BlogPostTagPO po = assembler.toPO(tag);
-        return tagMapper.insert(po) == 1;
+        tagMapper.insert(po);
+        return po.getId();
     }
 
     @Override
