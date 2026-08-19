@@ -9,6 +9,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -43,6 +49,17 @@ public class BlogPostCategoryRepositoryImpl implements BlogPostCategoryRepositor
     }
 
     @Override
+    public List<BlogPostCategory> findListByUserId(Long userId) {
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<BlogPostCategoryPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostCategoryPO::getUserId, userId);
+        List<BlogPostCategoryPO> pos = categoryMapper.selectList(wrapper);
+        return pos.stream().map(categoryAssembler::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
     public BlogPostCategory save(BlogPostCategory category) {
         BlogPostCategoryPO po = categoryAssembler.toPO(category);
         if (po.getId() == null) {
@@ -51,5 +68,19 @@ public class BlogPostCategoryRepositoryImpl implements BlogPostCategoryRepositor
             categoryMapper.updateById(po);
         }
         return categoryAssembler.toDomain(po);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (id != null) {
+            categoryMapper.deleteById(id);
+        }
+    }
+
+    @Override
+    public void deleteByIds(Collection<Long> ids) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            categoryMapper.deleteBatchIds(ids);
+        }
     }
 }

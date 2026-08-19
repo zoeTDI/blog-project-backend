@@ -1,13 +1,20 @@
 package cn.caldm.www.post_context.application.service;
+
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCreateCommand;
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
+import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -20,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class BlogPostCategoryService {
     @Autowired
     private BlogPostCategoryRepository categoryRepository;
+
+    @Autowired
+    private BlogPostCategoryRelationRepository categoryRelationRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Long createCategory(BlogPostCategoryCreateCommand command) {
@@ -57,5 +67,47 @@ public class BlogPostCategoryService {
 
         BlogPostCategory savedCategory = categoryRepository.save(category);
         return savedCategory.getId();
+    }
+
+    /**
+     * 递归级联软删除分类及其所有子孙分类，并物理删除对应的文章分类关联记录
+     *
+     * @param categoryId 待删除分类ID
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCategory(Long categoryId) {
+        Long currentUserId = SecurityContextHolder.getUserId();
+
+        BlogPostCategory category = categoryRepository.findById(categoryId);
+        if (category == null) {
+            throw new IllegalArgumentException("待删除的分类不存在");
+        }
+        if (!category.getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("无权删除其他用户的分类");
+        }
+
+        List<BlogPostCategory> userCategories = categoryRepository.findListByUserId(currentUserId);
+        Map<Long, List<BlogPostCategory>> parentGroupMap = userCategories.stream()
+                .collect(Collectors.groupingBy(BlogPostCategory::getParentId));
+
+        List<Long> targetCategoryIds = new ArrayList<>();
+        collectChildCategoryIds(categoryId, parentGroupMap, targetCategoryIds);
+
+        categoryRepository.deleteByIds(targetCategoryIds);
+
+        categoryRelationRepository.deleteByCategoryIds(targetCategoryIds);
+    }
+
+    /**
+     * 递归收集当前分类及其所有子孙节点的 ID 辅助方法
+     */
+    private void collectChildCategoryIds(Long currentId, Map<Long, List<BlogPostCategory>> parentGroupMap, List<Long> resultIds) {
+        resultIds.add(currentId);
+        List<BlogPostCategory> children = parentGroupMap.get(currentId);
+        if (children != null && !children.isEmpty()) {
+            for (BlogPostCategory child : children) {
+                collectChildCategoryIds(child.getId(), parentGroupMap, resultIds);
+            }
+        }
     }
 }

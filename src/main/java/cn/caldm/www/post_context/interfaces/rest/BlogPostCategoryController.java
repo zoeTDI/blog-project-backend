@@ -7,10 +7,7 @@ import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCre
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  *
@@ -34,4 +31,11 @@ public class BlogPostCategoryController {
         }
         return Result.success(categoryId);
     }
+
+    @DeleteMapping("/deleteCategory/{id}")
+    public Result deleteCategory(@PathVariable("id") Long id) {
+        categoryService.deleteCategory(id);
+        return Result.success();
+    }
+
 }
