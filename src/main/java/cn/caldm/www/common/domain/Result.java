@@ -2,6 +2,8 @@ package cn.caldm.www.common.domain;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 统一全局返回结果类
  *
@@ -63,6 +65,14 @@ public class Result<T> {
 
     public static <T> Result<T> error(Integer code, String message, T data) {
         Result<T> result = error(code, message);
+        result.setData(data);
+        return result;
+    }
+
+    public static <T> Result<T> error(ResultCodeEnum codeEnum, T data) {
+        Result<T> result = new Result<>();
+        result.setCode(codeEnum.getCode());
+        result.setMessage(codeEnum.getMessage());
         result.setData(data);
         return result;
     }
