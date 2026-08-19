@@ -3,13 +3,13 @@ package cn.caldm.www.post_context.interfaces.rest;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.post_context.application.service.BlogPostTagService;
+import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  *
@@ -24,7 +24,7 @@ public class BlogPostTagController {
     private BlogPostTagService tagService;
 
     @GetMapping("/createTag")
-    public Result createTag(@RequestParam("tagName") String tagName) {
+    public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
         if (tagName == null || tagName.isBlank()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -33,5 +33,11 @@ public class BlogPostTagController {
             return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
         }
         return Result.success(Collections.singletonMap("tagId", tagId));
+    }
+
+    @PostMapping("/renameTag")
+    public Result<Void> renameTag(@Valid @RequestBody BlogPostTagRenameCommand command) {
+        tagService.renameTag(command);
+        return Result.success();
     }
 }
