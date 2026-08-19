@@ -52,7 +52,8 @@ public class UserApplicationService {
             LogUtils.warn("没有权限创建用户");
             return null;
         }
-        return userRepository.insert(creator.getUsername(), username, password, roles);
+        String encode = SlowHashUtils.bcryptEncode(password);
+        return userRepository.insert(creator.getUsername(), username, encode, roles);
     }
 
     public boolean ban(Long updaterId, Long targetUserId) {

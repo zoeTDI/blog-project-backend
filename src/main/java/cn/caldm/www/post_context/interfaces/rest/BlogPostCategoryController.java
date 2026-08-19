@@ -4,6 +4,7 @@ import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.post_context.application.service.BlogPostCategoryService;
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCreateCommand;
+import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRenameCommand;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,15 @@ public class BlogPostCategoryController {
     @DeleteMapping("/deleteCategory/{id}")
     public Result deleteCategory(@PathVariable("id") Long id) {
         categoryService.deleteCategory(id);
+        return Result.success();
+    }
+
+    @PostMapping("/renameCategory")
+    public Result RenameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
+        if (command == null) {
+            return Result.error(ResultCodeEnum.BAD_REQUEST);
+        }
+        categoryService.renameCategory(command);
         return Result.success();
     }
 

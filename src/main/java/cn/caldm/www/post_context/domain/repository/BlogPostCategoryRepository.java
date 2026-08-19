@@ -35,4 +35,6 @@ public interface BlogPostCategoryRepository {
      * 根据 ID 集合批量软删除分类
      */
     void deleteByIds(Collection<Long> ids);
+
+    boolean rename(BlogPostCategory category);
 }

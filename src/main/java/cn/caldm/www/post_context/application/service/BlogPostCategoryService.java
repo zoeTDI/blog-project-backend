@@ -2,6 +2,7 @@ package cn.caldm.www.post_context.application.service;
 
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryMoveCommand;
+import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRenameCommand;
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -161,6 +163,30 @@ public class BlogPostCategoryService {
 
         // 5. 同步受影响文章对祖先分类的冗余记录
         syncIndirectRelationsAfterMove(currentUserId, descendantCategoryIds);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void renameCategory(BlogPostCategoryRenameCommand command)  {
+        Long targetId = command.getTargetId();
+        String newName = command.getNewName();
+        if (targetId == null || newName == null || newName.isEmpty()) {
+            throw new IllegalArgumentException("重命名分类的参数错误");
+        }
+        Long userId = SecurityContextHolder.getUserId();
+        BlogPostCategory targetCategory = categoryRepository.findById(targetId);
+        if (targetCategory == null || !targetCategory.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("无权修改该分类");
+        }
+
+        BlogPostCategory category = new BlogPostCategory();
+        category.setId(targetId)
+                .setName(newName)
+                .setUpdater(SecurityContextHolder.getUsername())
+                .setUpdateTime(LocalDateTime.now());
+        boolean renamed = categoryRepository.rename(category);
+        if (!renamed) {
+            throw new IllegalArgumentException("重命名失败");
+        }
     }
 
     /**
