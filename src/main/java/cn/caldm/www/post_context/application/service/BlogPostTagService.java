@@ -1,5 +1,6 @@
 package cn.caldm.www.post_context.application.service;
 
+import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
@@ -7,6 +8,7 @@ import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,21 +62,24 @@ public class BlogPostTagService {
         return tagRepository.add(tag);
     }
 
-    public boolean renameTag(Long targetTagId, String newName) {
-        if (targetTagId == null || newName == null || newName.trim().isEmpty()) {
-            return false;
-        }
+    public void renameTag(@Valid BlogPostTagRenameCommand command) {
+        Long targetTagId = command.getTargetTagId();
+        String newName = command.getNewName();
 
+        Long curUserId = SecurityContextHolder.getUserId();
         BlogPostTag existingTag = tagRepository.findById(targetTagId);
-        if (existingTag == null || existingTag.getDeleted()) {
-            return false;
-        }
+        if (existingTag == null)
+            throw new IllegalArgumentException("目标tag不存在");
+        if (existingTag.getDeleted())
+            throw new IllegalArgumentException("目标tag被软删除");
+        if (!existingTag.getAuthorId().equals(curUserId))
+            throw new IllegalArgumentException("目标tag不归属当前用户");
 
         existingTag.setName(newName.trim());
         existingTag.setUpdater(SecurityContextHolder.getUsername());
         existingTag.setUpdateTime(LocalDateTime.now());
 
-        return tagRepository.update(existingTag);
+        tagRepository.update(existingTag);
     }
 
     public boolean deleteTag(Long tagId) {
