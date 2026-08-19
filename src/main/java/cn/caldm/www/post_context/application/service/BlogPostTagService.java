@@ -65,7 +65,7 @@ public class BlogPostTagService {
 
     public void renameTag(@Valid BlogPostTagRenameCommand command) {
         Long targetTagId = command.getTargetTagId();
-        String newName = command.getNewName();
+        String newName = command.getNewName().trim();
 
         Long curUserId = SecurityContextHolder.getUserId();
         BlogPostTag existingTag = tagRepository.findById(targetTagId);
@@ -75,6 +75,13 @@ public class BlogPostTagService {
             throw new IllegalArgumentException("目标tag被软删除");
         if (!existingTag.getAuthorId().equals(curUserId))
             throw new IllegalArgumentException("目标tag不归属当前用户");
+        if (existingTag.getName().equals(newName)) {
+            // 原名称与旧名称相同，无需更改，直接返回
+            return;
+        }
+        BlogPostTag sameNameTag = tagRepository.findByAuthorIdAndName(curUserId, newName);
+        if (sameNameTag != null && !sameNameTag.getId().equals(targetTagId))
+            throw new IllegalArgumentException("标签名称已存在");
 
         existingTag.setName(newName.trim());
         existingTag.setUpdater(SecurityContextHolder.getUsername());
