@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("blog_tag")
+@TableName("blog_post_tag")
 public class BlogPostTagPO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
