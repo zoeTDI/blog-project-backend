@@ -40,4 +40,10 @@ public class BlogPostTagController {
         tagService.renameTag(command);
         return Result.success();
     }
+
+    @DeleteMapping("/deleteTag/{id}")
+    public Result<Void> deleteTag(@Valid @PathVariable("id") Long targetTagId) {
+        tagService.deleteTag(targetTagId);
+        return Result.success();
+    }
 }

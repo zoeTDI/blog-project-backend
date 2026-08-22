@@ -63,6 +63,7 @@ public class BlogPostTagService {
         return tagRepository.add(tag);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void renameTag(@Valid BlogPostTagRenameCommand command) {
         Long targetTagId = command.getTargetTagId();
         String newName = command.getNewName().trim();
@@ -90,21 +91,30 @@ public class BlogPostTagService {
         tagRepository.update(existingTag);
     }
 
-    public boolean deleteTag(Long tagId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteTag(Long tagId) {
         if (tagId == null) {
-            return false;
+            throw new IllegalArgumentException("tag id 为空");
         }
 
         BlogPostTag tag = tagRepository.findById(tagId);
-        if (tag == null || tag.getDeleted()) {
-            return false;
+        if (tag == null) {
+            throw new IllegalArgumentException("目标tag不存在");
         }
-
+        Long curUserId = SecurityContextHolder.getUserId();
+        if (!tag.getAuthorId().equals(curUserId)) {
+            throw new IllegalArgumentException("目标tag不归属当前用户");
+        }
+        if (tag.getDeleted()) {
+            // 无需更改，直接返回
+            return;
+        }
         tagRelationRepository.deleteByTagId(tagId);
 
-        return tagRepository.deleteById(tagId);
+        tagRepository.deleteById(tagId);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public int batchDeleteTags(List<Long> tagIds) {
         if (CollectionUtils.isEmpty(tagIds)) {
             return 0;
@@ -115,7 +125,8 @@ public class BlogPostTagService {
 
     /**
      * 为文章添加单个标签（如果标签不存在则先创建，存在则复用）
-     * @param postId 文章ID
+     * 
+     * @param postId  文章ID
      * @param tagName 标签名称
      * @return 是否成功
      */
@@ -153,7 +164,8 @@ public class BlogPostTagService {
 
     /**
      * 为文章批量添加标签（支持批量创建新标签）
-     * @param postId 文章ID
+     * 
+     * @param postId   文章ID
      * @param tagNames 标签名称列表
      * @return 成功添加的标签数量
      */
@@ -212,6 +224,7 @@ public class BlogPostTagService {
 
     /**
      * 根据标签ID查询关联的文章列表
+     * 
      * @param tagId 标签ID
      * @return 文章列表
      */
@@ -231,6 +244,7 @@ public class BlogPostTagService {
 
     /**
      * 根据多个标签ID查询关联的文章列表（并集，去重）
+     * 
      * @param tagIds 标签ID列表
      * @return 文章列表（去重）
      */
