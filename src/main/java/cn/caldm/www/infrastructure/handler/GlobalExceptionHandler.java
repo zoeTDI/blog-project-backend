@@ -43,7 +43,8 @@ public class GlobalExceptionHandler {
      * 处理 @Valid 校验失败
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<ErrorDetail> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public Result<ErrorDetail> handleValidationException(MethodArgumentNotValidException e,
+            HttpServletRequest request) {
         String errorMsg = e.getBindingResult()
                 .getAllErrors()
                 .get(0)
@@ -57,7 +58,7 @@ public class GlobalExceptionHandler {
     /**
      * 处理请求体 Json 格式错误 / 缺少必要参数
      */
-    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
+    @ExceptionHandler({ HttpMessageNotReadableException.class, MissingServletRequestParameterException.class })
     public Result<ErrorDetail> handleRequestFormatException(Exception e, HttpServletRequest request) {
         String traceId = generateTraceId();
         String errorMsg = "请求参数格式错误";
@@ -78,6 +79,16 @@ public class GlobalExceptionHandler {
     }
 
     // ============================ 5xx 系统内部错误，记录栈堆 ============================
+
+    /**
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public Result<ErrorDetail> handleIllegalStateException(IllegalStateException e, HttpServletRequest request) {
+        String traceId = generateTraceId();
+        saveErrorLog(e, request, traceId, true);
+        ErrorDetail detail = new ErrorDetail(traceId, e.getMessage());
+        return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR, detail);
+    }
 
     /**
      * 处理其他所有未捕获的未知异常（兜底）
@@ -148,7 +159,8 @@ public class GlobalExceptionHandler {
                     }
                 }
                 errorLog.setExceptionClassName(targetElement.getClassName());
-                errorLog.setExceptionFileName(targetElement.getFileName() != null ? targetElement.getFileName() : "Unknown Source");
+                errorLog.setExceptionFileName(
+                        targetElement.getFileName() != null ? targetElement.getFileName() : "Unknown Source");
                 errorLog.setExceptionMethodName(targetElement.getMethodName());
                 errorLog.setExceptionLineNumber(targetElement.getLineNumber());
             } else {
