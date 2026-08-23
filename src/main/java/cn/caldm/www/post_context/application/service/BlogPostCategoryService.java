@@ -9,6 +9,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -166,16 +167,16 @@ public class BlogPostCategoryService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void renameCategory(BlogPostCategoryRenameCommand command)  {
+    public void renameCategory(@Valid BlogPostCategoryRenameCommand command) {
         Long targetId = command.getTargetId();
         String newName = command.getNewName();
-        if (targetId == null || newName == null || newName.isEmpty()) {
-            throw new IllegalArgumentException("重命名分类的参数错误");
-        }
         Long userId = SecurityContextHolder.getUserId();
         BlogPostCategory targetCategory = categoryRepository.findById(targetId);
-        if (targetCategory == null || !targetCategory.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("无权修改该分类");
+        if (targetCategory == null) {
+            throw new IllegalArgumentException("Target category not exists or already deleted.");
+        }
+        if (!Objects.equals(userId, targetCategory.getUserId())) {
+            throw new IllegalArgumentException("No permission to modify this category.");
         }
 
         BlogPostCategory category = new BlogPostCategory();
@@ -185,7 +186,7 @@ public class BlogPostCategoryService {
                 .setUpdateTime(LocalDateTime.now());
         boolean renamed = categoryRepository.rename(category);
         if (!renamed) {
-            throw new IllegalArgumentException("重命名失败");
+            throw new IllegalStateException("Rename operation failed.");
         }
     }
 
@@ -253,7 +254,8 @@ public class BlogPostCategoryService {
     /**
      * 向上递归收集祖先节点 ID 辅助方法（排除直接分类本身）
      */
-    private void collectAncestorCategoryIds(Long currentCategoryId, Map<Long, BlogPostCategory> categoryMap, Set<Long> ancestorIds) {
+    private void collectAncestorCategoryIds(Long currentCategoryId, Map<Long, BlogPostCategory> categoryMap,
+            Set<Long> ancestorIds) {
         BlogPostCategory current = categoryMap.get(currentCategoryId);
         if (current == null || current.getParentId() == null || current.getParentId() <= 0) {
             return;
@@ -269,7 +271,8 @@ public class BlogPostCategoryService {
     /**
      * 递归收集当前分类及其所有子孙节点的 ID 辅助方法
      */
-    private void collectChildCategoryIds(Long currentId, Map<Long, List<BlogPostCategory>> parentGroupMap, List<Long> resultIds) {
+    private void collectChildCategoryIds(Long currentId, Map<Long, List<BlogPostCategory>> parentGroupMap,
+            List<Long> resultIds) {
         resultIds.add(currentId);
         List<BlogPostCategory> children = parentGroupMap.get(currentId);
         if (children != null && !children.isEmpty()) {
