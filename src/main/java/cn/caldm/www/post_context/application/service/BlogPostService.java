@@ -1,12 +1,16 @@
 package cn.caldm.www.post_context.application.service;
 
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
+import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.application.service.command.CategoryNodeParam;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
+import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,15 +32,17 @@ public class BlogPostService {
     @Autowired
     private BlogPostRepository blogPostRepository;
 
-    public Long createPost(BlogPostCreateCommand command) {
+    public Long createPost(@Valid BlogPostCreateCommand command) {
         if (command == null) {
             throw new IllegalArgumentException("创建文章参数不能为空");
         }
 
         BlogPost blogPost = new BlogPost();
-        blogPost.setAuthorId(command.getAuthorId());
-        blogPost.setCreator(command.getCreator());
-        blogPost.setUpdater(command.getCreator());
+        Long curUserId = SecurityContextHolder.getUserId();
+        String curUsername = SecurityContextHolder.getUsername();
+        blogPost.setAuthorId(curUserId);
+        blogPost.setCreator(curUsername);
+        blogPost.setUpdater(curUsername);
         blogPost.setTitle(command.getTitle());
         blogPost.setSubtitle(command.getSubtitle());
         blogPost.setContentMd(command.getContentMd());
@@ -81,6 +87,51 @@ public class BlogPostService {
 
         BlogPost savedPost = blogPostRepository.save(blogPost);
         return savedPost != null ? savedPost.getId() : null;
+    }
+
+    public void updateBlogPost(@Valid BlogPostUpdateCommand command) {
+        BlogPost post = blogPostRepository.findById(command.getTargetPostId());
+        if (post == null) {
+            throw new IllegalArgumentException("Target post is null.");
+        }
+        if (post.getDeleted()) {
+            throw new IllegalArgumentException("Target post is deleted.");
+        }
+        if (BlogPostStatusEnum.REVIEWING.equals(post.getStatus())) {
+            throw new IllegalArgumentException("Target article is under review, cannot modify.");
+        }
+        Long curUserId = SecurityContextHolder.getUserId();
+        String curUsername = SecurityContextHolder.getUsername();
+        if (post.getAuthorId().equals(curUserId)) {
+            throw new IllegalArgumentException("Author is not current user.");
+        }
+        BlogPost newPost = new BlogPost();
+        newPost.setId(post.getId());
+        newPost.setTitle(command.getTitle());
+        newPost.setSubtitle(command.getSubtitle());
+        newPost.setContentMd(command.getContentMd());
+        newPost.setContentHtml(command.getContentHtml());
+        newPost.setSummary(command.getSummary());
+        newPost.setType(command.getType());
+        newPost.setStatus(command.getStatus());
+        newPost.setIsTop(command.getIsTop());
+        newPost.setIsOriginal(command.getIsOriginal());
+        newPost.setPublishedTime(command.getPublishedTime());
+        newPost.setSlug(command.getSlug());
+        newPost.setSeoKeywords(command.getSeoKeywords());
+        newPost.setSeoDescription(command.getSeoDescription());
+        newPost.setAllowComment(command.getAllowComment());
+        newPost.setReprintSource(command.getReprintSource());
+        newPost.setSortWeight(command.getSortWeight());
+        newPost.setUpdater(curUsername);
+        newPost.setUpdateTime(LocalDateTime.now());
+
+        Boolean updateById = blogPostRepository.updateById(newPost);
+        if (!updateById) {
+            throw new IllegalStateException(
+                    "Failed to update blog post, possibly due to concurrent modification or data inconsistency.");
+        }
+
     }
 
     /**
