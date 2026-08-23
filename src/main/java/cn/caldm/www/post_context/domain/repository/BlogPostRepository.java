@@ -15,6 +15,7 @@ public interface BlogPostRepository {
 
     /**
      * 根据ID列表批量查询文章（只查询未删除的）
+     * 
      * @param ids 文章ID列表
      * @return 文章列表（按ID顺序）
      */
@@ -22,8 +23,14 @@ public interface BlogPostRepository {
 
     /**
      * 根据ID查询单篇文章（只查未删除的）
+     * 
      * @param id 文章ID
      * @return 文章聚合根
      */
     BlogPost findById(Long id);
+
+    /**
+     * 根据ID更新文章（只更新非null字段）
+     */
+    Boolean updateById(BlogPost post);
 }

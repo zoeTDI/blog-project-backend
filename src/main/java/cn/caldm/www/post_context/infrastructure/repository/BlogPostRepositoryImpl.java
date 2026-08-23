@@ -108,10 +108,10 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
      * 递归展平分类树结构
      */
     private void flattenCategoryTree(Long postId,
-                                     CategoryTreeNode node,
-                                     boolean isDirect,
-                                     List<BlogPostCategoryRelationPO> resultList,
-                                     Set<Long> processedCategoryIds) {
+            CategoryTreeNode node,
+            boolean isDirect,
+            List<BlogPostCategoryRelationPO> resultList,
+            Set<Long> processedCategoryIds) {
         if (node == null || node.getCategory() == null || node.getCategory().getId() == null) {
             return;
         }
@@ -150,8 +150,19 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
 
     @Override
     public BlogPost findById(Long id) {
-        if (id == null) return null;
+        if (id == null)
+            return null;
         BlogPostPO po = postMapper.selectById(id);
         return assembler.toDomain(po);
+    }
+ 
+    @Override
+    public Boolean updateById(BlogPost post) {
+        if (post == null || post.getId() == null) {
+            throw new IllegalArgumentException("Article not existe or article ID not existe.");
+        }
+        BlogPostPO po = assembler.toPO(post);
+        int updateById = postMapper.updateById(po);
+        return updateById == 1;
     }
 }
