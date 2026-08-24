@@ -6,6 +6,7 @@ import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRen
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
+import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
@@ -188,6 +189,47 @@ public class BlogPostCategoryService {
         if (!renamed) {
             throw new IllegalStateException("Rename operation failed.");
         }
+    }
+
+    public List<CategoryTreeNode> getCategoryTreeByAuthorId(Long authorId) {
+        if (authorId == null) {
+            return List.of();
+        }
+        List<BlogPostCategory> categoryList = categoryRepository.findListByUserId(authorId);
+
+        // Filter out deleted categories.
+        List<BlogPostCategory> filtered = categoryList.stream()
+                .filter(category -> category.getDeleted() == false)
+                .collect(Collectors.toList());
+
+        // Build id -> node mapping.
+        Map<Long, CategoryTreeNode> map = new HashMap<>();
+        filtered.forEach(category -> {
+            CategoryTreeNode node = new CategoryTreeNode();
+            node.setCategory(category);
+            node.setChildren(new ArrayList<>());
+            map.put(category.getId(), node);
+        });
+        // Attach child nodes to parent node.
+        filtered.forEach(category -> {
+            Long parentId = category.getParentId();
+            if (parentId != null && !parentId.equals(0L)) {
+                CategoryTreeNode parent = map.get(parentId);
+
+                if (parent != null) {
+                    parent.getChildren().add(map.get(category.getId()));
+                }
+            }
+        });
+
+        // Collect all root nodes.
+        return filtered.stream()
+                .filter(category -> {
+                    Long parentId = category.getParentId();
+                    return parentId == null || parentId.equals(0L);
+                })
+                .map(category -> map.get(category.getId()))
+                .collect(Collectors.toList());
     }
 
     /**

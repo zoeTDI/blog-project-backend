@@ -37,4 +37,6 @@ public interface BlogPostCategoryRepository {
     void deleteByIds(Collection<Long> ids);
 
     boolean rename(BlogPostCategory category);
+
+    List<BlogPostCategory> selectByAuthorId(Long authorId);
 }

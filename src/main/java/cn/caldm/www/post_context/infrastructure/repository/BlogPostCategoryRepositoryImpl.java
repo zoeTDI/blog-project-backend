@@ -90,4 +90,15 @@ public class BlogPostCategoryRepositoryImpl implements BlogPostCategoryRepositor
         BlogPostCategoryPO po = categoryAssembler.toPO(category);
         return categoryMapper.updateById(po) == 1;
     }
+
+    @Override
+    public List<BlogPostCategory> selectByAuthorId(Long authorId) {
+        if (authorId == null) {
+            return List.of();
+        }
+        LambdaQueryWrapper<BlogPostCategoryPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostCategoryPO::getUserId, authorId);
+        List<BlogPostCategoryPO> selectList = categoryMapper.selectList(wrapper);
+        return categoryAssembler.toDomainList(selectList);
+    }
 }
