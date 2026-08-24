@@ -54,7 +54,8 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
 
     @Override
     public int batchDeleteByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) return 0;
+        if (ids == null || ids.isEmpty())
+            return 0;
         LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
         wrapper.in(BlogPostTagPO::getId, ids)
                 .eq(BlogPostTagPO::getDeleted, false)
@@ -75,7 +76,7 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
 
     @Override
     public int incrementPostCountByIds(List<Long> tagIds) {
-        if(tagIds == null || tagIds.isEmpty()) {
+        if (tagIds == null || tagIds.isEmpty()) {
             return 0;
         }
         LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
@@ -121,4 +122,19 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
         BlogPostTagPO po = tagMapper.selectOne(wrapper);
         return assembler.toDomain(po);
     }
+
+    @Override
+    public List<BlogPostTag> findByAuthorId(Long authorId) {
+        if (authorId == null) {
+            return List.of();
+        }
+        LambdaQueryWrapper<BlogPostTagPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostTagPO::getAuthorId, authorId);
+        List<BlogPostTagPO> selectList = tagMapper.selectList(wrapper);
+        if (selectList == null || selectList.isEmpty()) {
+            return List.of();
+        }
+        return assembler.toDomainList(selectList);
+    }
+
 }

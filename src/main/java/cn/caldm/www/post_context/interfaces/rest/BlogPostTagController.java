@@ -4,11 +4,14 @@ import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.post_context.application.service.BlogPostTagService;
 import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
+import cn.caldm.www.post_context.domain.model.BlogPostTag;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,5 +48,11 @@ public class BlogPostTagController {
     public Result<Void> deleteTag(@Valid @PathVariable("id") Long targetTagId) {
         tagService.deleteTag(targetTagId);
         return Result.success();
+    }
+
+    @GetMapping("/getAllTagsByAuthor")
+    public Result<List<BlogPostTag>> getAllTags() {
+        Long authorId = SecurityContextHolder.getUserId();
+        return Result.success(tagService.getTagsByAuthorId(authorId));
     }
 }

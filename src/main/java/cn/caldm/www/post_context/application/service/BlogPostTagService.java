@@ -262,6 +262,20 @@ public class BlogPostTagService {
         return postRepository.findByIds(postIds);
     }
 
+    /**
+     * 获取创建者的所有标签
+     */
+    public List<BlogPostTag> getTagsByAuthorId(Long authorId) {
+        if (authorId == null) {
+            throw new IllegalArgumentException("Author Id is null.");
+        }
+        List<BlogPostTag> tags = tagRepository.findByAuthorId(authorId);
+        return tags.stream()
+                .filter(tag -> tag.getDeleted() == false)
+                .collect(Collectors.toList());
+
+    }
+
     private BlogPostTag getOrCreateTag(String tagName, Long authorId) {
         if (authorId == null || !StringUtils.hasText(tagName)) {
             return null;
