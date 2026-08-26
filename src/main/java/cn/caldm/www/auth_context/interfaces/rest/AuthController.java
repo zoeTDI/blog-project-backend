@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
-
 /**
  *
  * 登录、登出、状态刷新
@@ -82,17 +81,20 @@ public class AuthController {
         return Result.success();
     }
 
-
     @PostMapping("/logout")
-    public Result<String> logout(HttpServletRequest request, HttpServletResponse response ) {
+    public Result<String> logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = extractCookie(request, "accessToken");
         String refreshToken = extractCookie(request, "refreshToken");
 
         authService.logout(accessToken, refreshToken);
 
         // 清除客户端 Cookie
-        setCookie(response, "accessToken", "", 0);
-        setCookie(response, "refreshToken", "", 0);
+        if (accessToken != null) {
+            setCookie(response, "accessToken", "", 0);
+        }
+        if (refreshToken != null) {
+            setCookie(response, "refreshToken", "", 0);
+        }
 
         return Result.successMsg("登出成功");
     }
@@ -101,7 +103,7 @@ public class AuthController {
     public Result<String> refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractCookie(request, "refreshToken");
         TokenPair tokenPair = authService.refreshToken(refreshToken);
-
+        // todo 处理用户假登录状态（详情见Gemini对话页面）target date 2025-8-25 record date 2025-8-25
         setCookie(response, "accessToken", tokenPair.getAccessToken(), 3600);
         setCookie(response, "refreshToken", tokenPair.getRefreshToken(), 7 * 24 * 3600);
 
@@ -131,8 +133,12 @@ public class AuthController {
     }
 
     private Result<LoginResDTO> handleLoginSuccess(HttpServletResponse response, AuthUser authUser) {
-        setCookie(response, "accessToken", authUser.getAccessToken(), 3600);
-        setCookie(response, "refreshToken", authUser.getRefreshToken(), 7 * 24 * 3600);
+        Long accessTokenExpiresAt = authUser.getAccessTokenExpiresAt();
+        Long refreshTokenExpiresAt = authUser.getRefreshTokenExpiresAt();
+        long accessMaxAge = (accessTokenExpiresAt - System.currentTimeMillis()) / 1000;
+        long refreshMaxAge = (refreshTokenExpiresAt - System.currentTimeMillis()) / 1000;
+        setCookie(response, "accessToken", authUser.getAccessToken(), accessMaxAge);
+        setCookie(response, "refreshToken", authUser.getRefreshToken(), refreshMaxAge);
         LoginResDTO resDTO = new LoginResDTO();
         resDTO.setId(authUser.getId());
         resDTO.setEmail(authUser.getEmail());
@@ -141,6 +147,8 @@ public class AuthController {
         resDTO.setRoles(authUser.getRoles());
         resDTO.setAvatar(authUser.getAvatar());
         resDTO.setMenus(authUser.getMenus());
+        resDTO.setAccessTokenExpiresAt(accessTokenExpiresAt);
+        resDTO.setRefreshTokenExpiresAt(refreshTokenExpiresAt);
 
         return Result.success("登录成功", resDTO);
     }

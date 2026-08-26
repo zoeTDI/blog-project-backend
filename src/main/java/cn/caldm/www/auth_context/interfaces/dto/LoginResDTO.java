@@ -26,4 +26,6 @@ public class LoginResDTO {
     private String avatar;
     private List<RoleEnum> roles;
     private List<String> menus;
+    private Long accessTokenExpiresAt;
+    private Long refreshTokenExpiresAt;
 }

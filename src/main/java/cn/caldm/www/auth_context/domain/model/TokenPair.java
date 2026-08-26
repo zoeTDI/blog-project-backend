@@ -14,4 +14,6 @@ import lombok.Data;
 public class TokenPair {
     private String accessToken;
     private String refreshToken;
+    private Long accessTokenExpiresAt;
+    private Long refreshTokenExpiresAt;
 }

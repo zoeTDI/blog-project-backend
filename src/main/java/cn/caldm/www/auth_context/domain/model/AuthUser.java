@@ -27,4 +27,6 @@ public class AuthUser {
     private SysUserDeletedEnum deleted;
     private String accessToken;
     private String refreshToken;
+    private Long accessTokenExpiresAt;
+    private Long refreshTokenExpiresAt;
 }

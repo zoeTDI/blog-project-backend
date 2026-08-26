@@ -44,6 +44,8 @@ public class AuthApplicationService {
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
         user.setAccessToken(tokenPair.getAccessToken());
+        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
+        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
         return user;
     }
 
@@ -55,6 +57,8 @@ public class AuthApplicationService {
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
         user.setAccessToken(tokenPair.getAccessToken());
+        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
+        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
         return user;
     }
 
@@ -71,6 +75,8 @@ public class AuthApplicationService {
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
         user.setAccessToken(tokenPair.getAccessToken());
+        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
+        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
         return user;
     }
 
@@ -121,9 +127,12 @@ public class AuthApplicationService {
             return null;
         }
         blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
+        long now = System.currentTimeMillis();
         return new TokenPair(
                 jwtTokenProvider.createAccessToken(user),
-                jwtTokenProvider.createRefreshToken(user)
+                jwtTokenProvider.createRefreshToken(user),
+                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
+                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
         );
     }
 
@@ -133,8 +142,12 @@ public class AuthApplicationService {
         ) {
             throw new RuntimeException("账号已被封禁或注销");
         }
-        String accessToken = jwtTokenProvider.createAccessToken(user);
-        String refreshToken = jwtTokenProvider.createRefreshToken(user);
-        return new TokenPair(accessToken, refreshToken);
+        long now = System.currentTimeMillis();
+        return new TokenPair(
+                jwtTokenProvider.createAccessToken(user),
+                jwtTokenProvider.createRefreshToken(user),
+                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
+                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
+        );
     }
 }
