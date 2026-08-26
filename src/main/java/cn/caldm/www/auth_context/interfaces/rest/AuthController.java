@@ -9,6 +9,7 @@ import cn.caldm.www.common.domain.ResultCodeEnum;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,8 @@ public class AuthController {
     private AuthApplicationService authService;
 
     @PostMapping("/login/username-password")
-    public Result<LoginResDTO> login(@RequestBody LoginUPReqDTO reqDTO, HttpServletResponse response) {
-        String username = reqDTO.getUsername();
-        String password = reqDTO.getPassword();
-        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        AuthUser authUser = authService.loginByUP(username, password);
+    public Result<LoginResDTO> login(@Valid @RequestBody LoginUPCommand command, HttpServletResponse response) {
+        AuthUser authUser = authService.loginByUP(command);
         if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -41,13 +37,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/email-password")
-    public Result<LoginResDTO> login(@RequestBody LoginEPReqDTO reqDTO, HttpServletResponse response) {
-        String email = reqDTO.getEmail();
-        String password = reqDTO.getPassword();
-        if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        AuthUser authUser = authService.loginByEP(email, password);
+    public Result<LoginResDTO> login(@Valid @RequestBody LoginEPCommand command, HttpServletResponse response) {
+        AuthUser authUser = authService.loginByEP(command);
         if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -55,13 +46,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/email-code")
-    public Result<LoginResDTO> login(@RequestBody LoginECReqDTO reqDTO, HttpServletResponse response) {
-        String email = reqDTO.getEmail();
-        String code = reqDTO.getCode();
-        if (email == null || email.trim().isEmpty() || code == null || code.trim().isEmpty()) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        AuthUser authUser = authService.loginByEC(email, code);
+    public Result<LoginResDTO> login(@Valid @RequestBody LoginECCommand command, HttpServletResponse response) {
+        AuthUser authUser = authService.loginByEC(command);
         if (authUser == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -69,12 +55,8 @@ public class AuthController {
     }
 
     @PostMapping("/send-login-code")
-    public Result<LoginResDTO> sendLoginCode(@RequestBody SendLoginCodeDTO reqDto) {
-        String email = reqDto.getEmail();
-        if (email == null || email.isEmpty()) {
-            return null;
-        }
-        boolean sent = authService.sendLoginCode(email);
+    public Result<LoginResDTO> sendLoginCode(@Valid @RequestBody SendLoginCodeCommand command) {
+        boolean sent = authService.sendLoginCode(command);
         if (!sent) {
             return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
         }
@@ -104,8 +86,10 @@ public class AuthController {
         String refreshToken = extractCookie(request, "refreshToken");
         TokenPair tokenPair = authService.refreshToken(refreshToken);
         // todo 处理用户假登录状态（详情见Gemini对话页面）target date 2025-8-25 record date 2025-8-25
-        setCookie(response, "accessToken", tokenPair.getAccessToken(), 3600);
-        setCookie(response, "refreshToken", tokenPair.getRefreshToken(), 7 * 24 * 3600);
+        long accessMaxAge = (tokenPair.getAccessTokenExpiresAt() - System.currentTimeMillis()) / 1000;
+        long refreshMaxAge = (tokenPair.getRefreshTokenExpiresAt() - System.currentTimeMillis()) / 1000;
+        setCookie(response, "accessToken", tokenPair.getAccessToken(), accessMaxAge);
+        setCookie(response, "refreshToken", tokenPair.getRefreshToken(), refreshMaxAge);
 
         return Result.successMsg("Token 刷新成功");
     }

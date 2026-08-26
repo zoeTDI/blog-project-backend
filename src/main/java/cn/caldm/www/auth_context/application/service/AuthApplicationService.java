@@ -5,12 +5,17 @@ import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.domain.repository.VerificationCodeRepository;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
+import cn.caldm.www.auth_context.interfaces.dto.LoginECCommand;
+import cn.caldm.www.auth_context.interfaces.dto.LoginEPCommand;
+import cn.caldm.www.auth_context.interfaces.dto.LoginUPCommand;
+import cn.caldm.www.auth_context.interfaces.dto.SendLoginCodeCommand;
 import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.common.utils.SlowHashUtils;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.security.SecureRandom;
 
@@ -35,7 +40,9 @@ public class AuthApplicationService {
 
     private final String LOGIN_PREFIX = "user:login:code:";
 
-    public AuthUser loginByUP(String username, String password) {
+    public AuthUser loginByUP(@Validated LoginUPCommand command) {
+        String username = command.getUsername();
+        String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByUsername(username);
 
         if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
@@ -49,7 +56,9 @@ public class AuthApplicationService {
         return user;
     }
 
-    public AuthUser loginByEP(String email, String password) {
+    public AuthUser loginByEP(@Validated LoginEPCommand command) {
+        String email = command.getEmail();
+        String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
             throw new RuntimeException("邮箱或密码错误");
@@ -62,7 +71,9 @@ public class AuthApplicationService {
         return user;
     }
 
-    public AuthUser loginByEC(String email, String code) {
+    public AuthUser loginByEC(@Validated LoginECCommand command) {
+        String email = command.getEmail();
+        String code = command.getCode();
         String key = LOGIN_PREFIX + email;
         boolean isValid = verificationCodeRepository.verifyCode(key, code);
         if (!isValid) {
@@ -83,7 +94,8 @@ public class AuthApplicationService {
     /**
      * 发送登录验证码
      */
-    public boolean sendLoginCode(String email) {
+    public boolean sendLoginCode(@Validated SendLoginCodeCommand command) {
+        String email = command.getEmail();
         String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
 
         try {
