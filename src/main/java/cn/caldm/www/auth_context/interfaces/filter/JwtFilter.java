@@ -46,14 +46,16 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/auth/login/email-code",
             "/api/auth/send-login-code",
             // 访问文件资源端口 todo 暂未实现
-            "/api/file/**"
-    );
+            "/api/file/**");
+
+    private static final String REFRESH_PATH = "/api/auth/refresh";
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
@@ -64,65 +66,121 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String requestUri = request.getRequestURI();
-        for (String pattern : WHITELIST) {
-            if (pathMatcher.match(pattern, requestUri)) {
-                // 校验通过，直接放行
-                filterChain.doFilter(request, response);
-                return;
-            }
+        // white list verify
+        if (pathVerify(requestUri)) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        String accessToken = null;
+        if (REFRESH_PATH.equals(requestUri)) {
+
+            // 刷新token
+            String refreshToken = getRefreshToken(request);
+            if (refreshToken == null) {
+                writeErrorResponse(response, ResultCodeEnum.REFRESH_FAILED);
+                return;
+            }
+            Map<String, Claim> data = jwtTokenProvider.verifyToken(refreshToken);
+            if (data == null) {
+                writeErrorResponse(response, ResultCodeEnum.REFRESH_FAILED);
+                return;
+            }
+            String tokenType = data.get("type").asString();
+            if (!("refresh".equals(tokenType))) {
+                writeErrorResponse(response, ResultCodeEnum.REFRESH_FAILED);
+                return;
+            }
+            Long id = data.get("id").asLong();
+            AuthUser authUser = authUserFacadeService.getCredentialById(id);
+            if (authUser == null
+                    || SysUserStatusEnum.DISABLED.equals(authUser.getStatus())
+                    || SysUserDeletedEnum.DELETED.equals(authUser.getDeleted())) {
+                writeErrorResponse(response, ResultCodeEnum.REFRESH_FAILED);
+                return;
+            }
+            try {
+                SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername());
+                    filterChain.doFilter(request, response);
+            } finally {
+                SecurityContextHolder.Manager.clear();
+            }
+
+        } else {
+            String accessToken = getAccessToken(request);
+            if (accessToken == null) {
+                writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+                return;
+            }
+            Map<String, Claim> data = jwtTokenProvider.verifyToken(accessToken);
+            if (data == null) {
+                writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+                return;
+            }
+            String type = data.get("type").asString();
+            if (!("access".equals(type))) {
+                writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+                return;
+            }
+            Long id = data.get("id").asLong();
+            AuthUser authUser = authUserFacadeService.getCredentialById(id);
+            if (authUser == null
+                    || SysUserStatusEnum.DISABLED.equals(authUser.getStatus())
+                    || SysUserDeletedEnum.DELETED.equals(authUser.getDeleted())) {
+                writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+                return;
+            }
+            try {
+                SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername());
+                filterChain.doFilter(request, response);
+            } finally {
+                SecurityContextHolder.Manager.clear();
+            }
+        }
+    }
+
+    private void writeErrorResponse(HttpServletResponse response, ResultCodeEnum resultCode) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Result<Object> result = Result.error(resultCode, "Authentication failed.");
+        response.getWriter().write(objectMapper.writeValueAsString(result));
+    }
+
+    /**
+     * Check if the request URI matches any pattern in the white list.
+     *
+     * @param requestUri the URI of the current request.
+     * @return true if the URI matches a white list pattern, false otherwise.
+     */
+    private boolean pathVerify(String requestUri) {
+        for (String pattern : WHITELIST) {
+            if (pathMatcher.match(pattern, requestUri)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
-                    accessToken = cookie.getValue();
-                    break;
+                    return cookie.getValue();
                 }
             }
         }
-        if (accessToken == null || accessToken.isEmpty()) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "未携带Token授权信息");
-            return;
-        }
-
-        Map<String, Claim> userData = jwtTokenProvider.verifyToken(accessToken);
-        if (userData == null) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "Token不合法、已过期或已注销");
-            return;
-        }
-
-        Claim tokenTypeClaim = userData.get("type");
-        if (tokenTypeClaim == null || !"access".equals(tokenTypeClaim.asString())) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "令牌类型错误，无法访问业务接口");
-            return;
-        }
-
-        Long id = userData.get("id").asLong();
-        String username = userData.get("username").asString();
-
-        AuthUser user = authUserFacadeService.getCredentialById(id);
-        if (user == null
-            || SysUserStatusEnum.DISABLED.equals(user.getStatus())
-            || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
-        ) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED, "该账户已被封禁或已注销");
-            return;
-        }
-
-        try {
-            SecurityContextHolder.Manager.setCurrentUser(id, username);
-
-            filterChain.doFilter(request, response);
-        } finally {
-            SecurityContextHolder.Manager.clear();
-        }
+        return null;
     }
 
-    private void writeErrorResponse(HttpServletResponse response, ResultCodeEnum resultCode, String customMessage) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        Result<Object> result = Result.error(resultCode, customMessage);
-        response.getWriter().write(objectMapper.writeValueAsString(result));
+    private String getRefreshToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
+
 }
