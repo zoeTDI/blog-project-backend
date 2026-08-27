@@ -1,5 +1,6 @@
 package cn.caldm.www.post_context.domain.repository;
 
+import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 
 import java.util.List;
@@ -28,6 +29,11 @@ public interface BlogPostRepository {
      * @return 文章聚合根
      */
     BlogPost findById(Long id);
+
+    /**
+     * Finds non-deleted posts owned by an author, ordered for the author's management view.
+     */
+    PageResult<BlogPost> findPageByAuthorId(Long authorId, long page, long size);
 
     /**
      * 根据ID更新文章（只更新非null字段）

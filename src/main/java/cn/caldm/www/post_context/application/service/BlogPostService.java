@@ -1,5 +1,6 @@
 package cn.caldm.www.post_context.application.service;
 
+import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.application.service.command.CategoryNodeParam;
@@ -31,6 +32,18 @@ import java.util.stream.Collectors;
 public class BlogPostService {
     @Autowired
     private BlogPostRepository blogPostRepository;
+    /**
+     * Queries the complete (all statuses), non-deleted article list of the authenticated user.
+     */
+    public PageResult<BlogPost> getCurrentUserPosts(long page, long size) {
+        if (page < 1) {
+            throw new IllegalArgumentException("page must be greater than or equal to 1");
+        }
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException("size must be between 1 and 100");
+        }
+        return blogPostRepository.findPageByAuthorId(SecurityContextHolder.getUserId(), page, size);
+    }
 
     public Long createPost(@Valid BlogPostCreateCommand command) {
         if (command == null) {

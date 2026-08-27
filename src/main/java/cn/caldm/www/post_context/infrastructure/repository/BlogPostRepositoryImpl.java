@@ -1,5 +1,6 @@
 package cn.caldm.www.post_context.infrastructure.repository;
 
+import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
@@ -12,6 +13,7 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,6 +156,25 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
             return null;
         BlogPostPO po = postMapper.selectById(id);
         return assembler.toDomain(po);
+    }
+
+    @Override
+    public PageResult<BlogPost> findPageByAuthorId(Long authorId, long page, long size) {
+        if (authorId == null) {
+            throw new IllegalArgumentException("Author id cannot be null.");
+        }
+        Page<BlogPostPO> pageRequest = new Page<>(page, size);
+        LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostPO::getAuthorId, authorId)
+                .orderByDesc(BlogPostPO::getIsTop)
+                .orderByDesc(BlogPostPO::getSortWeight)
+                .orderByDesc(BlogPostPO::getCreateTime)
+                .orderByDesc(BlogPostPO::getId);
+        Page<BlogPostPO> result = postMapper.selectPage(pageRequest, wrapper);
+        List<BlogPost> records = result.getRecords().stream()
+                .map(assembler::toDomain)
+                .toList();
+        return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
     }
  
     @Override
