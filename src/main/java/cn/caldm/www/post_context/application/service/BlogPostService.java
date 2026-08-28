@@ -4,11 +4,8 @@ import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.application.service.command.CategoryNodeParam;
-import cn.caldm.www.post_context.domain.model.BlogPost;
-import cn.caldm.www.post_context.domain.model.BlogPostCategory;
-import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
-import cn.caldm.www.post_context.domain.model.BlogPostTag;
-import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
+import cn.caldm.www.post_context.domain.model.*;
+import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import jakarta.validation.Valid;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +30,10 @@ import java.util.stream.Collectors;
 public class BlogPostService {
     @Autowired
     private BlogPostRepository blogPostRepository;
+
+    @Autowired
+    private BlogPostCategoryRelationRepository categoryRelationRepository;
+
     /**
      * Queries the complete (all statuses), non-deleted article list of the authenticated user.
      */
@@ -80,6 +82,14 @@ public class BlogPostService {
         blogPost.setCollects(0);
         blogPost.setCommentCount(0);
 
+        BlogPost savedPost = blogPostRepository.save(blogPost);
+        if (savedPost == null) {
+            return null;
+        }
+        Long postId = savedPost.getId();
+        if (postId == null) {
+            return null;
+        }
         if (command.getTagIds() != null && !command.getTagIds().isEmpty()) {
             List<BlogPostTag> tags = command.getTagIds().stream()
                     .map(tagId -> {
@@ -90,16 +100,31 @@ public class BlogPostService {
                     .collect(Collectors.toList());
             blogPost.assignTags(tags);
         }
-
-        if (command.getCategoryTrees() != null && !command.getCategoryTrees().isEmpty()) {
-            List<CategoryTreeNode> categoryTrees = command.getCategoryTrees().stream()
-                    .map(this::convertToCategoryTreeNode)
-                    .collect(Collectors.toList());
-            blogPost.assignCategories(categoryTrees);
+        List<List<Long>> categoryTrees = command.getCategoryTrees();
+        if (categoryTrees != null && !categoryTrees.isEmpty()) {
+            List<BlogPostCategoryRelation> relations = categoryTrees.stream()
+                    .filter(Objects::nonNull)
+                    .flatMap(List::stream)
+                    .filter(Objects::nonNull)
+                    .map(categoryId -> new BlogPostCategoryRelation()
+                            .setPostId(postId)
+                            .setCategoryId(categoryId)
+                            .setIsDirect(true))
+                    .toList();
+            categoryRelationRepository.batchSave(relations);
         }
+        return postId;
+    }
 
-        BlogPost savedPost = blogPostRepository.save(blogPost);
-        return savedPost != null ? savedPost.getId() : null;
+    public BlogPost getBlogPostById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Blog post id must be not null.");
+        }
+        BlogPost blogPost = blogPostRepository.findById(id);
+        if (blogPost == null || blogPost.getDeleted() ) {
+            throw new IllegalArgumentException("Blog post is already deleted.");
+        }
+        return blogPost;
     }
 
     public void updateBlogPost(@Valid BlogPostUpdateCommand command) {
