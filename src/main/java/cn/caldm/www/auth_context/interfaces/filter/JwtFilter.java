@@ -45,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/auth/login/email-password",
             "/api/auth/login/email-code",
             "/api/auth/send-login-code",
+            "/api/**/public/**",
             // 访问文件资源端口 todo 暂未实现
             "/api/file/**");
 
