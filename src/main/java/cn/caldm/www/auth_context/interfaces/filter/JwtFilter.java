@@ -100,8 +100,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
             try {
-                SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername());
-                    filterChain.doFilter(request, response);
+                SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername(),
+                        authUser.getRoles(), authUser.getMenus());
+                filterChain.doFilter(request, response);
             } finally {
                 SecurityContextHolder.Manager.clear();
             }
