@@ -3,18 +3,19 @@ package cn.caldm.www.post_context.application.service;
 import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
-import cn.caldm.www.post_context.application.service.command.CategoryNodeParam;
 import cn.caldm.www.post_context.domain.model.*;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
+import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,8 +35,12 @@ public class BlogPostService {
     @Autowired
     private BlogPostCategoryRelationRepository categoryRelationRepository;
 
+    @Autowired
+    private BlogPostTagRelationRepository tagRelationRepository;
+
     /**
-     * Queries the complete (all statuses), non-deleted article list of the authenticated user.
+     * Queries the complete (all statuses), non-deleted article list of the
+     * authenticated user.
      */
     public PageResult<BlogPost> getCurrentUserPosts(long page, long size) {
         if (page < 1) {
@@ -67,7 +72,7 @@ public class BlogPostService {
         blogPost.setStatus(command.getStatus());
         blogPost.setIsTop(command.getIsTop());
         blogPost.setIsOriginal(command.getIsOriginal());
-        blogPost.setPublishedTime(command.getPublishedTime());
+        blogPost.setPublishedTime(null);
         blogPost.setSlug(command.getSlug());
         blogPost.setSeoKeywords(command.getSeoKeywords());
         blogPost.setSeoDescription(command.getSeoDescription());
@@ -121,13 +126,19 @@ public class BlogPostService {
             throw new IllegalArgumentException("Blog post id must be not null.");
         }
         BlogPost blogPost = blogPostRepository.findById(id);
-        if (blogPost == null || blogPost.getDeleted() ) {
+        if (blogPost == null || blogPost.getDeleted()) {
             throw new IllegalArgumentException("Blog post is already deleted.");
         }
+        Long curUserId = SecurityContextHolder.getUserId();
+        List<RoleEnum> curRoles = SecurityContextHolder.getRoles();
+        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(RoleEnum.ADMIN)) {
+            throw new IllegalArgumentException("Current user is not author.");
+        }
+
         return blogPost;
     }
 
-    public void updateBlogPost(@Valid BlogPostUpdateCommand command) {
+    public void updateBlogPost(@Validated BlogPostUpdateCommand command) {
         BlogPost post = blogPostRepository.findById(command.getTargetPostId());
         if (post == null) {
             throw new IllegalArgumentException("Target post is null.");
@@ -138,13 +149,17 @@ public class BlogPostService {
         if (BlogPostStatusEnum.REVIEWING.equals(post.getStatus())) {
             throw new IllegalArgumentException("Target article is under review, cannot modify.");
         }
+        Long postId = post.getId();
         Long curUserId = SecurityContextHolder.getUserId();
         String curUsername = SecurityContextHolder.getUsername();
-        if (post.getAuthorId().equals(curUserId)) {
-            throw new IllegalArgumentException("Author is not current user.");
+        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        Boolean isAuthor = post.getAuthorId().equals(curUserId);
+        Boolean isAdmin = roles != null && roles.contains(RoleEnum.ADMIN);
+        if (!isAuthor || !isAdmin) {
+            throw new IllegalArgumentException("No permission to update post.");
         }
         BlogPost newPost = new BlogPost();
-        newPost.setId(post.getId());
+        newPost.setId(postId);
         newPost.setTitle(command.getTitle());
         newPost.setSubtitle(command.getSubtitle());
         newPost.setContentMd(command.getContentMd());
@@ -169,33 +184,31 @@ public class BlogPostService {
             throw new IllegalStateException(
                     "Failed to update blog post, possibly due to concurrent modification or data inconsistency.");
         }
-
-    }
-
-    /**
-     * 递归转换 Command 的分类树参数为领域模型 CategoryTreeNode
-     */
-    private CategoryTreeNode convertToCategoryTreeNode(CategoryNodeParam param) {
-        if (param == null || param.getCategoryId() == null) {
-            return null;
-        }
-
-        BlogPostCategory category = new BlogPostCategory();
-        category.setId(param.getCategoryId());
-
-        CategoryTreeNode node = new CategoryTreeNode();
-        node.setCategory(category);
-
-        if (param.getChildren() != null && !param.getChildren().isEmpty()) {
-            List<CategoryTreeNode> children = param.getChildren().stream()
-                    .map(this::convertToCategoryTreeNode)
-                    .filter(child -> child != null)
+        // 更新分类关联
+        categoryRelationRepository.deleteByPostId(postId);
+        List<List<Long>> categoryIds = command.getCategoryIds();
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            List<Long> flatList = categoryIds.stream()
+                    .filter(Objects::nonNull)
+                    .flatMap(List::stream)
                     .collect(Collectors.toList());
-            node.setChildren(children);
-        } else {
-            node.setChildren(new ArrayList<>());
+            List<BlogPostCategoryRelation> postCategoryRelations = flatList.stream()
+                    .map(id -> new BlogPostCategoryRelation().setPostId(postId).setCategoryId(id))
+                    .collect(Collectors.toList());
+            categoryRelationRepository.batchSave(postCategoryRelations);
         }
-
-        return node;
+        // todo 更新标签关联
+        tagRelationRepository.deleteByPostId(postId);
+        List<Long> tagIds = command.getTagIds();
+        if (tagIds != null && !tagIds.isEmpty()) {
+            List<Long> filtered = tagIds.stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            List<BlogPostTagRelation> tagRelations = filtered.stream()
+                    .map(id -> new BlogPostTagRelation().setPostId(postId).setTagId(id))
+                    .collect(Collectors.toList());
+            tagRelationRepository.batchSave(tagRelations);
+        }
     }
+
 }
