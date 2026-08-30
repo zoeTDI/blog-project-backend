@@ -6,9 +6,6 @@ import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostTagRe
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostTagRelationAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -25,9 +22,6 @@ import java.util.stream.Collectors;
 public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRepository {
     @Autowired
     BlogPostTagRelationMapper tagRelationMapper;
-
-    @Autowired
-    private SqlSessionFactory sqlSessionFactory;
 
     @Autowired
     private BlogPostTagRelationAssembler assembler;
@@ -108,5 +102,15 @@ public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRep
         wrapper.eq(BlogPostTagRelationPO::getPostId, postId)
                 .eq(BlogPostTagRelationPO::getTagId, tagId);
         return tagRelationMapper.exists(wrapper);
+    }
+
+    @Override
+    public void deleteByPostId(Long postId) {
+        if (postId == null) {
+            return;
+        }
+        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostTagRelationPO::getPostId, postId);
+        tagRelationMapper.delete(wrapper);
     }
 }
