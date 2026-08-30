@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -34,7 +33,6 @@ public class BlogPostCreateCommand {
     private Boolean isTop;
     @NotNull(message = "原创状态不允许为空")
     private Boolean isOriginal;
-    private LocalDateTime publishedTime;
     private String slug;
     private String seoKeywords;
     private String seoDescription;
