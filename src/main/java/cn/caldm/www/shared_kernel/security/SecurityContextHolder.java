@@ -3,7 +3,6 @@ package cn.caldm.www.shared_kernel.security;
 import java.util.List;
 
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value.Str;
 
 /**
  *
@@ -56,8 +55,7 @@ public class SecurityContextHolder {
 
     public static class Manager {
         public static void setCurrentUser(Long userId, String username, List<RoleEnum> roles, List<String> menus) {
-            if (userId == null || username == null || roles == null || roles.isEmpty() || menus == null
-                    || menus.isEmpty()) {
+            if (userId == null || username == null || roles == null || menus == null) {
                 throw new IllegalArgumentException("userId 和 username 不能为空");
             }
             CONTEXT.set(new CurrentUser(userId, username, roles, menus));
