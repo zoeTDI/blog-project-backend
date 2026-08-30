@@ -86,11 +86,7 @@ public class BlogPost implements Serializable {
      * 归档（移入回收站）
      */
     public void archive() {
-        if (this.status == BlogPostStatusEnum.PUBLISHED || this.status == BlogPostStatusEnum.DRAFT) {
-            this.status = BlogPostStatusEnum.RECYCLE;
-        } else {
-            throw new IllegalStateException("Only published or draft posts can be archived");
-        }
+        this.deleted = true;
     }
 
     /**
