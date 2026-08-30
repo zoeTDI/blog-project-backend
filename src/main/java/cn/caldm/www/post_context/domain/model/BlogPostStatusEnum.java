@@ -11,9 +11,7 @@ import lombok.Getter;
 public enum BlogPostStatusEnum {
     DRAFT(0, "草稿"),
     PUBLISHED(1, "已发布"),
-    REVIEWING(2, "审核中"),
-    RECYCLE(3, "回收站"),
-    PRIVATE(4, "私密");
+    REVIEWING(2, "审核中");
 
     @EnumValue
     private final Integer code;
@@ -27,7 +25,8 @@ public enum BlogPostStatusEnum {
     }
 
     public static BlogPostStatusEnum fromCode(Integer code) {
-        if (code == null) return null;
+        if (code == null)
+            return null;
         for (BlogPostStatusEnum status : values()) {
             if (status.code.equals(code)) {
                 return status;
