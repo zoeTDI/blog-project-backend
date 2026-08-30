@@ -47,9 +47,10 @@ public class BlogPostCategoryRelationRepositoryImpl implements BlogPostCategoryR
         if (CollectionUtils.isEmpty(relations)) {
             return;
         }
-        for (BlogPostCategoryRelation relation : relations) {
-            save(relation);
-        }
+        List<BlogPostCategoryRelationPO> pos = relations.stream()
+                .map(relationAssembler::toPO)
+                .collect(Collectors.toList());
+        relationMapper.insertBatch(pos);
     }
 
     @Override
