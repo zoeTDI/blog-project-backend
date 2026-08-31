@@ -66,4 +66,9 @@ public interface BlogPostTagRelationRepository {
      * @return 是否已关联
      */
     boolean existsByPostIdAndTagId(Long postId, Long tagId);
+
+    /**
+     * 根据文章 ID 查询关联
+     */
+    List<BlogPostTagRelation> findByPostId(Long postId);
 }

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,4 +114,16 @@ public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRep
         wrapper.eq(BlogPostTagRelationPO::getPostId, postId);
         tagRelationMapper.delete(wrapper);
     }
+
+    @Override
+    public List<BlogPostTagRelation> findByPostId(Long postId) {
+        if (postId == null) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostTagRelationPO::getPostId, postId);
+        List<BlogPostTagRelationPO> pos = tagRelationMapper.selectList(wrapper);
+        return assembler.toDomainList(pos);
+    }
+
 }
