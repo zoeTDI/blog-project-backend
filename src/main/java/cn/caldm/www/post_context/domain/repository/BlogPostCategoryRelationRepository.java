@@ -50,4 +50,9 @@ public interface BlogPostCategoryRelationRepository {
      * 根据文章 ID 集合及关联类型（直接/间接）批量删除关联记录
      */
     void deleteByPostIdsAndIsDirect(Collection<Long> postIds, Boolean isDirect);
+
+    /**
+     * 根据文章 ID 获取关联
+     */
+    List<BlogPostCategoryRelation> findByPostId(Long postId);
 }

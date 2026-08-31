@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -127,5 +128,16 @@ public class BlogPostCategoryRelationRepositoryImpl implements BlogPostCategoryR
         wrapper.in(BlogPostCategoryRelationPO::getPostId, postIds)
                 .eq(BlogPostCategoryRelationPO::getIsDirect, isDirect);
         relationMapper.delete(wrapper);
+    }
+
+    @Override
+    public List<BlogPostCategoryRelation> findByPostId(Long postId) {
+        if (postId == null) {
+            return new ArrayList<>();
+        }
+        LambdaQueryWrapper<BlogPostCategoryRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostCategoryRelationPO::getPostId, postId);
+        List<BlogPostCategoryRelationPO> poList = relationMapper.selectList(wrapper);
+        return relationAssembler.toDomainList(poList);
     }
 }
