@@ -2,8 +2,10 @@ package cn.caldm.www.post_context.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
@@ -40,5 +42,27 @@ public class BlogPostCategoryUtils {
                 .stream()
                 .filter(node -> node.getCategory().getParentId() == 0L)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 将树形结构的分类节点扁平化
+     * 
+     * @param rootNodes 根节点列表
+     * @return 所有节点对应的分类，若输入null或空则返回空列表
+     */
+    public static List<BlogPostCategory> flattenTree(List<CategoryTreeNode> rootNodes) {
+        if (rootNodes == null || rootNodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<BlogPostCategory> result = new ArrayList<>();
+        Queue<CategoryTreeNode> queue = new LinkedList<>(rootNodes);
+        while (!queue.isEmpty()) {
+            CategoryTreeNode node = queue.poll();
+            result.add(node.getCategory());
+            if (node.getChildren() != null) {
+                queue.addAll(node.getChildren());
+            }
+        }
+        return result;
     }
 }
