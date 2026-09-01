@@ -1,0 +1,20 @@
+info:
+  name: 发送登录验证码
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{auth-url}}/send-login-code?email=1832400547@qq.com"
+  params:
+    - name: email
+      value: 1832400547@qq.com
+      type: query
+      description: 邮箱（管理员）
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

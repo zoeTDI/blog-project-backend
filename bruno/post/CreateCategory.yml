@@ -1,0 +1,25 @@
+info:
+  name: CreateCategory
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{post-url}}/createCategory"
+  body:
+    type: json
+    data: |-
+      {
+        "parentId": 2,
+        "name": "Obsidian",
+        "slug": "obsidian",
+        "description": "Obsidian是一款笔记软件"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

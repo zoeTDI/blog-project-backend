@@ -1,0 +1,20 @@
+info:
+  name: auth
+  type: folder
+  seq: 2
+
+request:
+  auth: inherit
+  variables:
+    - name: auth-url
+      value: "{{project-url}}/api/auth"
+      description: auth-context基础接口
+    - name: loginUP
+      value: "{{auth-url}}/login/username-password"
+      description: 用户名-密码登录
+    - name: loginEP
+      value: "{{auth-url}}/login/email-password"
+      description: 邮箱-密码登录
+    - name: loginCP
+      value: "{{auth-url}}/login/email-code"
+      description: 邮箱-验证码登录

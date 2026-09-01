@@ -1,0 +1,22 @@
+info:
+  name: RenameCategory
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{post-url}}/renameCategory"
+  body:
+    type: json
+    data: |-
+      {
+        "targetId": 4,
+        "newName": "OB"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

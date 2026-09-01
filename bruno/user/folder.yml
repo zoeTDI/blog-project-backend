@@ -1,0 +1,11 @@
+info:
+  name: user
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit
+  variables:
+    - name: user-url
+      value: "{{project-url}}/api/user"
+      description: user-context基础接口

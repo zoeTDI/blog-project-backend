@@ -1,0 +1,10 @@
+info:
+  name: post
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit
+  variables:
+    - name: post-url
+      value: "{{project-url}}/api/post"

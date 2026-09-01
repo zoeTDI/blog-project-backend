@@ -1,0 +1,43 @@
+info:
+  name: CreateBlogPost
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{post-url}}/blogPost/add"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Test 4",
+        "subtitle": "",
+        "contentMD": "# Test 4\n",
+        "contentHTML": "<h1>Test 4<h1>",
+        "summary": "",
+        "type": 1,
+        "status": 0,
+        "isTop": false,
+        "isOriginal": false,
+        "publishedTime": null,
+        "slug": "Test_4",
+        "seoKeywords": "",
+        "seoDescription": "",
+        "password": null,
+        "allowComment": false,
+        "reprintSource": "",
+        "sortWeight": 0,
+        "tagIds": [1, 2, 3],
+        "categoryTrees": [
+          { "categoryId": 1, "children": [] },
+          { "categoryId": 2, "children": [] },
+          { "categoryId": 3, "children": [] }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

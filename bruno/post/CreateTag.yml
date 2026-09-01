@@ -1,0 +1,19 @@
+info:
+  name: CreateTag
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{post-url}}/createTag?tagName=Codex"
+  params:
+    - name: tagName
+      value: Codex
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

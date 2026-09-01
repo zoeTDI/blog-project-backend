@@ -1,0 +1,22 @@
+info:
+  name: RenameTag
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{post-url}}/renameTag"
+  body:
+    type: json
+    data: |-
+      {
+        "targetTagId": 4,
+        "newName": "Codex"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
