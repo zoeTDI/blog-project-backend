@@ -6,7 +6,6 @@ import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostCateg
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostCategoryAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -47,6 +46,15 @@ public class BlogPostCategoryRepositoryImpl implements BlogPostCategoryRepositor
         }
         BlogPostCategoryPO po = categoryMapper.selectById(id);
         return categoryAssembler.toDomain(po);
+    }
+
+    @Override
+    public List<BlogPostCategory> batchFindById(List<Long> idList) {
+        if (CollectionUtils.isEmpty(idList)) {
+            return Collections.emptyList();
+        }
+        List<BlogPostCategoryPO> pos = categoryMapper.selectByIds(idList);
+        return categoryAssembler.toDomainList(pos);
     }
 
     @Override

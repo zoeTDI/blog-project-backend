@@ -17,6 +17,13 @@ public interface BlogPostCategoryRepository {
     BlogPostCategory findById(Long id);
 
     /**
+     * 根据 ID 列表批量查询分类
+     * @param idList ID 列表
+     * @return 分类列表
+     */
+    List<BlogPostCategory> batchFindById(List<Long> idList);
+
+    /**
      * 保存/更新分类
      */
     BlogPostCategory save(BlogPostCategory category);
