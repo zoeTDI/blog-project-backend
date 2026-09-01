@@ -263,4 +263,18 @@ public class BlogPostService {
         return tagRepository.findByIds(tagIds);
     }
 
+    public void toReview(Long postId) {
+        BlogPost cached = blogPostRepository.findById(postId);
+        if (cached == null || cached.getDeleted()) {
+            throw new IllegalStateException("Target post is deleted.");
+        }
+        Long userId = SecurityContextHolder.getUserId();
+        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(RoleEnum.AUTHOR);
+        Boolean isAdmin = roles.contains(RoleEnum.ADMIN);
+        if (!isAuthor || !isAdmin) {
+            throw new IllegalStateException("No permission to do it.");
+        }
+        blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.REVIEWING);
+    }
 }
