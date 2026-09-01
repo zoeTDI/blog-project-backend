@@ -6,6 +6,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostEditDTO;
 import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
+import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -111,10 +112,7 @@ public class BlogPostEditAssembler implements BaseAssembler<BlogPost, BlogPostEd
             dto.setTags(new ArrayList<>());
         }
         if (domain.getCategories() != null) {
-            List<List<Long>> categoryPaths = domain.getCategories().stream()
-                    .map(node -> Collections.singletonList(node.getCategory().getId()))
-                    .collect(Collectors.toList());
-            dto.setCategories(categoryPaths);
+            dto.setCategories(getIdTree(domain.getCategories()));
         } else {
             dto.setCategories(new ArrayList<>());
         }
@@ -134,4 +132,27 @@ public class BlogPostEditAssembler implements BaseAssembler<BlogPost, BlogPostEd
         dto.setSortWeight(domain.getSortWeight());
         return dto;
     }
+
+    private List<List<Long>> getIdTree(List<CategoryTreeNode> nodes) {
+        List<List<Long>> result = new ArrayList<>();
+        for (CategoryTreeNode node : nodes) {
+            getPathIds(node, new ArrayStack<>(7), result);
+        }
+        return result;
+    }
+
+    private List<Long> getPathIds(CategoryTreeNode node, ArrayStack<Long> stack, List<List<Long>> result) {
+        stack.add(node.getCategory().getId());
+        if (node.getChildren() == null || node.getChildren().isEmpty()) {
+            result.add(new ArrayList<>(stack));
+            stack.pop();
+            return stack;
+        }
+        for (CategoryTreeNode child : node.getChildren()) {
+            getPathIds(child, stack, result);
+        }
+        stack.pop();
+        return stack;
+    }
+
 }
