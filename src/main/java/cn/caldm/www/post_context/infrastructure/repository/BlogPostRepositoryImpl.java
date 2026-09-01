@@ -2,6 +2,7 @@ package cn.caldm.www.post_context.infrastructure.repository;
 
 import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
+import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
@@ -176,7 +177,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
                 .toList();
         return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
     }
- 
+
     @Override
     public Boolean updateById(BlogPost post) {
         if (post == null || post.getId() == null) {
@@ -185,5 +186,18 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         BlogPostPO po = assembler.toPO(post);
         int updateById = postMapper.updateById(po);
         return updateById == 1;
+    }
+
+    @Override
+    public Boolean updateStatusById(Long postId, BlogPostStatusEnum status) {
+        if (postId == null || status == null) {
+            return false;
+        }
+        BlogPost cached = this.findById(postId);
+        if (cached == null) {
+            return false;
+        }
+        BlogPost newPost = new BlogPost().setId(postId).setStatus(status);
+        return this.updateById(newPost);
     }
 }

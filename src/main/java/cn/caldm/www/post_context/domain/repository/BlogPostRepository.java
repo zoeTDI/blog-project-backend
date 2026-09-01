@@ -2,6 +2,7 @@ package cn.caldm.www.post_context.domain.repository;
 
 import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
+import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 
 import java.util.List;
 
@@ -31,7 +32,8 @@ public interface BlogPostRepository {
     BlogPost findById(Long id);
 
     /**
-     * Finds non-deleted posts owned by an author, ordered for the author's management view.
+     * Finds non-deleted posts owned by an author, ordered for the author's
+     * management view.
      */
     PageResult<BlogPost> findPageByAuthorId(Long authorId, long page, long size);
 
@@ -39,4 +41,9 @@ public interface BlogPostRepository {
      * 根据ID更新文章（只更新非null字段）
      */
     Boolean updateById(BlogPost post);
+
+    /**
+     * 更新文章状态
+     */
+    Boolean updateStatusById(Long postId, BlogPostStatusEnum status);
 }
