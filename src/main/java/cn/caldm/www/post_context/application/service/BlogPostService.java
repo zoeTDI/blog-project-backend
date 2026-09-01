@@ -257,7 +257,7 @@ public class BlogPostService {
             return new ArrayList<>();
         }
         List<Long> tagIds = relations.stream()
-                .map(BlogPostTagRelation::getId)
+                .map(BlogPostTagRelation::getTagId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return tagRepository.findByIds(tagIds);
@@ -275,7 +275,7 @@ public class BlogPostService {
         List<RoleEnum> roles = SecurityContextHolder.getRoles();
         Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(RoleEnum.AUTHOR);
         Boolean isAdmin = roles.contains(RoleEnum.ADMIN);
-        if (!isAuthor || !isAdmin) {
+        if (!isAuthor && !isAdmin) {
             throw new IllegalStateException("No permission to do it.");
         }
         blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.REVIEWING);
