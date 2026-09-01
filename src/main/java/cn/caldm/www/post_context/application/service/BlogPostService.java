@@ -277,4 +277,16 @@ public class BlogPostService {
         }
         blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.REVIEWING);
     }
+
+    public void toPublished(Long postId) {
+        BlogPost cached = blogPostRepository.findById(postId);
+        if (cached == null || cached.getDeleted()) {
+            throw new IllegalStateException("Target post is deleted.");
+        }
+        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        if (!roles.contains(RoleEnum.ADMIN) && !roles.contains(RoleEnum.AUDITOR)) {
+            throw new IllegalStateException("No permission to do it.");
+        }
+        blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.PUBLISHED);
+    }
 }
