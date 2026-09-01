@@ -5,8 +5,11 @@ import cn.caldm.www.post_context.application.service.command.BlogPostCreateComma
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.*;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
+import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
+import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
+import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import jakarta.validation.Valid;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,6 +41,12 @@ public class BlogPostService {
 
     @Autowired
     private BlogPostTagRelationRepository tagRelationRepository;
+
+    @Autowired
+    private BlogPostCategoryRepository categoryRepository;
+
+    @Autowired
+    private BlogPostTagRepository tagRepository;
 
     /**
      * Queries the complete (all statuses), non-deleted article list of the
@@ -134,7 +144,12 @@ public class BlogPostService {
         if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(RoleEnum.ADMIN)) {
             throw new IllegalArgumentException("Current user is not author.");
         }
-
+        // set category
+        List<BlogPostCategory> categoryList = getCategoryListByPostId(id);
+        List<CategoryTreeNode> categoryTree = BlogPostCategoryUtils.buildTree(categoryList);
+        blogPost.setCategories(categoryTree);
+        // set tag
+        blogPost.setTags(getTagListByPostId(id));
         return blogPost;
     }
 
@@ -197,18 +212,55 @@ public class BlogPostService {
                     .collect(Collectors.toList());
             categoryRelationRepository.batchSave(postCategoryRelations);
         }
-        // todo 更新标签关联
+        // 更新标签关联
         tagRelationRepository.deleteByPostId(postId);
         List<Long> tagIds = command.getTagIds();
         if (tagIds != null && !tagIds.isEmpty()) {
             List<Long> filtered = tagIds.stream()
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
             List<BlogPostTagRelation> tagRelations = filtered.stream()
                     .map(id -> new BlogPostTagRelation().setPostId(postId).setTagId(id))
                     .collect(Collectors.toList());
             tagRelationRepository.batchSave(tagRelations);
         }
+    }
+
+    /**
+     * 根据文章 ID 获取关联分类
+     */
+    public List<BlogPostCategory> getCategoryListByPostId(Long postId) {
+        if (postId == null) {
+            return new ArrayList<>();
+        }
+        List<BlogPostCategoryRelation> relations = categoryRelationRepository.findByPostId(postId);
+        if (relations == null || relations.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> categoryIds = relations.stream()
+                .map(BlogPostCategoryRelation::getCategoryId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        return categoryRepository.batchFindById(categoryIds);
+    }
+
+    /**
+     * 根据文章 ID 获取关联标签
+     */
+    public List<BlogPostTag> getTagListByPostId(Long postId) {
+        if (postId == null) {
+            return new ArrayList<>();
+        }
+        List<BlogPostTagRelation> relations = tagRelationRepository.findByPostId(postId);
+        if (relations == null || relations.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> tagIds = relations.stream()
+                .map(BlogPostTagRelation::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return tagRepository.findByIds(tagIds);
     }
 
 }
