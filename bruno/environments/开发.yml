@@ -1,4 +1,5 @@
 name: 开发
 variables:
-  - name: base-url
+  - name: project-url
     value: http://localhost:18080
+    description: 项目运行地址
