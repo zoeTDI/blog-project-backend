@@ -264,6 +264,9 @@ public class BlogPostService {
     }
 
     public void toReview(Long postId) {
+        if (postId == null) {
+            throw new IllegalArgumentException("Target post id is null.");
+        }
         BlogPost cached = blogPostRepository.findById(postId);
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
@@ -279,6 +282,9 @@ public class BlogPostService {
     }
 
     public void toPublished(Long postId) {
+        if (postId == null) {
+            throw new IllegalArgumentException("Target post id is null.");
+        }
         BlogPost cached = blogPostRepository.findById(postId);
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
