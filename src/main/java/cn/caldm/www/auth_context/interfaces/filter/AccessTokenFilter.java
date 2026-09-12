@@ -33,59 +33,46 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     private final AuthUserFacadeService authUserFacadeService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
 
     public AccessTokenFilter(AuthUserFacadeService authUserFacadeService, JwtTokenProvider jwtTokenProvider) {
         this.authUserFacadeService = authUserFacadeService;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json;charset=UTF-8");
-
-        String accessToken = getAccessToken(request);
-        if (accessToken == null) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
-            return;
-        }
-
-        Map<String, Claim> data = jwtTokenProvider.verifyToken(accessToken);
-        if (data == null || !"access".equals(data.get("type").asString())) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
-            return;
-        }
-
-        AuthUser authUser = authUserFacadeService.getCredentialById(data.get("id").asLong());
-        if (authUser == null
-                || SysUserStatusEnum.DISABLED.equals(authUser.getStatus())
-                || SysUserDeletedEnum.DELETED.equals(authUser.getDeleted())) {
-            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
-            return;
-        }
-
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    authUser,
-                    null,
-                    authUser.getAuthorities()
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String accessToken = getAccessToken(request);
+            if (accessToken != null) {
+                Map<String, Claim> data = jwtTokenProvider.verifyToken(accessToken);
+                if (data != null && "access".equals(data.get("type").asString())) {
+                    Long userId = data.get("id").asLong();
+                    AuthUser authUser = authUserFacadeService.getCredentialById(userId);
+
+                    if (authUser != null
+                            && !SysUserStatusEnum.DISABLED.equals(authUser.getStatus())
+                            && !SysUserDeletedEnum.DELETED.equals(authUser.getDeleted())) {
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                authUser,
+                                null,
+                                authUser.getAuthorities()
+                        );
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            }
             filterChain.doFilter(request, response);
         } finally {
             SecurityContextHolder.clearContext();
         }
-    }
 
-    private void writeErrorResponse(HttpServletResponse response, ResultCodeEnum resultCode) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        Result<Object> result = Result.error(resultCode, "Authentication failed.");
-        response.getWriter().write(objectMapper.writeValueAsString(result));
-    }
 
+    }
+    
     private String getAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
