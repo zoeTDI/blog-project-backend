@@ -3,7 +3,6 @@ package cn.caldm.www.auth_context.infrastructure.security;
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.interfaces.filter.AccessTokenFilter;
 import cn.caldm.www.auth_context.interfaces.filter.RefreshTokenFilter;
-import cn.caldm.www.shared_kernel.security.SecurityWhiteList;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -57,21 +56,9 @@ public class AuthSecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain whitelistChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher(SecurityWhiteList.PATTERNS)
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable);
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
     public SecurityFilterChain refreshChian(HttpSecurity http, RefreshTokenFilter refreshTokenFilter) throws Exception {
         http
-                .securityMatcher(SecurityWhiteList.REFRESH_PATH)
+                .securityMatcher("/auth/refresh")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .addFilterBefore(refreshTokenFilter, AuthorizationFilter.class)
@@ -85,11 +72,14 @@ public class AuthSecurityConfig {
     }
 
     @Bean
-    @Order(3)
-    public SecurityFilterChain filterChain(HttpSecurity http, AccessTokenFilter accessTokenFilter) throws Exception {
+    @Order(2)
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           AccessTokenFilter accessTokenFilter,
+                                           AnonymousAuthorizationManager anonymousAuthorizationManager
+    ) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().access(anonymousAuthorizationManager))
                 .addFilterBefore(accessTokenFilter, AuthorizationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);
