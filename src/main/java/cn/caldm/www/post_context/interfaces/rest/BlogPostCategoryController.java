@@ -6,7 +6,7 @@ import cn.caldm.www.post_context.application.service.BlogPostCategoryService;
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRenameCommand;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -55,7 +55,7 @@ public class BlogPostCategoryController {
 
     @GetMapping("/getAllCategoriesByAuthor")
     public Result<List<CategoryTreeNode>> getAllCategoriesByAuthor() {
-        Long userId = SecurityContextHolder.getUserId();
+        Long userId = SecurityUtils.getUserId();
         List<CategoryTreeNode> selected = categoryService.getCategoryTreeByAuthorId(userId);
         return Result.success(selected);
     }

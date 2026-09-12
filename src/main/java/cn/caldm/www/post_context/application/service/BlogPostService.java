@@ -10,7 +10,7 @@ import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public class BlogPostService {
         if (size < 1 || size > 100) {
             throw new IllegalArgumentException("size must be between 1 and 100");
         }
-        return blogPostRepository.findPageByAuthorId(SecurityContextHolder.getUserId(), page, size);
+        return blogPostRepository.findPageByAuthorId(SecurityUtils.getUserId(), page, size);
     }
 
     public Long createPost(@Valid BlogPostCreateCommand command) {
@@ -68,8 +68,8 @@ public class BlogPostService {
         }
 
         BlogPost blogPost = new BlogPost();
-        Long curUserId = SecurityContextHolder.getUserId();
-        String curUsername = SecurityContextHolder.getUsername();
+        Long curUserId = SecurityUtils.getUserId();
+        String curUsername = SecurityUtils.getUsername();
         blogPost.setAuthorId(curUserId);
         blogPost.setCreator(curUsername);
         blogPost.setUpdater(curUsername);
@@ -139,8 +139,8 @@ public class BlogPostService {
         if (blogPost == null || blogPost.getDeleted()) {
             throw new IllegalArgumentException("Blog post is already deleted.");
         }
-        Long curUserId = SecurityContextHolder.getUserId();
-        List<RoleEnum> curRoles = SecurityContextHolder.getRoles();
+        Long curUserId = SecurityUtils.getUserId();
+        List<RoleEnum> curRoles = SecurityUtils.getRoles();
         if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(RoleEnum.ADMIN)) {
             throw new IllegalArgumentException("Current user is not author.");
         }
@@ -165,9 +165,9 @@ public class BlogPostService {
             throw new IllegalArgumentException("Target article is under review, cannot modify.");
         }
         Long postId = post.getId();
-        Long curUserId = SecurityContextHolder.getUserId();
-        String curUsername = SecurityContextHolder.getUsername();
-        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        Long curUserId = SecurityUtils.getUserId();
+        String curUsername = SecurityUtils.getUsername();
+        List<RoleEnum> roles = SecurityUtils.getRoles();
         Boolean isAuthor = post.getAuthorId().equals(curUserId);
         Boolean isAdmin = roles != null && roles.contains(RoleEnum.ADMIN);
         if (!isAuthor || !isAdmin) {
@@ -271,8 +271,8 @@ public class BlogPostService {
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
         }
-        Long userId = SecurityContextHolder.getUserId();
-        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        Long userId = SecurityUtils.getUserId();
+        List<RoleEnum> roles = SecurityUtils.getRoles();
         Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(RoleEnum.AUTHOR);
         Boolean isAdmin = roles.contains(RoleEnum.ADMIN);
         if (!isAuthor && !isAdmin) {
@@ -289,7 +289,7 @@ public class BlogPostService {
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
         }
-        List<RoleEnum> roles = SecurityContextHolder.getRoles();
+        List<RoleEnum> roles = SecurityUtils.getRoles();
         if (!roles.contains(RoleEnum.ADMIN) && !roles.contains(RoleEnum.AUDITOR)) {
             throw new IllegalStateException("No permission to do it.");
         }

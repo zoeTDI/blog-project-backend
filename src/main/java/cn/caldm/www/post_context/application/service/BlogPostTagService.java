@@ -7,7 +7,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,15 +42,15 @@ public class BlogPostTagService {
             return null;
         }
         String trimmedName = tagName.trim();
-        Long authorId = SecurityContextHolder.getUserId();
+        Long authorId = SecurityUtils.getUserId();
         BlogPostTag existingTag = tagRepository.findByAuthorIdAndName(authorId, trimmedName);
         if (existingTag != null) {
             return null; // 标签已存在
         }
-        if (tagRepository.existsByName(trimmedName, SecurityContextHolder.getUserId())) {
+        if (tagRepository.existsByName(trimmedName, SecurityUtils.getUserId())) {
             return null;
         }
-        String currentUser = SecurityContextHolder.getUsername();
+        String currentUser = SecurityUtils.getUsername();
         LocalDateTime now = LocalDateTime.now();
         BlogPostTag tag = new BlogPostTag()
                 .setAuthorId(authorId)
@@ -68,7 +68,7 @@ public class BlogPostTagService {
         Long targetTagId = command.getTargetTagId();
         String newName = command.getNewName().trim();
 
-        Long curUserId = SecurityContextHolder.getUserId();
+        Long curUserId = SecurityUtils.getUserId();
         BlogPostTag existingTag = tagRepository.findById(targetTagId);
         if (existingTag == null)
             throw new IllegalArgumentException("目标tag不存在");
@@ -85,7 +85,7 @@ public class BlogPostTagService {
             throw new IllegalArgumentException("标签名称已存在");
 
         existingTag.setName(newName.trim());
-        existingTag.setUpdater(SecurityContextHolder.getUsername());
+        existingTag.setUpdater(SecurityUtils.getUsername());
         existingTag.setUpdateTime(LocalDateTime.now());
 
         tagRepository.update(existingTag);
@@ -101,7 +101,7 @@ public class BlogPostTagService {
         if (tag == null) {
             throw new IllegalArgumentException("目标tag不存在");
         }
-        Long curUserId = SecurityContextHolder.getUserId();
+        Long curUserId = SecurityUtils.getUserId();
         if (!tag.getAuthorId().equals(curUserId)) {
             throw new IllegalArgumentException("目标tag不归属当前用户");
         }
@@ -285,7 +285,7 @@ public class BlogPostTagService {
         if (existingTag != null) {
             return existingTag;
         }
-        String currentUser = SecurityContextHolder.getUsername();
+        String currentUser = SecurityUtils.getUsername();
         LocalDateTime now = LocalDateTime.now();
         BlogPostTag newTag = new BlogPostTag()
                 .setAuthorId(authorId)

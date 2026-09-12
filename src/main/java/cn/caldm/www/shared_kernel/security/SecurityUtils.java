@@ -10,7 +10,7 @@ import cn.caldm.www.user_context.domain.modal.RoleEnum;
  *
  * @author caldm
  */
-public class SecurityContextHolder {
+public class SecurityUtils {
 
     private record CurrentUser(Long userId, String username, List<RoleEnum> roles, List<String> menus) {
     }

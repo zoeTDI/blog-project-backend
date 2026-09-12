@@ -1,6 +1,6 @@
 package cn.caldm.www.infrastructure.aspect;
 
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
 import cn.caldm.www.system_context.domain.model.ApiAccessLogUserTypeEnum;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessLogPO;
@@ -62,7 +62,7 @@ public class ApiAccessLogAspect {
                 try {
                     InfraApiAccessLogPO accessLog = new InfraApiAccessLogPO();
                     accessLog.setTraceId(traceId);
-                    accessLog.setUserId(SecurityContextHolder.getUserId());
+                    accessLog.setUserId(SecurityUtils.getUserId());
                     accessLog.setUserType(ApiAccessLogUserTypeEnum.MANAGER); // todo 添加用户类型
                     accessLog.setApplicationName("blog-backend");
 

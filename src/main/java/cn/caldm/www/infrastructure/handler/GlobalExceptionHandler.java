@@ -3,7 +3,7 @@ package cn.caldm.www.infrastructure.handler;
 import cn.caldm.www.common.domain.ErrorDetail;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLogPO;
 import cn.caldm.www.system_context.application.service.ApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -113,7 +110,7 @@ public class GlobalExceptionHandler {
             InfraApiErrorLogPO errorLog = new InfraApiErrorLogPO();
             // 基础信息
             errorLog.setTraceId(traceId);
-            errorLog.setUserId(SecurityContextHolder.getUserId());
+            errorLog.setUserId(SecurityUtils.getUserId());
             errorLog.setUserType(1);
             errorLog.setApplicationName("blog-backend");
 

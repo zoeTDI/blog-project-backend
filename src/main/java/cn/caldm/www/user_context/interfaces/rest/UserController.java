@@ -3,7 +3,7 @@ package cn.caldm.www.user_context.interfaces.rest;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
@@ -95,7 +95,7 @@ public class UserController {
 
     @PostMapping("/sendResetPasswordEmail")
     public Result sendResetPasswordEmail() {
-        Long userId = SecurityContextHolder.getUserId();
+        Long userId = SecurityUtils.getUserId();
         if (userId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -110,7 +110,7 @@ public class UserController {
 
     @PostMapping("/resetPassword")
     public Result resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
-        Long id = SecurityContextHolder.getUserId();
+        Long id = SecurityUtils.getUserId();
         String code = resetPasswordReqDTO.getCode();
         String newPassword = resetPasswordReqDTO.getNewPassword();
         if (id == 0L || code == null || code.isEmpty() || newPassword == null || newPassword.isEmpty()) {

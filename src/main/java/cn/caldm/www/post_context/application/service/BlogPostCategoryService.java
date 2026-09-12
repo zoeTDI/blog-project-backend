@@ -9,7 +9,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +39,8 @@ public class BlogPostCategoryService {
 
     @Transactional(rollbackFor = Exception.class)
     public Long createCategory(BlogPostCategoryCreateCommand command) {
-        Long currentUserId = SecurityContextHolder.getUserId();
-        String currentUsername = SecurityContextHolder.getUsername();
+        Long currentUserId = SecurityUtils.getUserId();
+        String currentUsername = SecurityUtils.getUsername();
 
         if (categoryRepository.existsByUserIdAndName(currentUserId, command.getName())) {
             throw new IllegalArgumentException("分类名称 [" + command.getName() + "] 已存在");
@@ -82,7 +82,7 @@ public class BlogPostCategoryService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteCategory(Long categoryId) {
-        Long currentUserId = SecurityContextHolder.getUserId();
+        Long currentUserId = SecurityUtils.getUserId();
 
         BlogPostCategory category = categoryRepository.findById(categoryId);
         if (category == null) {
@@ -112,8 +112,8 @@ public class BlogPostCategoryService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void moveCategory(Long categoryId, BlogPostCategoryMoveCommand command) {
-        Long currentUserId = SecurityContextHolder.getUserId();
-        String currentUsername = SecurityContextHolder.getUsername();
+        Long currentUserId = SecurityUtils.getUserId();
+        String currentUsername = SecurityUtils.getUsername();
         Long targetParentId = command.getTargetParentId();
 
         BlogPostCategory category = categoryRepository.findById(categoryId);
@@ -171,7 +171,7 @@ public class BlogPostCategoryService {
     public void renameCategory(@Valid BlogPostCategoryRenameCommand command) {
         Long targetId = command.getTargetId();
         String newName = command.getNewName();
-        Long userId = SecurityContextHolder.getUserId();
+        Long userId = SecurityUtils.getUserId();
         BlogPostCategory targetCategory = categoryRepository.findById(targetId);
         if (targetCategory == null) {
             throw new IllegalArgumentException("Target category not exists or already deleted.");
@@ -183,7 +183,7 @@ public class BlogPostCategoryService {
         BlogPostCategory category = new BlogPostCategory();
         category.setId(targetId)
                 .setName(newName)
-                .setUpdater(SecurityContextHolder.getUsername())
+                .setUpdater(SecurityUtils.getUsername())
                 .setUpdateTime(LocalDateTime.now());
         boolean renamed = categoryRepository.rename(category);
         if (!renamed) {

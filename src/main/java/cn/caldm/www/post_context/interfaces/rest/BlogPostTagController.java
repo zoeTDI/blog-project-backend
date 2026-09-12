@@ -5,7 +5,7 @@ import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.post_context.application.service.BlogPostTagService;
 import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +52,7 @@ public class BlogPostTagController {
 
     @GetMapping("/getAllTagsByAuthor")
     public Result<List<BlogPostTag>> getAllTags() {
-        Long authorId = SecurityContextHolder.getUserId();
+        Long authorId = SecurityUtils.getUserId();
         return Result.success(tagService.getTagsByAuthorId(authorId));
     }
 }

@@ -1,7 +1,5 @@
 package cn.caldm.www.common.utils;
 
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
-
 /**
  * 安全服务工具类
  * 用于获取当前登录用户的上下文信息，防止前端伪造 creator
@@ -14,7 +12,7 @@ public class SecurityUtils {
      * @return 用户ID
      */
     public static Long getLoginUserId() {
-        return SecurityContextHolder.getUserId();
+        return cn.caldm.www.shared_kernel.security.SecurityUtils.getUserId();
     }
 
     /**
@@ -23,6 +21,6 @@ public class SecurityUtils {
      * @return 用户名
      */
     public static String getLoginUsername() {
-        return SecurityContextHolder.getUsername();
+        return cn.caldm.www.shared_kernel.security.SecurityUtils.getUsername();
     }
 }
