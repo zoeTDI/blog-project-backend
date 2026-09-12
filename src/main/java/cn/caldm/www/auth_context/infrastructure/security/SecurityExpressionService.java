@@ -35,6 +35,17 @@ public class SecurityExpressionService {
     }
 
     /**
+     * 支持直接传入 RoleEnum 枚举对象
+     */
+    public boolean hasRole(RoleEnum role) {
+        if (role == null) {
+            return false;
+        }
+        List<RoleEnum> currentRoles = SecurityUtils.getRoles();
+        return currentRoles.stream().anyMatch(r -> r.equalsRole(role));
+    }
+
+    /**
      * 校验当前用户是否具备指定角色（多个，满足任意一个即可）
      *
      * @param roleCodes 角色代码列表
@@ -48,6 +59,16 @@ public class SecurityExpressionService {
     }
 
     /**
+     * 支持直接传入 RoleEnum 枚举数组（任意匹配一个）
+     */
+    public boolean hasAnyRole(RoleEnum... roles) {
+        if (roles == null || roles.length == 0) {
+            return false;
+        }
+        return Arrays.stream(roles).anyMatch(this::hasRole);
+    }
+
+    /**
      * 校验当前用户是否同时具备所有指定角色
      *
      * @param roleCodes 角色代码列表
@@ -58,5 +79,15 @@ public class SecurityExpressionService {
             return false;
         }
         return Arrays.stream(roleCodes).allMatch(this::hasRole);
+    }
+
+    /**
+     * 支持直接传入 RoleEnum 枚举数组（匹配全部）
+     */
+    public boolean hasAllRoles(RoleEnum... roles) {
+        if (roles == null || roles.length == 0) {
+            return false;
+        }
+        return Arrays.stream(roles).allMatch(this::hasRole);
     }
 }
