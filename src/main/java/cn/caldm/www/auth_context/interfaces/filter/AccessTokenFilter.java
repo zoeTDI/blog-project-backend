@@ -5,7 +5,6 @@ import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import com.auth0.jwt.interfaces.Claim;
@@ -16,6 +15,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -65,11 +67,16 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         }
 
         try {
-            SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername(),
-                    authUser.getRoles(), authUser.getMenus());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    authUser,
+                    null,
+                    authUser.getAuthorities()
+            );
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
         } finally {
-            SecurityContextHolder.Manager.clear();
+            SecurityContextHolder.clearContext();
         }
     }
 
