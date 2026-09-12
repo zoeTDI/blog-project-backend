@@ -1,4 +1,4 @@
-package cn.caldm.www.shared_kernel.security.security;
+package cn.caldm.www.shared_kernel.security;
 
 /**
  *

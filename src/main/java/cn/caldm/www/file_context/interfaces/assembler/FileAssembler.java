@@ -2,7 +2,7 @@ package cn.caldm.www.file_context.interfaces.assembler;
 
 import cn.caldm.www.file_context.domain.model.File;
 import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
-import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
+import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
 
 /**

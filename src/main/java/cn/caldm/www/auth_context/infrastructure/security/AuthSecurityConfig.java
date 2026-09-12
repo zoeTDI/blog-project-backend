@@ -3,7 +3,7 @@ package cn.caldm.www.auth_context.infrastructure.security;
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.interfaces.filter.AccessTokenFilter;
 import cn.caldm.www.auth_context.interfaces.filter.RefreshTokenFilter;
-import cn.caldm.www.shared_kernel.security.security.SecurityWhiteList;
+import cn.caldm.www.shared_kernel.security.SecurityWhiteList;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

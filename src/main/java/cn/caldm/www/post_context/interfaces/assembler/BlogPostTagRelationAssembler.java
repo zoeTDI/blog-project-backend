@@ -2,7 +2,7 @@ package cn.caldm.www.post_context.interfaces.assembler;
 
 import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
-import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
+import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
 
 /**

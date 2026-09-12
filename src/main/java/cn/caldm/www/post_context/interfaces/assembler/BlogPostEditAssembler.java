@@ -5,12 +5,11 @@ import cn.caldm.www.post_context.domain.model.BlogPostCategory;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostEditDTO;
-import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
+import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import org.apache.tomcat.util.digester.ArrayStack;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

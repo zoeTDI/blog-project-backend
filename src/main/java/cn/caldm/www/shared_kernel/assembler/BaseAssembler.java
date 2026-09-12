@@ -1,4 +1,4 @@
-package cn.caldm.www.shared_kernel.security.assembler;
+package cn.caldm.www.shared_kernel.assembler;
 
 import java.util.Collections;
 import java.util.List;

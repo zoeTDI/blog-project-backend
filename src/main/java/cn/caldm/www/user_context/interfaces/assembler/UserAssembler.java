@@ -1,6 +1,6 @@
 package cn.caldm.www.user_context.interfaces.assembler;
 
-import cn.caldm.www.shared_kernel.security.assembler.BaseAssembler;
+import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import org.springframework.stereotype.Component;
