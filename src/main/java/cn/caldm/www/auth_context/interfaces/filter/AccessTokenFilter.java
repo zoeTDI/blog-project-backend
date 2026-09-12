@@ -1,0 +1,90 @@
+package cn.caldm.www.auth_context.interfaces.filter;
+
+import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
+import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
+import cn.caldm.www.common.domain.Result;
+import cn.caldm.www.common.domain.ResultCodeEnum;
+import cn.caldm.www.shared_kernel.security.SecurityContextHolder;
+import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import com.auth0.jwt.interfaces.Claim;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.Map;
+
+/**
+ *
+ *
+ *
+ * @author caldm
+ */
+public class AccessTokenFilter extends OncePerRequestFilter {
+
+    private final AuthUserFacadeService authUserFacadeService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final ObjectMapper objectMapper;
+
+    public AccessTokenFilter(AuthUserFacadeService authUserFacadeService, JwtTokenProvider jwtTokenProvider) {
+        this.authUserFacadeService = authUserFacadeService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.objectMapper = new ObjectMapper();
+    }
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
+
+        String accessToken = getAccessToken(request);
+        if (accessToken == null) {
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+            return;
+        }
+
+        Map<String, Claim> data = jwtTokenProvider.verifyToken(accessToken);
+        if (data == null || !"access".equals(data.get("type").asString())) {
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+            return;
+        }
+
+        AuthUser authUser = authUserFacadeService.getCredentialById(data.get("id").asLong());
+        if (authUser == null
+                || SysUserStatusEnum.DISABLED.equals(authUser.getStatus())
+                || SysUserDeletedEnum.DELETED.equals(authUser.getDeleted())) {
+            writeErrorResponse(response, ResultCodeEnum.UNAUTHORIZED);
+            return;
+        }
+
+        try {
+            SecurityContextHolder.Manager.setCurrentUser(authUser.getId(), authUser.getUsername(),
+                    authUser.getRoles(), authUser.getMenus());
+            filterChain.doFilter(request, response);
+        } finally {
+            SecurityContextHolder.Manager.clear();
+        }
+    }
+
+    private void writeErrorResponse(HttpServletResponse response, ResultCodeEnum resultCode) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Result<Object> result = Result.error(resultCode, "Authentication failed.");
+        response.getWriter().write(objectMapper.writeValueAsString(result));
+    }
+
+    private String getAccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie cookie : cookies) {
+            if ("accessToken".equals(cookie.getName())) return cookie.getValue();
+        }
+        return null;
+    }
+}
