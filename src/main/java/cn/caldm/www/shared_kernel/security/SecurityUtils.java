@@ -1,8 +1,13 @@
 package cn.caldm.www.shared_kernel.security;
 
-import java.util.List;
-
+import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -11,59 +16,42 @@ import cn.caldm.www.user_context.domain.modal.RoleEnum;
  * @author caldm
  */
 public class SecurityUtils {
-
-    private record CurrentUser(Long userId, String username, List<RoleEnum> roles, List<String> menus) {
+    private SecurityUtils() {
     }
 
-    private static final ThreadLocal<CurrentUser> CONTEXT = new ThreadLocal<>();
+    public static Optional<AuthUser> getOptCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof AuthUser authUser) {
+            return Optional.of(authUser);
+        }
+        return Optional.empty();
+    }
+
+    public static AuthUser getCurrentUser() {
+        return getOptCurrentUser().orElseThrow(() -> new IllegalStateException("The current thread is not bound to a valid user context."));
+    }
 
     public static Long getUserId() {
-        CurrentUser user = CONTEXT.get();
-        if (user == null) {
-            throw new IllegalStateException("当前线程未绑定用户信息，请检查是否在 JwtFilter 有效范围内调用。");
-        }
-        return user.userId();
+        return getCurrentUser().getId();
     }
 
     public static String getUsername() {
-        CurrentUser user = CONTEXT.get();
-        if (user == null) {
-            throw new IllegalStateException("当前线程未绑定用户信息。");
-        }
-        return user.username();
+        return getCurrentUser().getUsername();
     }
 
     public static List<RoleEnum> getRoles() {
-        CurrentUser user = CONTEXT.get();
-        if (user == null) {
-            throw new IllegalStateException("当前线程未绑定用户信息。");
-        }
-        return user.roles();
+        List<RoleEnum> roles = getCurrentUser().getRoles();
+        return roles != null ? roles : Collections.emptyList();
     }
 
     public static List<String> getMenus() {
-        CurrentUser user = CONTEXT.get();
-        if (user == null) {
-            throw new IllegalStateException("当前线程未绑定用户信息");
-        }
-        return user.menus();
+        List<String> menus = getCurrentUser().getMenus();
+        return menus != null ? menus : Collections.emptyList();
     }
 
     public static boolean isAuthenticated() {
-        return CONTEXT.get() != null;
+        return getOptCurrentUser().isPresent();
     }
-
-    public static class Manager {
-        public static void setCurrentUser(Long userId, String username, List<RoleEnum> roles, List<String> menus) {
-            if (userId == null || username == null || roles == null || menus == null) {
-                throw new IllegalArgumentException("userId 和 username 不能为空");
-            }
-            CONTEXT.set(new CurrentUser(userId, username, roles, menus));
-        }
-
-        public static void clear() {
-            CONTEXT.remove();
-        }
-    }
-
 }
