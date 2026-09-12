@@ -6,12 +6,14 @@ import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.interfaces.dto.*;
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.common.domain.ResultCodeEnum;
+import cn.caldm.www.infrastructure.annotation.Anonymous;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -24,10 +26,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthApplicationService authService;
+    private final AuthApplicationService authService;
+
+    public AuthController(AuthApplicationService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login/username-password")
+    @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginUPCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByUP(command);
         if (authUser == null) {
@@ -37,6 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/login/email-password")
+    @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginEPCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByEP(command);
         if (authUser == null) {
@@ -46,6 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/login/email-code")
+    @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginECCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByEC(command);
         if (authUser == null) {
@@ -55,6 +63,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-login-code")
+    @Anonymous
     public Result<LoginResDTO> sendLoginCode(@Valid @RequestBody SendLoginCodeCommand command) {
         boolean sent = authService.sendLoginCode(command);
         if (!sent) {
@@ -64,6 +73,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     public Result<String> logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = extractCookie(request, "accessToken");
         String refreshToken = extractCookie(request, "refreshToken");
@@ -82,6 +92,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @PreAuthorize("isAuthenticated()")
     public Result<String> refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractCookie(request, "refreshToken");
         TokenPair tokenPair = authService.refreshToken(refreshToken);

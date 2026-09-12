@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BlogPostCategoryController {
 
-    @Autowired
-    private BlogPostCategoryService categoryService;
+    private final BlogPostCategoryService categoryService;
 
     @PostMapping("/createCategory")
+    @PreAuthorize("@ss.isContentOperator()")
     public Result<Long> createCategory(@Valid @RequestBody BlogPostCategoryCreateCommand command) {
         Long categoryId = categoryService.createCategory(command);
         if (categoryId == null) {
@@ -39,12 +39,14 @@ public class BlogPostCategoryController {
     }
 
     @DeleteMapping("/deleteCategory/{id}")
+    @PreAuthorize("@ss.isContentOperator()")
     public Result<Void> deleteCategory(@PathVariable("id") Long id) {
         categoryService.deleteCategory(id);
         return Result.success();
     }
 
     @PostMapping("/renameCategory")
+    @PreAuthorize("@ss.isContentOperator()")
     public Result<Void> RenameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
         if (command == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
@@ -54,6 +56,7 @@ public class BlogPostCategoryController {
     }
 
     @GetMapping("/getAllCategoriesByAuthor")
+    @PreAuthorize("@ss.isContentOperator()")
     public Result<List<CategoryTreeNode>> getAllCategoriesByAuthor() {
         Long userId = SecurityUtils.getUserId();
         List<CategoryTreeNode> selected = categoryService.getCategoryTreeByAuthorId(userId);

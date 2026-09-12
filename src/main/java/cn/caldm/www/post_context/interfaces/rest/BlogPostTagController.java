@@ -7,7 +7,9 @@ import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCo
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -22,11 +24,13 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/post")
+@RequiredArgsConstructor
 public class BlogPostTagController {
-    @Autowired
+
     private BlogPostTagService tagService;
 
     @GetMapping("/createTag")
+    @PreAuthorize("@ss.isAuthor()")
     public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
         if (tagName == null || tagName.isBlank()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
@@ -39,18 +43,21 @@ public class BlogPostTagController {
     }
 
     @PostMapping("/renameTag")
+    @PreAuthorize("@ss.isAuthor()")
     public Result<Void> renameTag(@Valid @RequestBody BlogPostTagRenameCommand command) {
         tagService.renameTag(command);
         return Result.success();
     }
 
     @DeleteMapping("/deleteTag/{id}")
+    @PreAuthorize("@ss.isAuthor()")
     public Result<Void> deleteTag(@Valid @PathVariable("id") Long targetTagId) {
         tagService.deleteTag(targetTagId);
         return Result.success();
     }
 
     @GetMapping("/getAllTagsByAuthor")
+    @PreAuthorize("@ss.isAuthor()")
     public Result<List<BlogPostTag>> getAllTags() {
         Long authorId = SecurityUtils.getUserId();
         return Result.success(tagService.getTagsByAuthorId(authorId));

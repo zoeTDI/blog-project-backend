@@ -11,7 +11,9 @@ import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,13 +30,14 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
     private UserApplicationService userService;
 
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")
+    @PreAuthorize("@ss.isAdmin()")
     public Result<SysUser> create(@RequestBody CreateReqDTO createReqDTO) {
         Long creatorId = createReqDTO.getCreatorId();
         List<String> roleCodes = createReqDTO.getRoles();
@@ -64,7 +67,8 @@ public class UserController {
     }
 
     @PostMapping("/ban")
-    public Result ban(@RequestBody BanReqDTO banReqDTO) {
+    @PreAuthorize("@ss.isAdmin()")
+    public Result<Void> ban(@RequestBody BanReqDTO banReqDTO) {
         Long updaterId = banReqDTO.getUpdaterId();
         Long targetUserId = banReqDTO.getTargetUserId();
         if (updaterId == null || targetUserId == null) {
@@ -79,7 +83,8 @@ public class UserController {
     }
 
     @PostMapping("/softDelete")
-    public Result softDelete(@RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
+    @PreAuthorize("isAuthenticated()")
+    public Result<Void> softDelete(@RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
         Long updaterId = softDeleteReqDTO.getUpdaterId();
         Long targetUserId = softDeleteReqDTO.getTargetUserId();
         if (updaterId == null || targetUserId == null) {
@@ -94,7 +99,8 @@ public class UserController {
     }
 
     @PostMapping("/sendResetPasswordEmail")
-    public Result sendResetPasswordEmail() {
+    @PreAuthorize("isAuthenticated()")
+    public Result<Void> sendResetPasswordEmail() {
         Long userId = SecurityUtils.getUserId();
         if (userId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
@@ -109,7 +115,8 @@ public class UserController {
     }
 
     @PostMapping("/resetPassword")
-    public Result resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
+    @PreAuthorize("isAuthenticated()")
+    public Result<Void> resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
         Long id = SecurityUtils.getUserId();
         String code = resetPasswordReqDTO.getCode();
         String newPassword = resetPasswordReqDTO.getNewPassword();
