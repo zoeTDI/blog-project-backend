@@ -15,8 +15,10 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.naming.AuthenticationException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -41,7 +43,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<ErrorDetail> handleValidationException(MethodArgumentNotValidException e,
-            HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         String errorMsg = e.getBindingResult()
                 .getAllErrors()
                 .get(0)
@@ -55,7 +57,7 @@ public class GlobalExceptionHandler {
     /**
      * 处理请求体 Json 格式错误 / 缺少必要参数
      */
-    @ExceptionHandler({ HttpMessageNotReadableException.class, MissingServletRequestParameterException.class })
+    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
     public Result<ErrorDetail> handleRequestFormatException(Exception e, HttpServletRequest request) {
         String traceId = generateTraceId();
         String errorMsg = "请求参数格式错误";
@@ -75,9 +77,31 @@ public class GlobalExceptionHandler {
         return Result.error(ResultCodeEnum.BAD_REQUEST, detail);
     }
 
+    /**
+     * 处理 Spring Security 权限不足异常 (403 Forbidden)
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public Result<ErrorDetail> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request) {
+        String traceId = generateTraceId();
+        saveErrorLog(e, request, traceId, false);
+        ErrorDetail detail = new ErrorDetail(traceId, "Access denied due to insufficient permissions.");
+        return Result.error(ResultCodeEnum.FORBIDDEN, detail);
+    }
+
+    /**
+     * 处理 Spring Security 未登录/认证失败异常 (401 Unauthorized)
+     */
+    public Result<ErrorDetail> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
+        String traceId = generateTraceId();
+        saveErrorLog(e, request, traceId, false);
+        ErrorDetail detail = new ErrorDetail(traceId, "No authenticated or session expired.");
+        return Result.error(ResultCodeEnum.UNAUTHORIZED, detail);
+    }
+
     // ============================ 5xx 系统内部错误，记录栈堆 ============================
 
     /**
+     *
      */
     @ExceptionHandler(IllegalStateException.class)
     public Result<ErrorDetail> handleIllegalStateException(IllegalStateException e, HttpServletRequest request) {
