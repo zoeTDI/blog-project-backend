@@ -90,4 +90,57 @@ public class SecurityExpressionService {
         }
         return Arrays.stream(roles).allMatch(this::hasRole);
     }
+
+    /**
+     * 是否为管理员
+     */
+    public boolean isAdmin() {
+        return hasRole(RoleEnum.ADMIN);
+    }
+
+    /**
+     * 是否为审核员
+     */
+    public boolean isAuditor() {
+        return hasRole(RoleEnum.AUDITOR);
+    }
+
+    /**
+     * 是否为作者
+     */
+    public boolean isAuthor() {
+        return hasRole(RoleEnum.AUTHOR);
+    }
+
+    /**
+     * 是否具备管理权限
+     * ADMIN 或 AUDITOR
+     */
+    public boolean isManager() {
+        return hasAnyRole(
+                RoleEnum.ADMIN,
+                RoleEnum.AUDITOR
+        );
+    }
+
+    /**
+     * 是否可以管理文章内容
+     * ADMIN 或 AUTHOR
+     */
+    public boolean isContentOperator() {
+        return hasAnyRole(
+                RoleEnum.ADMIN,
+                RoleEnum.AUTHOR
+        );
+    }
+
+    /**
+     * 是否为内容相关角色
+     */
+    public boolean isContentUser() {
+        return hasAnyRole(
+                RoleEnum.AUTHOR,
+                RoleEnum.AUDITOR
+        );
+    }
 }
