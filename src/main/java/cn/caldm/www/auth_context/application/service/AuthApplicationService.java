@@ -13,6 +13,7 @@ import cn.caldm.www.common.utils.LogUtils;
 import cn.caldm.www.common.utils.SlowHashUtils;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -26,16 +27,13 @@ import java.security.SecureRandom;
  * @author caldm
  */
 @Service
+@RequiredArgsConstructor
 public class AuthApplicationService {
-    @Autowired
+
     private AuthUserFacadeService authUserFacadeService;
-    @Autowired
     private AuthNotificationFacadeService notificationFacadeService;
-    @Autowired
     private TokenBlacklistRepository blacklistRepository;
-    @Autowired
     private VerificationCodeRepository verificationCodeRepository;
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
     private final String LOGIN_PREFIX = "user:login:code:";
