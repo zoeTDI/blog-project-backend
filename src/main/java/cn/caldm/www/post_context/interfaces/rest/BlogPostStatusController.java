@@ -16,7 +16,7 @@ import cn.caldm.www.post_context.application.service.BlogPostService;
 @RequiredArgsConstructor
 public class BlogPostStatusController {
 
-    private BlogPostService postService;
+    private final BlogPostService postService;
 
     @GetMapping("/status/review")
     @PreAuthorize("@ss.isContentOperator()")

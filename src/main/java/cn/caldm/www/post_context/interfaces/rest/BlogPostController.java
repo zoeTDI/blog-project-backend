@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BlogPostController {
 
-    private BlogPostService blogPostService;
-    private BlogPostSummaryAssembler summaryAssembler;
-    private BlogPostEditAssembler editAssembler;
+    private final BlogPostService blogPostService;
+    private final BlogPostSummaryAssembler summaryAssembler;
+    private final BlogPostEditAssembler editAssembler;
 
     /**
      * 后台文章管理页面分页查询，需要作者id
