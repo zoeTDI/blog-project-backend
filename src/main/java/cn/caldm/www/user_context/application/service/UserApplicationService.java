@@ -9,8 +9,10 @@ import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -25,12 +27,11 @@ import java.util.concurrent.TimeUnit;
  * @author caldm
  */
 @Service
+@RequiredArgsConstructor
 public class UserApplicationService {
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserNotificationFacadeService userNotificationFacadeService;
+    private final UserRepository userRepository;
+    private final UserNotificationFacadeService userNotificationFacadeService;
+    private final PasswordEncoder passwordEncoder;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -153,7 +154,7 @@ public class UserApplicationService {
         }
 
         SysUser updateUser = new SysUser();
-        String encode = SlowHashUtils.bcryptEncode(newPassword);
+        String encode = passwordEncoder.encode(newPassword);
         updateUser.setId(targetUserId);
         updateUser.setPassword(encode);
         updateUser.setUpdater(sysUser.getUpdater());

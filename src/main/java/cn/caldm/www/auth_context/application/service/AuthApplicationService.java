@@ -15,6 +15,7 @@ import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,11 +31,12 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class AuthApplicationService {
 
-    private AuthUserFacadeService authUserFacadeService;
-    private AuthNotificationFacadeService notificationFacadeService;
-    private TokenBlacklistRepository blacklistRepository;
-    private VerificationCodeRepository verificationCodeRepository;
-    private JwtTokenProvider jwtTokenProvider;
+    private final AuthUserFacadeService authUserFacadeService;
+    private final AuthNotificationFacadeService notificationFacadeService;
+    private final TokenBlacklistRepository blacklistRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     private final String LOGIN_PREFIX = "user:login:code:";
 
@@ -42,8 +44,7 @@ public class AuthApplicationService {
         String username = command.getUsername();
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByUsername(username);
-
-        if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("用户名或密码错误");
         }
         TokenPair tokenPair = generateTokenForUser(user);
@@ -58,7 +59,7 @@ public class AuthApplicationService {
         String email = command.getEmail();
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
-        if (user == null || !SlowHashUtils.bcryptMatches(password, user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("邮箱或密码错误");
         }
         TokenPair tokenPair = generateTokenForUser(user);
