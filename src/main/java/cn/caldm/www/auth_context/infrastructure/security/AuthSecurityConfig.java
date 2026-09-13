@@ -67,7 +67,7 @@ public class AuthSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, e) -> writeJson(res, 401, "Refresh failed."))
+                        .authenticationEntryPoint((req, res, e) -> writeJson(res, 486, "Refresh failed."))
                         .accessDeniedHandler((req, res, e) -> writeJson(res, 403, "Forbidden."))
                 );
         return http.build();
