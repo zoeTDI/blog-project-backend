@@ -56,21 +56,39 @@ COMMIT;
 DROP TABLE IF EXISTS `system_menu`;
 CREATE TABLE `system_menu` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '菜单/权限 ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单名称',
-  `permission` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '权限标识(如: system:user:create)',
-  `type` tinyint NOT NULL COMMENT '菜单类型（1目录 2菜单 3按钮）',
-  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父菜单 ID',
-  `sort` int NOT NULL DEFAULT 0 COMMENT '显示顺序',
-  `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '路由地址',
-  `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '组件路径',
-  `status` tinyint NOT NULL DEFAULT 0 COMMENT '菜单状态（0正常 1停用）',
-  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除 0 不删除 1 删除',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单及权限原子表';
+  `name` varchar(50) NOT NULL
+      COMMENT '资源名称',
+  `permission` varchar(100) DEFAULT ''
+      COMMENT '权限标识，如 post:create',
+  `type` tinyint NOT NULL
+      COMMENT '资源类型（1目录 2菜单 3按钮）',
+  `parent_id` bigint NOT NULL DEFAULT 0
+      COMMENT '父资源 ID',
+  `sort` int NOT NULL DEFAULT 0
+      COMMENT '显示顺序',
+  `path` varchar(200) DEFAULT ''
+      COMMENT '前端路由地址',
+  `component` varchar(255) DEFAULT ''
+      COMMENT '前端组件标识',
+  `icon` varchar(100) DEFAULT ''
+      COMMENT '前端图标标识',
+  `title_key` varchar(200) DEFAULT ''
+      COMMENT '前端国际化 Key',
+  `status` tinyint NOT NULL DEFAULT 0
+      COMMENT '状态（0正常 1停用）',
+  `creator` varchar(64) DEFAULT '',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updater` varchar(64) DEFAULT '',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` bit(1) NOT NULL DEFAULT b'0',
+  PRIMARY KEY (`id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_permission` (`permission`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='系统资源及权限原子表';
 
 BEGIN;
 -- 1. 用户管理权限树
