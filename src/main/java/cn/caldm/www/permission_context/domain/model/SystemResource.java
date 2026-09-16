@@ -1,8 +1,10 @@
 package cn.caldm.www.permission_context.domain.model;
 
 import cn.caldm.www.shared_kernel.utils.StringUtils;
+import io.lettuce.core.output.VoidOutput;
 import lombok.Data;
 
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions.PublicKeyCredentialRequestOptionsBuilder;
 import java.util.regex.Pattern;
 
 /**
@@ -70,7 +72,8 @@ public class SystemResource {
 
     private static final Pattern PERMISSION_PATTERN = Pattern.compile("^[a-z][a-z0-9]*(:[a-z][a-z0-9]*)+$");
 
-    private SystemResource() {}
+    private SystemResource() {
+    }
 
     public static SystemResource create(
             String name,
@@ -81,8 +84,7 @@ public class SystemResource {
             String path,
             String component,
             String icon,
-            String titleKey
-    ) {
+            String titleKey) {
         SystemResource resource = new SystemResource();
 
         resource.name = name;
@@ -109,8 +111,7 @@ public class SystemResource {
             String path,
             String component,
             String icon,
-            String titleKey
-    ) {
+            String titleKey) {
         this.name = name;
         this.permission = permission;
         this.parentId = parentId;
@@ -123,12 +124,51 @@ public class SystemResource {
         validate();
     }
 
-    public void enable() {
-        this.enabled = true;
+    public boolean isDirectory() {
+        return ResourceTypeEnum.DIRECTORY.equals(type);
+    }
+
+    public boolean isMenu() {
+        return ResourceTypeEnum.MENU.equals(type);
+    }
+
+    public boolean isButton() {
+        return ResourceTypeEnum.BUTTON.equals(type);
+    }
+
+    public boolean canHaveChildren() {
+        return !isButton();
+    }
+
+    public boolean isRoot() {
+        return parentId == 0l;
     }
 
     public void disabled() {
         this.enabled = false;
+    }
+
+    private void validateParentChild(
+            SystemResource parent,
+            SystemResource child) {
+        if (child.isRoot()) {
+            if (!child.isDirectory()) {
+                throw new IllegalArgumentException("顶级资源必须是目录。");
+            }
+            return;
+        }
+
+        if (parent == null) {
+            throw new IllegalArgumentException("父资源不存在。");
+        }
+
+        if (parent.isDirectory() && child.isMenu()) {
+            return;
+        }
+        if (parent.isMenu() && child.isButton()) {
+            return;
+        }
+        throw new IllegalArgumentException("非法的资源父子关系。");
     }
 
     private void validatePermission(String permission) {
@@ -139,8 +179,7 @@ public class SystemResource {
 
         if (!PERMISSION_PATTERN.matcher(permission).matches()) {
             throw new IllegalArgumentException(
-                    "权限标识格式错误：" + permission
-            );
+                    "权限标识格式错误：" + permission);
         }
     }
 
@@ -205,6 +244,7 @@ public class SystemResource {
         }
     }
 
-    private void validateDirectory() {}
+    private void validateDirectory() {
+    }
 
 }
