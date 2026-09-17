@@ -132,6 +132,37 @@ public class SystemResource implements Serializable {
         validate();
     }
 
+    public static SystemResource reconstitute(
+            Long id,
+            String name,
+            String permission,
+            ResourceTypeEnum type,
+            Long parentId,
+            Integer sort,
+            String path,
+            String component,
+            String icon,
+            String titleKey,
+            boolean enabled
+    ) {
+        SystemResource resource = new SystemResource();
+
+        resource.id = id;
+        resource.name = name;
+        resource.permission = permission;
+        resource.type = type;
+        resource.parentId = parentId;
+        resource.sort = sort;
+        resource.path = path;
+        resource.component = component;
+        resource.icon = icon;
+        resource.titleKey = titleKey;
+        resource.enabled = enabled;
+
+        return resource;
+
+    }
+
     public boolean isDirectory() {
         return ResourceTypeEnum.DIRECTORY.equals(type);
     }
@@ -154,6 +185,10 @@ public class SystemResource implements Serializable {
 
     public void disabled() {
         this.enabled = false;
+    }
+
+    public void enable() {
+        this.enabled = true;
     }
 
     private void validateParentChild(
