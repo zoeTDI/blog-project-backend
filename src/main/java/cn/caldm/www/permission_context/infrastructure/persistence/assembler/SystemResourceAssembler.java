@@ -1,4 +1,4 @@
-package cn.caldm.www.permission_context.interfaces.assembler;
+package cn.caldm.www.permission_context.infrastructure.persistence.assembler;
 
 import cn.caldm.www.permission_context.domain.model.ResourceStatusEnum;
 import cn.caldm.www.permission_context.domain.model.SystemResource;
