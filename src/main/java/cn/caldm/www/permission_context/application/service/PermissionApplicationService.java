@@ -21,7 +21,7 @@ public interface PermissionApplicationService {
 
     SystemResource getResource(Long id);
 
-    List<SystemResource> getChildren(Long parentId):
+    List<SystemResource> getChildren(Long parentId);
 
     SystemResource updateResource(
             Long id,
