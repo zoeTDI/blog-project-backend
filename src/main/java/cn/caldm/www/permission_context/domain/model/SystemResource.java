@@ -1,10 +1,13 @@
 package cn.caldm.www.permission_context.domain.model;
 
 import cn.caldm.www.shared_kernel.utils.StringUtils;
-import io.lettuce.core.output.VoidOutput;
 import lombok.Data;
 
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions.PublicKeyCredentialRequestOptionsBuilder;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
@@ -14,7 +17,12 @@ import java.util.regex.Pattern;
  * @author caldm
  */
 @Data
-public class SystemResource {
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class SystemResource implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /**
      * 资源 ID
      */
