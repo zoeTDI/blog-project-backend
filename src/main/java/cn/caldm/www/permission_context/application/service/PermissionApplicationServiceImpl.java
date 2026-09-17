@@ -66,6 +66,7 @@ public class PermissionApplicationServiceImpl implements PermissionApplicationSe
 
     @Override
     public List<SystemResource> getChildren(Long parentId) {
+        getResource(parentId);
         return  resourceRepository.findChildren(parentId);
     }
 
