@@ -1,0 +1,30 @@
+package cn.caldm.www.permission_context.interfaces.dto.resource;
+
+import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+/**
+ *
+ *
+ *
+ * @author caldm
+ */
+@Data
+public class CreateResourceRequest {
+
+    @NotBlank
+    private String name;
+    private String permission;
+    @NotNull
+    private ResourceTypeEnum type;
+    @NotNull
+    private Long parentId;
+    @NotNull
+    private Integer sort;
+    private String path;
+    private String component;
+    private String icon;
+    private String titleKey;
+}
