@@ -1,4 +1,4 @@
-package cn.caldm.www.permission_context.interfaces.rect;
+package cn.caldm.www.permission_context.interfaces.rest;
 
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.permission_context.application.service.PermissionService;
