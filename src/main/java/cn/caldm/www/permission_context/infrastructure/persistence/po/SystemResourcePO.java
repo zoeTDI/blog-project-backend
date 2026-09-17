@@ -13,7 +13,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("system_menu")
+@TableName("system_resource")
 public class SystemResourcePO {
 
     @TableId(value = "id", type = IdType.AUTO)
