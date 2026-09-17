@@ -191,11 +191,9 @@ public class SystemResource implements Serializable {
         this.enabled = true;
     }
 
-    private void validateParentChild(
-            SystemResource parent,
-            SystemResource child) {
-        if (child.isRoot()) {
-            if (!child.isDirectory()) {
+    public void validateParent(SystemResource parent) {
+        if (isRoot()) {
+            if (!isDirectory()) {
                 throw new IllegalArgumentException("顶级资源必须是目录。");
             }
             return;
@@ -205,10 +203,11 @@ public class SystemResource implements Serializable {
             throw new IllegalArgumentException("父资源不存在。");
         }
 
-        if (parent.isDirectory() && child.isMenu()) {
+        if (parent.isDirectory() && isMenu()) {
             return;
         }
-        if (parent.isMenu() && child.isButton()) {
+
+        if (parent.isMenu() && isButton()) {
             return;
         }
         throw new IllegalArgumentException("非法的资源父子关系。");
