@@ -183,7 +183,7 @@ public class SystemResource implements Serializable {
         return parentId == 0l;
     }
 
-    public void disabled() {
+    public void disable() {
         this.enabled = false;
     }
 
