@@ -1,7 +1,7 @@
 package cn.caldm.www.permission_context.interfaces.rect;
 
 import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.permission_context.application.service.PermissionApplicationService;
+import cn.caldm.www.permission_context.application.service.PermissionService;
 import cn.caldm.www.permission_context.domain.model.SystemResource;
 import cn.caldm.www.permission_context.interfaces.assembler.ResourceDtoAssembler;
 import cn.caldm.www.permission_context.interfaces.dto.resource.CreateResourceRequest;
@@ -23,12 +23,12 @@ import java.util.List;
 @RequestMapping("/permission/resources")
 @RequiredArgsConstructor
 public class PermissionResourceController {
-    private final PermissionApplicationService permissionApplicationService;
+    private final PermissionService permissionService;
     private final ResourceDtoAssembler resourceDtoAssembler;
 
     @PostMapping
     public Result<ResourceResponse> create(@Valid @RequestBody CreateResourceRequest request) {
-        SystemResource resource = permissionApplicationService.createResource(
+        SystemResource resource = permissionService.createResource(
                 request.getName(),
                 request.getPermission(),
                 request.getType(),
@@ -44,19 +44,19 @@ public class PermissionResourceController {
 
     @GetMapping("/{id}")
     public Result<ResourceResponse> getById(@PathVariable Long id) {
-        SystemResource resource = permissionApplicationService.getResource(id);
+        SystemResource resource = permissionService.getResource(id);
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @GetMapping("/{id}/children")
     public Result<List<ResourceResponse>> getChildren(@PathVariable Long id) {
-        List<SystemResource> resources = permissionApplicationService.getChildren(id);
+        List<SystemResource> resources = permissionService.getChildren(id);
         return Result.success(resourceDtoAssembler.toResponseList(resources));
     }
 
     @PutMapping("/{id}")
     public Result<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateResourceRequest request) {
-        SystemResource resource = permissionApplicationService.updateResource(
+        SystemResource resource = permissionService.updateResource(
                 id,
                 request.getName(),
                 request.getPermission(),
@@ -72,19 +72,19 @@ public class PermissionResourceController {
 
     @PutMapping("/{id}/enable")
     public Result<Void> enable(@PathVariable Long id) {
-        permissionApplicationService.enableResource(id);
+        permissionService.enableResource(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/disable")
     public Result<Void> disable(@PathVariable Long id) {
-        permissionApplicationService.disableResource(id);
+        permissionService.disableResource(id);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        permissionApplicationService.deleteResource(id);
+        permissionService.deleteResource(id);
         return Result.success();
     }
 }

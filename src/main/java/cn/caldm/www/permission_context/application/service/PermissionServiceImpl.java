@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class PermissionApplicationServiceImpl implements PermissionApplicationService {
+public class PermissionServiceImpl implements PermissionService {
 
     private final SystemResourceRepository resourceRepository;
 

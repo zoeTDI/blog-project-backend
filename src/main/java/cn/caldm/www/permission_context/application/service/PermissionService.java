@@ -5,7 +5,7 @@ import cn.caldm.www.permission_context.domain.model.SystemResource;
 
 import java.util.List;
 
-public interface PermissionApplicationService {
+public interface PermissionService {
 
     SystemResource createResource(
             String name,
