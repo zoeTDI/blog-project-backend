@@ -7,10 +7,11 @@ import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessL
 import cn.caldm.www.system_context.application.service.ApiAccessLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,13 +26,11 @@ import java.util.UUID;
  */
 @Aspect
 @Component
+@RequiredArgsConstructor 
 public class ApiAccessLogAspect {
 
-    @Autowired
-    private ApiAccessLogService apiAccessLogService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ApiAccessLogService apiAccessLogService;
+    private final ObjectMapper objectMapper;
 
     @Around("@annotation(apiAccessLog)")
     public Object doAround(ProceedingJoinPoint joinPoint, ApiAccessLog apiAccessLog) throws Throwable {

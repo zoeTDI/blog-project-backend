@@ -5,8 +5,9 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository
 import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostTagRelationMapper;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostTagRelationAssembler;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -20,12 +21,11 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository
+@RequiredArgsConstructor 
 public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRepository {
-    @Autowired
-    BlogPostTagRelationMapper tagRelationMapper;
 
-    @Autowired
-    private BlogPostTagRelationAssembler assembler;
+    private final BlogPostTagRelationMapper tagRelationMapper;
+    private final BlogPostTagRelationAssembler assembler;
 
     @Override
     public int deleteByTagId(Long tagId) {

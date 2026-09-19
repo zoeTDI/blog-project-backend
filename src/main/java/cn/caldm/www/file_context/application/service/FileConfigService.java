@@ -7,8 +7,9 @@ import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileConf
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -18,15 +19,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor 
 public class FileConfigService {
-    @Autowired
-    private InfraFileConfigMapper fileConfigMapper;
 
-    @Autowired
-    private FileClientFactory fileClientFactory;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final InfraFileConfigMapper fileConfigMapper;
+    private final FileClientFactory fileClientFactory;
+    private final ObjectMapper objectMapper;
 
     private Long masterConfigId;
 

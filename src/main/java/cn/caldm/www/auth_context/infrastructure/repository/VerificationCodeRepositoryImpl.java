@@ -1,8 +1,10 @@
 package cn.caldm.www.auth_context.infrastructure.repository;
 
 import cn.caldm.www.auth_context.domain.repository.VerificationCodeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.concurrent.TimeUnit;
@@ -14,15 +16,15 @@ import java.util.concurrent.TimeUnit;
  * @author caldm
  */
 @Repository("authContextVerificationCodeRepositoryImpl")
+@RequiredArgsConstructor 
 public class VerificationCodeRepositoryImpl implements VerificationCodeRepository {
 
     private static final String CODE_PREFIX = "auth:code:email:";
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
-    public void saveCode(String target, String code, long ttlSeconds) {
+    public void saveCode(String target, @NonNull String code, long ttlSeconds) {
         String key = CODE_PREFIX + target;
         stringRedisTemplate.opsForValue().set(key, code, ttlSeconds, TimeUnit.SECONDS);
     }

@@ -8,7 +8,8 @@ import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLo
 import cn.caldm.www.system_context.application.service.ApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -29,12 +30,11 @@ import java.util.UUID;
  * @author caldm
  */
 @RestControllerAdvice
+@RequiredArgsConstructor 
 public class GlobalExceptionHandler {
-    @Autowired
-    private ApiErrorLogService apiErrorLogService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    
+    private final ApiErrorLogService apiErrorLogService;
+    private final ObjectMapper objectMapper;
 
     // ============================ 4xx 客户端错误，不记录栈堆 ============================
 

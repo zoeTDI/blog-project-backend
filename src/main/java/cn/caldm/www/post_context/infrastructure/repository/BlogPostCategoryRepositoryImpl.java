@@ -7,7 +7,6 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryP
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostCategoryAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -25,11 +24,9 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class BlogPostCategoryRepositoryImpl implements BlogPostCategoryRepository {
-    @Autowired
-    private BlogPostCategoryMapper categoryMapper;
 
-    @Autowired
-    private BlogPostCategoryAssembler categoryAssembler;
+    private final BlogPostCategoryMapper categoryMapper;
+    private final BlogPostCategoryAssembler categoryAssembler;
 
     @Override
     public boolean existsByUserIdAndName(Long userId, String name) {

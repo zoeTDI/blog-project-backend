@@ -12,10 +12,10 @@ import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -29,13 +29,12 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Service
+@Validated
 @RequiredArgsConstructor
 public class BlogPostCategoryService {
-    @Autowired
-    private BlogPostCategoryRepository categoryRepository;
 
-    @Autowired
-    private BlogPostCategoryRelationRepository categoryRelationRepository;
+    private final BlogPostCategoryRepository categoryRepository;
+    private final BlogPostCategoryRelationRepository categoryRelationRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Long createCategory(BlogPostCategoryCreateCommand command) {

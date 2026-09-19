@@ -5,8 +5,8 @@ import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
 import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor 
 public class FileService {
 
-    @Autowired
-    private InfraFileMapper fileMapper;
-
-    @Autowired
-    private FileConfigService fileConfigService;
-
-    @Autowired
-    private FileClientFactory fileClientFactory;
+    private final InfraFileMapper fileMapper;
+    private final FileConfigService fileConfigService;
+    private final FileClientFactory fileClientFactory;
 
     /**
      * 核心业务方法：一键上传文件（使用默认主存储介质）
