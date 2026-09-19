@@ -46,11 +46,6 @@ public class SecurityUtils {
         return roles != null ? roles : Collections.emptyList();
     }
 
-    public static List<String> getMenus() {
-        List<String> menus = getCurrentUser().getMenus();
-        return menus != null ? menus : Collections.emptyList();
-    }
-
     public static boolean isAuthenticated() {
         return getOptCurrentUser().isPresent();
     }

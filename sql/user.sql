@@ -53,47 +53,43 @@ INSERT INTO `system_role` (`id`, `name`, `code`, `sort`, `status`, `remark`, `cr
 (3, '审核员', 'auditor', 3, 0, '负责平台内容、动态的合规性审查', '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0');
 COMMIT;
 
-DROP TABLE IF EXISTS `system_menu`;
-CREATE TABLE `system_menu` (
+DROP TABLE IF EXISTS `system_resource`;
+CREATE TABLE `system_resource` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '菜单/权限 ID',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单名称',
-  `permission` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '权限标识(如: system:user:create)',
-  `type` tinyint NOT NULL COMMENT '菜单类型（1目录 2菜单 3按钮）',
-  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父菜单 ID',
-  `sort` int NOT NULL DEFAULT 0 COMMENT '显示顺序',
-  `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '路由地址',
-  `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '组件路径',
-  `status` tinyint NOT NULL DEFAULT 0 COMMENT '菜单状态（0正常 1停用）',
-  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除 0 不删除 1 删除',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单及权限原子表';
+  `name` varchar(50) NOT NULL
+      COMMENT '资源名称',
+  `permission` varchar(100) DEFAULT ''
+      COMMENT '权限标识，如 post:create',
+  `type` tinyint NOT NULL
+      COMMENT '资源类型（1目录 2菜单 3按钮）',
+  `parent_id` bigint NOT NULL DEFAULT 0
+      COMMENT '父资源 ID',
+  `sort` int NOT NULL DEFAULT 0
+      COMMENT '显示顺序',
+  `path` varchar(200) DEFAULT ''
+      COMMENT '前端路由地址',
+  `component` varchar(255) DEFAULT ''
+      COMMENT '前端组件标识',
+  `icon` varchar(100) DEFAULT ''
+      COMMENT '前端图标标识',
+  `title_key` varchar(200) DEFAULT ''
+      COMMENT '前端国际化 Key',
+  `status` tinyint NOT NULL DEFAULT 0
+      COMMENT '状态（0正常 1停用）',
+  `creator` varchar(64) DEFAULT '',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updater` varchar(64) DEFAULT '',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` bit(1) NOT NULL DEFAULT b'0',
+  PRIMARY KEY (`id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_permission` (`permission`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='系统资源及权限原子表';
 
-BEGIN;
--- 1. 用户管理权限树
-INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `parent_id`, `sort`, `path`, `component`, `status`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES 
-(100, '用户管理', '', 2, 0, 1, 'user', 'system/user/index', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(101, '用户查询', 'system:user:query', 3, 100, 1, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(102, '用户创建(管理员专享)', 'system:user:create', 3, 100, 2, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(103, '用户更新', 'system:user:update', 3, 100, 3, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(104, '用户删除', 'system:user:delete', 3, 100, 4, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0');
-
--- 2. 角色与权限控制
-INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `parent_id`, `sort`, `path`, `component`, `status`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES 
-(200, '角色管理', '', 2, 0, 2, 'role', 'system/role/index', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(201, '角色查询', 'system:role:query', 3, 200, 1, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(202, '角色授权', 'system:role:assign', 3, 200, 2, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0');
-
--- 3. 文件管理资产树
-INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `parent_id`, `sort`, `path`, `component`, `status`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES 
-(300, '文件管理', '', 2, 0, 3, 'file', 'infra/file/index', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(301, '文件查询', 'infra:file:query', 3, 300, 1, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(302, '文件上传', 'infra:file:upload', 3, 300, 2, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(303, '文件删除', 'infra:file:delete', 3, 300, 3, '', '', 0, '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0');
-COMMIT;
 
 DROP TABLE IF EXISTS `system_user_role`;
 CREATE TABLE `system_user_role` (
@@ -110,31 +106,16 @@ INSERT INTO `system_user_role` (`user_id`, `role_id`, `creator`, `create_time`)
 VALUES (1, 1, 'system', CURRENT_TIMESTAMP);
 COMMIT;
 
-DROP TABLE IF EXISTS `system_role_menu`;
-CREATE TABLE `system_role_menu` (
+DROP TABLE IF EXISTS `system_role_resource`;
+CREATE TABLE `system_role_resource` (
   `role_id` bigint NOT NULL COMMENT '角色 ID',
-  `menu_id` bigint NOT NULL COMMENT '菜单/权限 ID',
+  `resource_id` bigint NOT NULL COMMENT '菜单/权限 ID',
   `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  PRIMARY KEY (`role_id`, `menu_id`) USING BTREE,
-  INDEX `idx_menu_id`(`menu_id` ASC) USING BTREE
+  PRIMARY KEY (`role_id`, `resource_id`) USING BTREE,
+  INDEX `idx_resource_id`(`resource_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色和菜单权限关联中间表';
 
-BEGIN;
-INSERT INTO `system_role_menu` (`role_id`, `menu_id`, `creator`, `create_time`) VALUES 
-(1, 100, 'system', CURRENT_TIMESTAMP),
-(1, 101, 'system', CURRENT_TIMESTAMP),
-(1, 102, 'system', CURRENT_TIMESTAMP),
-(1, 103, 'system', CURRENT_TIMESTAMP),
-(1, 104, 'system', CURRENT_TIMESTAMP),
-(1, 200, 'system', CURRENT_TIMESTAMP),
-(1, 201, 'system', CURRENT_TIMESTAMP),
-(1, 202, 'system', CURRENT_TIMESTAMP),
-(1, 300, 'system', CURRENT_TIMESTAMP),
-(1, 301, 'system', CURRENT_TIMESTAMP),  
-(1, 302, 'system', CURRENT_TIMESTAMP),
-(1, 303, 'system', CURRENT_TIMESTAMP);
-COMMIT;
 
 
 

@@ -4,14 +4,13 @@ import cn.caldm.www.auth_context.application.service.AuthApplicationService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.domain.model.TokenPair;
 import cn.caldm.www.auth_context.interfaces.dto.*;
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infrastructure.annotation.Anonymous;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -141,7 +140,6 @@ public class AuthController {
         resDTO.setNickname(authUser.getNickname());
         resDTO.setRoles(authUser.getRoles());
         resDTO.setAvatar(authUser.getAvatar());
-        resDTO.setMenus(authUser.getMenus());
         resDTO.setAccessTokenExpiresAt(accessTokenExpiresAt);
         resDTO.setRefreshTokenExpiresAt(refreshTokenExpiresAt);
 

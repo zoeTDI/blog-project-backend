@@ -1,8 +1,5 @@
 package cn.caldm.www.post_context.interfaces.rest;
 
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
-import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.application.service.BlogPostService;
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
@@ -12,9 +9,11 @@ import cn.caldm.www.post_context.interfaces.assembler.BlogPostSummaryAssembler;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostEditDTO;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostPageQueryDTO;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostSummaryDTO;
+import cn.caldm.www.shared_kernel.domain.PageResult;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

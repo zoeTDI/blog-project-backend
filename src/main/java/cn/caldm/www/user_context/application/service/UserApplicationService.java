@@ -1,16 +1,13 @@
 package cn.caldm.www.user_context.application.service;
 
-import cn.caldm.www.common.utils.LogUtils;
-import cn.caldm.www.common.utils.SlowHashUtils;
+import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,7 +50,7 @@ public class UserApplicationService {
             LogUtils.warn("没有权限创建用户");
             return null;
         }
-        String encode = SlowHashUtils.bcryptEncode(password);
+        String encode = passwordEncoder.encode(password);
         return userRepository.insert(creator.getUsername(), username, encode, roles);
     }
 

@@ -4,7 +4,8 @@ import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,9 +15,10 @@ import org.springframework.stereotype.Service;
  * @author caldm
  */
 @Service
+@RequiredArgsConstructor 
 public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
 
     @Override
     public AuthUser getCredentialByEmail(String email) {
@@ -56,7 +58,6 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
         dto.setNickname(user.getNickname());
         dto.setAvatar(user.getAvatar());
         dto.setRoles(user.getRoles());
-        dto.setMenus(user.getMenus());
         dto.setStatus(user.getStatus());
         dto.setDeleted(user.getDeleted());
         return dto;

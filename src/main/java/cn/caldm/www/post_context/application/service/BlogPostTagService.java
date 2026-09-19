@@ -9,11 +9,13 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,15 +29,13 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Service
+@Validated
+@RequiredArgsConstructor
 public class BlogPostTagService {
-    @Autowired
-    private BlogPostTagRepository tagRepository;
 
-    @Autowired
-    private BlogPostTagRelationRepository tagRelationRepository;
-
-    @Autowired
-    private BlogPostRepository postRepository;
+    private final BlogPostTagRepository tagRepository;
+    private final BlogPostTagRelationRepository tagRelationRepository;
+    private final BlogPostRepository postRepository;
 
     public Long createTag(String tagName) {
         if (!StringUtils.hasText(tagName)) {

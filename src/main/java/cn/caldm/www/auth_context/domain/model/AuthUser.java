@@ -28,7 +28,6 @@ public class AuthUser implements UserDetails {
     private String nickname;
     private String avatar;
     private List<RoleEnum> roles;
-    private List<String> menus;
     private SysUserStatusEnum status;
     private SysUserDeletedEnum deleted;
     private String accessToken;
@@ -43,12 +42,6 @@ public class AuthUser implements UserDetails {
         if (roles != null) {
             for (RoleEnum role : roles) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getCode()));
-            }
-        }
-
-        if (menus != null) {
-            for (String menu : menus) {
-                authorities.add(new SimpleGrantedAuthority(menu));
             }
         }
 

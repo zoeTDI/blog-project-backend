@@ -1,5 +1,7 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -12,8 +14,9 @@ import cn.caldm.www.user_context.infrastructure.persistence.po.SysRolePO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -29,18 +32,15 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository("userContextUserRepositoryImpl")
+@RequiredArgsConstructor 
 public class UserRepositoryImpl implements UserRepository {
-    @Autowired
-    SysUserMapper userMapper;
 
-    @Autowired
-    SysRoleMapper roleMapper;
-
-    @Autowired
-    SysUserRoleMapper userRoleMapper;
-
-    @Autowired
-    UserAssembler userAssembler;
+    private final SysUserMapper userMapper;
+    private final SysRoleMapper roleMapper;
+    private final SystemResourceRepository resourceRepository;
+    private final SysUserRoleMapper userRoleMapper;
+    private final RoleResourceRepository roleResourceRepository;
+    private final UserAssembler userAssembler;
 
     @Override
     public SysUser findByEmail(String email) {
@@ -148,6 +148,4 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return new ArrayList<>();
     }
-
-    // todo 添加用户菜单
 }

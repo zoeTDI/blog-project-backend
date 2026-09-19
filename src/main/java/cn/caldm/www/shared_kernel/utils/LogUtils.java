@@ -1,4 +1,4 @@
-package cn.caldm.www.common.utils;
+package cn.caldm.www.shared_kernel.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

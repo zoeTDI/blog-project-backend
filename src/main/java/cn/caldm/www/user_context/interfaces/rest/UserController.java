@@ -1,8 +1,8 @@
 package cn.caldm.www.user_context.interfaces.rest;
 
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
@@ -12,7 +12,6 @@ import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

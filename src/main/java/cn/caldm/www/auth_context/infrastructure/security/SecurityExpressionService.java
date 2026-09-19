@@ -15,6 +15,16 @@ import java.util.List;
  */
 @Component("ss")
 public class SecurityExpressionService {
+    
+    /**
+     * 校验当前用户是否具备任意角色
+     * @return 是否包含角色
+     */
+    public boolean hasRole() {
+        List<RoleEnum> currentRoles = SecurityUtils.getRoles();
+        return currentRoles != null && !currentRoles.isEmpty();
+    }
+
     /**
      * 校验当前用户是否具备指定角色（单个）
      *

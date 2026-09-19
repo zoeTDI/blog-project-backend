@@ -3,8 +3,8 @@ package cn.caldm.www.auth_context.interfaces.filter;
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import com.auth0.jwt.interfaces.Claim;
@@ -42,7 +42,11 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request, 
+        @NonNull HttpServletResponse response, 
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 

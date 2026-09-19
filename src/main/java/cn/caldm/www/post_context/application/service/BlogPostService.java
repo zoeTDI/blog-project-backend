@@ -1,6 +1,5 @@
 package cn.caldm.www.post_context.application.service;
 
-import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.*;
@@ -10,11 +9,11 @@ import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -31,22 +30,15 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Service
+@Validated
 @RequiredArgsConstructor
 public class BlogPostService {
-    @Autowired
-    private BlogPostRepository blogPostRepository;
 
-    @Autowired
-    private BlogPostCategoryRelationRepository categoryRelationRepository;
-
-    @Autowired
-    private BlogPostTagRelationRepository tagRelationRepository;
-
-    @Autowired
-    private BlogPostCategoryRepository categoryRepository;
-
-    @Autowired
-    private BlogPostTagRepository tagRepository;
+    private final BlogPostRepository blogPostRepository;
+    private final BlogPostCategoryRelationRepository categoryRelationRepository;
+    private final BlogPostTagRelationRepository tagRelationRepository;
+    private final BlogPostCategoryRepository categoryRepository;
+    private final BlogPostTagRepository tagRepository;
 
     /**
      * Queries the complete (all statuses), non-deleted article list of the

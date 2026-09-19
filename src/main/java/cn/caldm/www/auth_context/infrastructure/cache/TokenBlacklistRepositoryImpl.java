@@ -1,7 +1,8 @@
 package cn.caldm.www.auth_context.infrastructure.cache;
 
 import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -14,11 +15,11 @@ import java.util.concurrent.TimeUnit;
  * @author caldm
  */
 @Repository
+@RequiredArgsConstructor 
 public class TokenBlacklistRepositoryImpl implements TokenBlacklistRepository {
     private static final String PREFIX = "auth:token:blacklist:";
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public void addBlacklist(String token, long expireMillis) {

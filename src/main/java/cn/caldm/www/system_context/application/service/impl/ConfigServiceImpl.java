@@ -4,8 +4,9 @@ import cn.caldm.www.system_context.application.service.ConfigService;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraConfigPO;
 import cn.caldm.www.system_context.infrastructure.persistence.mapper.InfraConfigMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor 
 public class ConfigServiceImpl implements ConfigService, CommandLineRunner {
 
-    @Autowired
-    private InfraConfigMapper infraConfigMapper;
+    private final InfraConfigMapper infraConfigMapper;
 
     /**
      * 本地高性能配置缓存容器（Key -> Value）

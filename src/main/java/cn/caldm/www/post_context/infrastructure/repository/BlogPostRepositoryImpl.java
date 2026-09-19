@@ -1,6 +1,5 @@
 package cn.caldm.www.post_context.infrastructure.repository;
 
-import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
@@ -13,9 +12,11 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryR
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
+import cn.caldm.www.shared_kernel.domain.PageResult;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,15 +34,13 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository
+@RequiredArgsConstructor 
 public class BlogPostRepositoryImpl implements BlogPostRepository {
-    @Autowired
-    private BlogPostMapper postMapper;
-    @Autowired
-    private BlogPostTagRelationMapper tagRelationMapper;
-    @Autowired
-    private BlogPostCategoryRelationMapper categoryRelationMapper;
-    @Autowired
-    private BlogPostAssembler assembler;
+
+    private final BlogPostMapper postMapper;
+    private final BlogPostTagRelationMapper tagRelationMapper;
+    private final BlogPostCategoryRelationMapper categoryRelationMapper;
+    private final BlogPostAssembler assembler;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -5,9 +5,10 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostTagMapper;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostTagAssembler;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -21,11 +22,11 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository
+@RequiredArgsConstructor 
 public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
-    @Autowired
-    private BlogPostTagMapper tagMapper;
-    @Autowired
-    private BlogPostTagAssembler assembler;
+
+    private final BlogPostTagMapper tagMapper;
+    private final BlogPostTagAssembler assembler;
 
     @Override
     public BlogPostTag findById(Long id) {

@@ -7,7 +7,6 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryR
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostCategoryRelationAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -26,11 +25,9 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class BlogPostCategoryRelationRepositoryImpl implements BlogPostCategoryRelationRepository {
-    @Autowired
-    private BlogPostCategoryRelationMapper relationMapper;
 
-    @Autowired
-    private BlogPostCategoryRelationAssembler relationAssembler;
+    private final BlogPostCategoryRelationMapper relationMapper;
+    private final BlogPostCategoryRelationAssembler relationAssembler;
 
     @Override
     public BlogPostCategoryRelation save(BlogPostCategoryRelation relation) {
