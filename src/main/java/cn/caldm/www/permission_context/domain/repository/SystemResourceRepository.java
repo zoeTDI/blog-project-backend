@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface SystemResourceRepository {
     Optional<SystemResource> findById(Long id);
 
+    List<SystemResource> findByIds(List<Long> ids);
+
     List<SystemResource> findChildren(Long parentId);
 
     SystemResource create(SystemResource resource);

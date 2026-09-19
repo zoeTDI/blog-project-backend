@@ -31,6 +31,12 @@ public class SystemResourceRepositoryImpl implements SystemResourceRepository {
     }
 
     @Override
+    public List<SystemResource> findByIds(List<Long> ids) {
+        List<SystemResourcePO> selectByIds = resourceMapper.selectByIds(ids);
+        return resourceAssembler.toDomainList(selectByIds);
+    }
+
+    @Override
     public List<SystemResource> findChildren(Long parentId) {
         List<SystemResourcePO> poList = resourceMapper.selectList(
                 new LambdaQueryWrapper<SystemResourcePO>().eq(SystemResourcePO::getParentId, parentId)
