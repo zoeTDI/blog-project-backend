@@ -1,8 +1,8 @@
 package cn.caldm.www.infrastructure.handler;
 
-import cn.caldm.www.common.domain.ErrorDetail;
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
+import cn.caldm.www.shared_kernel.domain.ErrorDetail;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLogPO;
 import cn.caldm.www.system_context.application.service.ApiErrorLogService;

@@ -1,9 +1,9 @@
 package cn.caldm.www.dev.controller;
 
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.file_context.application.service.FileConfigService;
 import cn.caldm.www.file_context.application.service.FileService;
 import jakarta.annotation.Resource;

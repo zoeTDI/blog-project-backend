@@ -1,12 +1,12 @@
 package cn.caldm.www.permission_context.interfaces.rest;
 
-import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.permission_context.application.service.PermissionService;
 import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.interfaces.assembler.ResourceDtoAssembler;
 import cn.caldm.www.permission_context.interfaces.dto.resource.CreateResourceRequest;
 import cn.caldm.www.permission_context.interfaces.dto.resource.ResourceResponse;
 import cn.caldm.www.permission_context.interfaces.dto.resource.UpdateResourceRequest;
+import cn.caldm.www.shared_kernel.domain.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

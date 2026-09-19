@@ -1,4 +1,4 @@
-package cn.caldm.www.common.domain;
+package cn.caldm.www.shared_kernel.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

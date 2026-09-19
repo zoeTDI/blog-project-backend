@@ -1,10 +1,10 @@
 package cn.caldm.www.post_context.interfaces.rest;
 
-import cn.caldm.www.common.domain.Result;
-import cn.caldm.www.common.domain.ResultCodeEnum;
 import cn.caldm.www.post_context.application.service.BlogPostTagService;
 import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
+import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package cn.caldm.www.user_context.application.service;
 
-import cn.caldm.www.common.utils.LogUtils;
+import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;

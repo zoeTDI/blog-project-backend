@@ -1,6 +1,5 @@
 package cn.caldm.www.post_context.infrastructure.repository;
 
-import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
@@ -13,6 +12,7 @@ import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryR
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

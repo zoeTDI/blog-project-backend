@@ -1,8 +1,8 @@
 package cn.caldm.www.post_context.domain.repository;
 
-import cn.caldm.www.common.domain.PageResult;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
+import cn.caldm.www.shared_kernel.domain.PageResult;
 
 import java.util.List;
 

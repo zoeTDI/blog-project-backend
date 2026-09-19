@@ -3,9 +3,9 @@ package cn.caldm.www.permission_context.interfaces.rest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.permission_context.application.service.RolePermissionService;
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
+import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.RequiredArgsConstructor;
