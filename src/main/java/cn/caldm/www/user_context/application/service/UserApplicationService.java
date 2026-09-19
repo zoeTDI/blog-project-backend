@@ -1,7 +1,6 @@
 package cn.caldm.www.user_context.application.service;
 
 import cn.caldm.www.common.utils.LogUtils;
-import cn.caldm.www.common.utils.SlowHashUtils;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -51,7 +50,7 @@ public class UserApplicationService {
             LogUtils.warn("没有权限创建用户");
             return null;
         }
-        String encode = SlowHashUtils.bcryptEncode(password);
+        String encode = passwordEncoder.encode(password);
         return userRepository.insert(creator.getUsername(), username, encode, roles);
     }
 
