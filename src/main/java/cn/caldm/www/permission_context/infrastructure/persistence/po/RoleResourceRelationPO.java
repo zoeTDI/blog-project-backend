@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @author caldm
  */
 @Data
-@TableName("system_role_menu")
+@TableName("system_role_resource")
 public class RoleResourceRelationPO {
     @MppMultiId
     private Long roleId;
