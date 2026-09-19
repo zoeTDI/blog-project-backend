@@ -1,5 +1,7 @@
 package cn.caldm.www.auth_context.domain.repository;
 
+import org.springframework.lang.NonNull;
+
 public interface VerificationCodeRepository {
     /**
      * 保存验证码及过期时间
@@ -7,7 +9,7 @@ public interface VerificationCodeRepository {
      * @param code 验证码
      * @param ttlSeconds 有效期（秒）
      */
-    void saveCode(String target, String code, long ttlSeconds);
+    void saveCode(String target, @NonNull String code, long ttlSeconds);
 
     /**
      * 获取验证码
