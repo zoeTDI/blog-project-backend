@@ -9,6 +9,8 @@ import cn.caldm.www.permission_context.interfaces.dto.resource.ResourceResponse;
 import cn.caldm.www.permission_context.interfaces.dto.resource.UpdateResourceRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class PermissionResourceController {
     private final ResourceDtoAssembler resourceDtoAssembler;
 
     @PostMapping
+    @PreAuthorize ("@ss.isAdmin()")
     public Result<ResourceResponse> create(@Valid @RequestBody CreateResourceRequest request) {
         SystemResource resource = permissionService.createResource(
                 request.getName(),
@@ -43,18 +46,21 @@ public class PermissionResourceController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> getById(@PathVariable Long id) {
         SystemResource resource = permissionService.getResource(id);
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @GetMapping("/{id}/children")
+    @PreAuthorize ("@ss.hasRole()")
     public Result<List<ResourceResponse>> getChildren(@PathVariable Long id) {
         List<SystemResource> resources = permissionService.getChildren(id);
         return Result.success(resourceDtoAssembler.toResponseList(resources));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateResourceRequest request) {
         SystemResource resource = permissionService.updateResource(
                 id,
@@ -71,18 +77,21 @@ public class PermissionResourceController {
     }
 
     @PutMapping("/{id}/enable")
+    @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> enable(@PathVariable Long id) {
         permissionService.enableResource(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/disable")
+    @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> disable(@PathVariable Long id) {
         permissionService.disableResource(id);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> delete(@PathVariable Long id) {
         permissionService.deleteResource(id);
         return Result.success();
