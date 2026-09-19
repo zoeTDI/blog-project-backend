@@ -1,9 +1,9 @@
 package cn.caldm.www.file_context.application.service;
 
-import cn.caldm.www.common.utils.SecurityUtils;
 import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +54,7 @@ public class FileService {
             fileRecord.setType(name.substring(name.lastIndexOf(".") + 1));
         }
 
-        String currentOperator = SecurityUtils.getLoginUsername();
+        String currentOperator = SecurityUtils.getUsername();
         fileRecord.setCreator(currentOperator);
         fileRecord.setUpdater(currentOperator);
 
