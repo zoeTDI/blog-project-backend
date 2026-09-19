@@ -2,7 +2,7 @@ package cn.caldm.www.permission_context.interfaces.rest;
 
 import cn.caldm.www.common.domain.Result;
 import cn.caldm.www.permission_context.application.service.PermissionService;
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.interfaces.assembler.ResourceDtoAssembler;
 import cn.caldm.www.permission_context.interfaces.dto.resource.CreateResourceRequest;
 import cn.caldm.www.permission_context.interfaces.dto.resource.ResourceResponse;
@@ -31,7 +31,7 @@ public class PermissionResourceController {
     @PostMapping
     @PreAuthorize ("@ss.isAdmin()")
     public Result<ResourceResponse> create(@Valid @RequestBody CreateResourceRequest request) {
-        SystemResource resource = permissionService.createResource(
+        Resource resource = permissionService.createResource(
                 request.getName(),
                 request.getPermission(),
                 request.getType(),
@@ -48,21 +48,21 @@ public class PermissionResourceController {
     @GetMapping("/{id}")
     @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> getById(@PathVariable Long id) {
-        SystemResource resource = permissionService.getResource(id);
+        Resource resource = permissionService.getResource(id);
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @GetMapping("/{id}/children")
     @PreAuthorize ("@ss.hasRole()")
     public Result<List<ResourceResponse>> getChildren(@PathVariable Long id) {
-        List<SystemResource> resources = permissionService.getChildren(id);
+        List<Resource> resources = permissionService.getChildren(id);
         return Result.success(resourceDtoAssembler.toResponseList(resources));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateResourceRequest request) {
-        SystemResource resource = permissionService.updateResource(
+        Resource resource = permissionService.updateResource(
                 id,
                 request.getName(),
                 request.getPermission(),

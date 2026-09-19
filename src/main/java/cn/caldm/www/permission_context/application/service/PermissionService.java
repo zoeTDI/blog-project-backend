@@ -1,13 +1,13 @@
 package cn.caldm.www.permission_context.application.service;
 
 import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 
 import java.util.List;
 
 public interface PermissionService {
 
-    SystemResource createResource(
+    Resource createResource(
             String name,
             String permission,
             ResourceTypeEnum type,
@@ -19,11 +19,11 @@ public interface PermissionService {
             String titleKey
     );
 
-    SystemResource getResource(Long id);
+    Resource getResource(Long id);
 
-    List<SystemResource> getChildren(Long parentId);
+    List<Resource> getChildren(Long parentId);
 
-    SystemResource updateResource(
+    Resource updateResource(
             Long id,
             String name,
             String permission,

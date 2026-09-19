@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class SystemResource implements Serializable {
+public class Resource implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -80,10 +80,10 @@ public class SystemResource implements Serializable {
 
     private static final Pattern PERMISSION_PATTERN = Pattern.compile("^[a-z][a-z0-9]*(:[a-z][a-z0-9]*)+$");
 
-    private SystemResource() {
+    private Resource() {
     }
 
-    public static SystemResource create(
+    public static Resource create(
             String name,
             String permission,
             ResourceTypeEnum type,
@@ -93,7 +93,7 @@ public class SystemResource implements Serializable {
             String component,
             String icon,
             String titleKey) {
-        SystemResource resource = new SystemResource();
+        Resource resource = new Resource();
 
         resource.name = name;
         resource.permission = permission;
@@ -132,7 +132,7 @@ public class SystemResource implements Serializable {
         validate();
     }
 
-    public static SystemResource reconstitute(
+    public static Resource reconstitute(
             Long id,
             String name,
             String permission,
@@ -145,7 +145,7 @@ public class SystemResource implements Serializable {
             String titleKey,
             boolean enabled
     ) {
-        SystemResource resource = new SystemResource();
+        Resource resource = new Resource();
 
         resource.id = id;
         resource.name = name;
@@ -191,7 +191,7 @@ public class SystemResource implements Serializable {
         this.enabled = true;
     }
 
-    public void validateParent(SystemResource parent) {
+    public void validateParent(Resource parent) {
         if (isRoot()) {
             if (!isDirectory()) {
                 throw new IllegalArgumentException("顶级资源必须是目录。");

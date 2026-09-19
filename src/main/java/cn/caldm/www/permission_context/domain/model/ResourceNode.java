@@ -8,10 +8,10 @@ import lombok.Data;
 
 @Data 
 public class ResourceNode {
-    private SystemResource node;
+    private Resource node;
     private List<ResourceNode> children = new ArrayList<>();
 
-    public ResourceNode(SystemResource node) {
+    public ResourceNode(Resource node) {
         this.node = node;
         this.children = new ArrayList<>();
     }

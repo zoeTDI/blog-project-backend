@@ -1,20 +1,20 @@
 package cn.caldm.www.permission_context.domain.repository;
 
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface SystemResourceRepository {
-    Optional<SystemResource> findById(Long id);
+    Optional<Resource> findById(Long id);
 
-    List<SystemResource> findByIds(List<Long> ids);
+    List<Resource> findByIds(List<Long> ids);
 
-    List<SystemResource> findChildren(Long parentId);
+    List<Resource> findChildren(Long parentId);
 
-    SystemResource create(SystemResource resource);
+    Resource create(Resource resource);
 
-    SystemResource update(SystemResource resource);
+    Resource update(Resource resource);
 
     void deleteById(Long id);
 }

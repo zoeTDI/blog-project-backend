@@ -1,7 +1,7 @@
 package cn.caldm.www.permission_context.application.service;
 
 import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class PermissionServiceImpl implements PermissionService {
     private final SystemResourceRepository resourceRepository;
 
     @Override
-    public SystemResource createResource(
+    public Resource createResource(
             String name,
             String permission,
             ResourceTypeEnum type,
@@ -32,7 +32,7 @@ public class PermissionServiceImpl implements PermissionService {
             String icon,
             String titleKey) {
 
-        SystemResource parent = null;
+        Resource parent = null;
 
         if (!Long.valueOf(0L).equals(parentId)) {
             parent = resourceRepository.findById(parentId)
@@ -42,7 +42,7 @@ public class PermissionServiceImpl implements PermissionService {
                             ));
         }
 
-        SystemResource resource = SystemResource.create(
+        Resource resource = Resource.create(
                 name,
                 permission,
                 type,
@@ -60,18 +60,18 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public SystemResource getResource(Long id) {
+    public Resource getResource(Long id) {
         return resourceRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("资源不存在：" + id));
     }
 
     @Override
-    public List<SystemResource> getChildren(Long parentId) {
+    public List<Resource> getChildren(Long parentId) {
         getResource(parentId);
         return  resourceRepository.findChildren(parentId);
     }
 
     @Override
-    public SystemResource updateResource(
+    public Resource updateResource(
             Long id,
             String name,
             String permission,
@@ -82,9 +82,9 @@ public class PermissionServiceImpl implements PermissionService {
             String icon,
             String titleKey) {
 
-        SystemResource resource = getResource(id);
+        Resource resource = getResource(id);
 
-        SystemResource parent = null;
+        Resource parent = null;
 
         if (!Long.valueOf(0L).equals(parentId)) {
             parent = resourceRepository.findById(parentId)
@@ -116,7 +116,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void enableResource(Long id) {
-        SystemResource resource = getResource(id);
+        Resource resource = getResource(id);
 
         resource.enable();
 
@@ -125,7 +125,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void disableResource(Long id) {
-        SystemResource resource = getResource(id);
+        Resource resource = getResource(id);
 
         resource.disable();
 
@@ -134,9 +134,9 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void deleteResource(Long id) {
-        SystemResource resource = getResource(id);
+        Resource resource = getResource(id);
 
-        List<SystemResource> children =
+        List<Resource> children =
                 resourceRepository.findChildren(id);
 
         if (!children.isEmpty()) {

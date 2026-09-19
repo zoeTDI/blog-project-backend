@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Queue;
 
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 
 public class ResourceUtils {
-    public static List<ResourceNode> buildTree(List<SystemResource> resources) {
+    public static List<ResourceNode> buildTree(List<Resource> resources) {
         if (resources == null || resources.isEmpty()) {
             return List.of();
         }
@@ -33,11 +33,11 @@ public class ResourceUtils {
         return Collections.unmodifiableList(rootNodes);
     }
 
-    public static List<SystemResource> flattenTree(List<ResourceNode> rootNodes) {
+    public static List<Resource> flattenTree(List<ResourceNode> rootNodes) {
         if (rootNodes == null || rootNodes.isEmpty()) {
             return List.of();
         }
-        List<SystemResource> result = new ArrayList<>();
+        List<Resource> result = new ArrayList<>();
         Queue<ResourceNode> queue = new LinkedList<>(rootNodes);
         while (!queue.isEmpty()) {
             ResourceNode node = queue.poll();

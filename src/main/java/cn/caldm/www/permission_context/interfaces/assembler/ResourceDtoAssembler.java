@@ -1,6 +1,6 @@
 package cn.caldm.www.permission_context.interfaces.assembler;
 
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.interfaces.dto.resource.ResourceResponse;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class ResourceDtoAssembler {
 
-    public ResourceResponse toResponse(SystemResource resource) {
+    public ResourceResponse toResponse(Resource resource) {
         if (resource == null) {
             return null;
         }
@@ -37,7 +37,7 @@ public class ResourceDtoAssembler {
     }
 
     public List<ResourceResponse> toResponseList(
-            List<SystemResource> resources) {
+            List<Resource> resources) {
 
         if (resources == null || resources.isEmpty()) {
             return List.of();

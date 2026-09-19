@@ -1,6 +1,6 @@
 package cn.caldm.www.permission_context.infrastructure.repository;
 
-import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.mapper.SystemResourceMapper;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.SystemResourcePO;
@@ -25,19 +25,19 @@ public class SystemResourceRepositoryImpl implements SystemResourceRepository {
     private final SystemResourceAssembler resourceAssembler;
 
     @Override
-    public Optional<SystemResource> findById(Long id) {
+    public Optional<Resource> findById(Long id) {
         SystemResourcePO po = resourceMapper.selectById(id);
         return Optional.ofNullable(resourceAssembler.toDomain(po));
     }
 
     @Override
-    public List<SystemResource> findByIds(List<Long> ids) {
+    public List<Resource> findByIds(List<Long> ids) {
         List<SystemResourcePO> selectByIds = resourceMapper.selectByIds(ids);
         return resourceAssembler.toDomainList(selectByIds);
     }
 
     @Override
-    public List<SystemResource> findChildren(Long parentId) {
+    public List<Resource> findChildren(Long parentId) {
         List<SystemResourcePO> poList = resourceMapper.selectList(
                 new LambdaQueryWrapper<SystemResourcePO>().eq(SystemResourcePO::getParentId, parentId)
         );
@@ -45,14 +45,14 @@ public class SystemResourceRepositoryImpl implements SystemResourceRepository {
     }
 
     @Override
-    public SystemResource create(SystemResource resource) {
+    public Resource create(Resource resource) {
         SystemResourcePO po = resourceAssembler.toPO(resource);
         resourceMapper.insert(po);
         return resourceAssembler.toDomain(po);
     }
 
     @Override
-    public SystemResource update(SystemResource resource) {
+    public Resource update(Resource resource) {
         SystemResourcePO po = resourceAssembler.toPO(resource);
         resourceMapper.updateById(po);
         return resourceAssembler.toDomain(po);
