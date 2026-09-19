@@ -1,9 +1,7 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
-import cn.caldm.www.permission_context.domain.model.SystemResource;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
-import cn.caldm.www.user_context.domain.modal.AuthResourceNode;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -23,8 +21,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -151,36 +147,5 @@ public class UserRepositoryImpl implements UserRepository {
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
-    }
-
-    private List<AuthResourceNode> getResourceTrees(Long roleId) {
-                if (roleId == null) {
-            return List.of();
-        }
-        List<Long> resourceIds = roleResourceRepository.findResourceIdsByRoleId(roleId);
-        if (resourceIds == null || resourceIds.isEmpty()) {
-            return List.of();
-        }
-        List<SystemResource> resources = resourceRepository.findByIds(resourceIds);
-        if (resources == null || resources.isEmpty()) {
-            return List.of();
-        }
-        HashMap<Long, AuthResourceNode> map = new HashMap<>();
-        resources.stream()
-                .forEach(res -> map.put(res.getId(), new AuthResourceNode(res)));
-        List<AuthResourceNode> rootNodes = new ArrayList<>();
-        resources.stream()
-                .forEach(res -> {
-                    AuthResourceNode self = map.get(res.getId());
-                    AuthResourceNode parent = (res.getParentId() == null) ? null : map.get(res.getParentId());
-                    if (parent != null) {
-                        parent.getChildren().add(self);
-                    } else {
-                        rootNodes.add(self);
-                    }
-                });
-        map.values().stream().forEach(node -> node.freezeChildren());
-
-        return Collections.unmodifiableList(rootNodes);
     }
 }
