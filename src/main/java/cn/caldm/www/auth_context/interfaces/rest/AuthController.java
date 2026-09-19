@@ -140,7 +140,6 @@ public class AuthController {
         resDTO.setNickname(authUser.getNickname());
         resDTO.setRoles(authUser.getRoles());
         resDTO.setAvatar(authUser.getAvatar());
-        resDTO.setMenus(authUser.getMenus());
         resDTO.setAccessTokenExpiresAt(accessTokenExpiresAt);
         resDTO.setRefreshTokenExpiresAt(refreshTokenExpiresAt);
 
