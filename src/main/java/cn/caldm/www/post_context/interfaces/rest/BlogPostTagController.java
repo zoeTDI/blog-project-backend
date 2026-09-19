@@ -8,7 +8,6 @@ import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

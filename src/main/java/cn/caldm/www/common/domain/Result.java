@@ -2,8 +2,6 @@ package cn.caldm.www.common.domain;
 
 import lombok.Data;
 
-import java.util.Map;
-
 /**
  * 统一全局返回结果类
  *

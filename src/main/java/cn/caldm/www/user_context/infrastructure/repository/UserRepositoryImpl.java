@@ -1,5 +1,9 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
+import cn.caldm.www.permission_context.domain.model.SystemResource;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
+import cn.caldm.www.user_context.domain.modal.AuthResourceNode;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -12,12 +16,15 @@ import cn.caldm.www.user_context.infrastructure.persistence.po.SysRolePO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -29,18 +36,15 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository("userContextUserRepositoryImpl")
+@RequiredArgsConstructor 
 public class UserRepositoryImpl implements UserRepository {
-    @Autowired
-    SysUserMapper userMapper;
 
-    @Autowired
-    SysRoleMapper roleMapper;
-
-    @Autowired
-    SysUserRoleMapper userRoleMapper;
-
-    @Autowired
-    UserAssembler userAssembler;
+    private final SysUserMapper userMapper;
+    private final SysRoleMapper roleMapper;
+    private final SystemResourceRepository resourceRepository;
+    private final SysUserRoleMapper userRoleMapper;
+    private final RoleResourceRepository roleResourceRepository;
+    private final UserAssembler userAssembler;
 
     @Override
     public SysUser findByEmail(String email) {
@@ -149,5 +153,34 @@ public class UserRepositoryImpl implements UserRepository {
         return new ArrayList<>();
     }
 
-    // todo 添加用户菜单
+    private List<AuthResourceNode> getResourceTrees(Long roleId) {
+                if (roleId == null) {
+            return List.of();
+        }
+        List<Long> resourceIds = roleResourceRepository.findResourceIdsByRoleId(roleId);
+        if (resourceIds == null || resourceIds.isEmpty()) {
+            return List.of();
+        }
+        List<SystemResource> resources = resourceRepository.findByIds(resourceIds);
+        if (resources == null || resources.isEmpty()) {
+            return List.of();
+        }
+        HashMap<Long, AuthResourceNode> map = new HashMap<>();
+        resources.stream()
+                .forEach(res -> map.put(res.getId(), new AuthResourceNode(res)));
+        List<AuthResourceNode> rootNodes = new ArrayList<>();
+        resources.stream()
+                .forEach(res -> {
+                    AuthResourceNode self = map.get(res.getId());
+                    AuthResourceNode parent = (res.getParentId() == null) ? null : map.get(res.getParentId());
+                    if (parent != null) {
+                        parent.getChildren().add(self);
+                    } else {
+                        rootNodes.add(self);
+                    }
+                });
+        map.values().stream().forEach(node -> node.freezeChildren());
+
+        return Collections.unmodifiableList(rootNodes);
+    }
 }

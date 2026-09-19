@@ -14,7 +14,6 @@ import cn.caldm.www.post_context.interfaces.dto.BlogPostPageQueryDTO;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostSummaryDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

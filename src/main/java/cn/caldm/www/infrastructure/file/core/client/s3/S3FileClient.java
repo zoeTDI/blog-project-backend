@@ -7,7 +7,7 @@ import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3Configuration;
+// import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.net.URI;
@@ -27,9 +27,9 @@ public class S3FileClient extends AbstractFileClient<S3FileClientConfig> {
 
     @Override
     protected void doInit() throws Exception {
-        S3Configuration s3Configuration = S3Configuration.builder()
-                .pathStyleAccessEnabled(config.getEnablePathStyleAccess())
-                .build();
+        // S3Configuration s3Configuration = S3Configuration.builder()
+        //         .pathStyleAccessEnabled(config.getEnablePathStyleAccess())
+        //         .build();
 
         String endpoint = config.getEndpoint();
         if (endpoint != null && !endpoint.startsWith("http://") && !endpoint.startsWith("https://")) {
