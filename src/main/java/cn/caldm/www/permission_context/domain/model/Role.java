@@ -69,4 +69,12 @@ public class Role {
     public void enable() {
         this.enabled = true;
     }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isValid() {
+        return id != null && name != null && !name.isBlank() && code != null && !code.isBlank() && sort != null && !sort.isBlank();
+    }
 }
