@@ -1,6 +1,5 @@
 package cn.caldm.www.permission_context.domain.model;
 
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
