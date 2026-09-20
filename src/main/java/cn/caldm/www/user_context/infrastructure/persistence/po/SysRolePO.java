@@ -3,6 +3,9 @@ package cn.caldm.www.user_context.infrastructure.persistence.po;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import cn.caldm.www.user_context.domain.modal.SysRoleDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.SysRoleStatusEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -40,7 +43,7 @@ public class SysRolePO {
     /**
      * 状态（0 正常 1 停用）
      */
-    private short status;
+    private SysRoleStatusEnum status;
 
     /**
      * 备注
@@ -70,5 +73,5 @@ public class SysRolePO {
     /**
      * 是否删除（0 不删除 1 删除）
      */
-    private boolean deleted;
+    private SysRoleDeletedEnum deleted;
 }
