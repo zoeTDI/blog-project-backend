@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysRoleDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysRoleStatusEnum;
 import lombok.Data;
@@ -33,7 +34,7 @@ public class SysRolePO {
     /**
      * 角色权限代码
      */
-    private String code;
+    private RoleEnum code;
 
     /**
      * 显示顺序

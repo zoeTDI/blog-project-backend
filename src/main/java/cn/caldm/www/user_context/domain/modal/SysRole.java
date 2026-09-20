@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 /**
  *
  *
@@ -29,7 +27,7 @@ public class SysRole {
     /**
      * 角色权限代码
      */
-    private String code;
+    private RoleEnum code;
 
     /**
      * 显示顺序
@@ -39,7 +37,7 @@ public class SysRole {
     /**
      * 状态（0 正常 1 停用）
      */
-    private short status;
+    private SysRoleStatusEnum status;
 
     /**
      * 备注
@@ -47,27 +45,35 @@ public class SysRole {
     private String remark;
 
     /**
-     * 创建者
+     * 是否启用
      */
-    private String creator;
+    private boolean enabled;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+    public static SysRole reconstitute(
+        Long id,
+        String name,
+        RoleEnum code,
+        String sort,
+        SysRoleStatusEnum status,
+        String remark,
+        boolean enabled
+    ) {
+        SysRole role = new SysRole();
+        role.setId(id);
+        role.setName(name);
+        role.setCode(code);
+        role.setSort(sort);
+        role.setStatus(status);
+        role.setRemark(remark);
+        role.setEnabled(enabled);
+        return role;
+    }
 
-    /**
-     * 更新者
-     */
-    private String updater;
+    public void disable() {
+        this.enabled = false;
+    }
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
-
-    /**
-     * 是否删除（0 不删除 1 删除）
-     */
-    private boolean deleted;
+    public void enable() {
+        this.enabled = true;
+    }
 }
