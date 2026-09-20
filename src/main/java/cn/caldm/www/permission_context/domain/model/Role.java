@@ -36,11 +36,6 @@ public class Role {
     private String sort;
 
     /**
-     * 状态（0 正常 1 停用）
-     */
-    private RoleStatusEnum status;
-
-    /**
      * 备注
      */
     private String remark;
@@ -55,7 +50,6 @@ public class Role {
         String name,
         RoleEnum code,
         String sort,
-        RoleStatusEnum status,
         String remark,
         boolean enabled
     ) {
@@ -64,7 +58,6 @@ public class Role {
         role.setName(name);
         role.setCode(code);
         role.setSort(sort);
-        role.setStatus(status);
         role.setRemark(remark);
         role.setEnabled(enabled);
         return role;

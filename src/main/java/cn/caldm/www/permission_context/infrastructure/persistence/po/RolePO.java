@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
-import cn.caldm.www.permission_context.domain.model.RoleStatusEnum;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.Data;
 
@@ -40,11 +39,6 @@ public class RolePO {
      * 显示顺序
      */
     private String sort;
-
-    /**
-     * 状态（0 正常 1 停用）
-     */
-    private RoleStatusEnum status;
 
     /**
      * 备注

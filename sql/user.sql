@@ -35,7 +35,7 @@ CREATE TABLE `system_role` (
   `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色名称(如:管理员)',
   `code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色权限字符串(如:admin, author, auditor)',
   `sort` int NOT NULL DEFAULT 0 COMMENT '显示顺序',
-  `status` tinyint NOT NULL DEFAULT 0 COMMENT '角色状态（0正常 1停用）',
+--   `status` tinyint NOT NULL DEFAULT 0 COMMENT '角色状态（0正常 1停用）',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -47,10 +47,50 @@ CREATE TABLE `system_role` (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色定义表';
 
 BEGIN;
-INSERT INTO `system_role` (`id`, `name`, `code`, `sort`, `status`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`) VALUES 
-(1, '超级管理员', 'admin', 1, 0, '拥有系统最高权限', '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(2, '作者', 'author', 2, 0, '负责多维内容与博客文章创作', '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0'),
-(3, '审核员', 'auditor', 3, 0, '负责平台内容、动态的合规性审查', '1', CURRENT_TIMESTAMP, '1', CURRENT_TIMESTAMP, b'0');
+INSERT
+	INTO
+	blog_dev.system_role (id,
+	name,
+	code,
+	sort,
+	remark,
+	creator,
+	create_time,
+	updater,
+	update_time,
+	deleted)
+VALUES
+	 (1,
+'管理员',
+'ADMIN',
+1,
+'拥有系统最高权限',
+'1',
+'2026-07-19 08:40:24',
+'1',
+'2026-09-19 08:50:42',
+0),
+	 (2,
+'作者',
+'AUTHOR',
+2,
+'负责多维内容与博客文章创作',
+'1',
+'2026-07-19 08:40:24',
+'1',
+'2026-08-04 13:50:05',
+0),
+	 (3,
+'审核员',
+'AUDITOR',
+3,
+'负责平台内容、动态的合规性审查',
+'1',
+'2026-07-19 08:40:24',
+'1',
+'2026-08-04 13:50:05',
+0);
+
 COMMIT;
 
 DROP TABLE IF EXISTS `system_resource`;

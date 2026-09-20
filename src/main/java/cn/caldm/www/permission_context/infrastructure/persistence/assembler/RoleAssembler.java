@@ -17,7 +17,6 @@ public class RoleAssembler implements BaseAssembler<Role, RolePO> {
             po.getName(), 
             po.getCode(), 
             po.getSort(), 
-            po.getStatus(),
             po.getRemark(), 
             RoleDeletedEnum.DELETED.equals(po.getDeleted())
         );
@@ -31,7 +30,6 @@ public class RoleAssembler implements BaseAssembler<Role, RolePO> {
         po.setCode(domain.getCode());
         po.setSort(domain.getSort());
         po.setRemark(domain.getRemark());
-        po.setStatus(domain.getStatus());
         po.setDeleted(RoleDeletedEnum.NORMAL);
         return po;
     }
