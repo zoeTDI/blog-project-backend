@@ -28,7 +28,7 @@ public class Role {
     /**
      * 角色权限代码
      */
-    private RoleEnum code;
+    private String code;
 
     /**
      * 显示顺序
@@ -48,7 +48,7 @@ public class Role {
     public static Role reconstitute(
         Long id,
         String name,
-        RoleEnum code,
+        String code,
         String sort,
         String remark,
         boolean enabled

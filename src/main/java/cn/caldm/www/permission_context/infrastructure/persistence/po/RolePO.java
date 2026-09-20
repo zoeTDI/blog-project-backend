@@ -33,7 +33,7 @@ public class RolePO {
     /**
      * 角色权限代码
      */
-    private RoleEnum code;
+    private String code;
 
     /**
      * 显示顺序
