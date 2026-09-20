@@ -2,7 +2,7 @@ package cn.caldm.www.user_context.infrastructure.repository;
 
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
-import cn.caldm.www.permission_context.infrastructure.persistence.po.SysRolePO;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -110,10 +110,10 @@ public class UserRepositoryImpl implements UserRepository {
                     .collect(Collectors.toList());
 
             if (!roleCodes.isEmpty()) {
-                List<SysRolePO> rolePOS = roleMapper.selectByCodes(roleCodes);
+                List<RolePO> rolePOS = roleMapper.selectByCodes(roleCodes);
 
                 if (rolePOS != null && !rolePOS.isEmpty()) {
-                    for (SysRolePO rolePO : rolePOS) {
+                    for (RolePO rolePO : rolePOS) {
                         SysUserRolePO userRolePO = new SysUserRolePO();
                         userRolePO.setUserId(sysUserPO.getId());
                         userRolePO.setRoleId(rolePO.getId());
@@ -139,7 +139,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private List<RoleEnum> getRolesByUserId(Long userId) {
-        List<SysRolePO> rolePOs = roleMapper.selectRolesByUserId(userId);
+        List<RolePO> rolePOs = roleMapper.selectRolesByUserId(userId);
         if (rolePOs != null && !rolePOs.isEmpty()) {
             return rolePOs.stream()
                     .map(rolePO -> rolePO.getCode())

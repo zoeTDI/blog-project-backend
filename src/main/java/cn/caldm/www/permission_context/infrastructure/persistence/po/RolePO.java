@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import cn.caldm.www.permission_context.domain.model.SysRoleDeletedEnum;
-import cn.caldm.www.permission_context.domain.model.SysRoleStatusEnum;
+import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
+import cn.caldm.www.permission_context.domain.model.RoleStatusEnum;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.Data;
 
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("system_role")
-public class SysRolePO {
+public class RolePO {
     /**
      * 角色主键
      */
@@ -44,7 +44,7 @@ public class SysRolePO {
     /**
      * 状态（0 正常 1 停用）
      */
-    private SysRoleStatusEnum status;
+    private RoleStatusEnum status;
 
     /**
      * 备注
@@ -74,5 +74,5 @@ public class SysRolePO {
     /**
      * 是否删除（0 不删除 1 删除）
      */
-    private SysRoleDeletedEnum deleted;
+    private RoleDeletedEnum deleted;
 }

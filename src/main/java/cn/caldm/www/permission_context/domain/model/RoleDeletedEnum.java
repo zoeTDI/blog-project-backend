@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter 
-public enum SysRoleDeletedEnum {
+public enum RoleDeletedEnum {
     NORMAL(0, "未删除"),
     DELETED(1, "已删除");
 
@@ -16,14 +16,14 @@ public enum SysRoleDeletedEnum {
     @JsonValue // 接口返回时显示 "NORMAL" 或 "DELETED"
     private final String desc;
 
-    SysRoleDeletedEnum(Integer code, String desc) {
+    RoleDeletedEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }
 
-    public static SysRoleDeletedEnum fromCode(Integer code) {
+    public static RoleDeletedEnum fromCode(Integer code) {
         if (code == null) return null;
-        for (SysRoleDeletedEnum value : values()) {
+        for (RoleDeletedEnum value : values()) {
             if (value.code.equals(code)) {
                 return value;
             }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter 
-public enum SysRoleStatusEnum {
+public enum RoleStatusEnum {
     NORMAL(0, "正常"),
     DISABLED(1, "停用");
 
@@ -16,14 +16,14 @@ public enum SysRoleStatusEnum {
     @JsonValue 
     private final String desc;
 
-    SysRoleStatusEnum(Integer code, String desc) {
+    RoleStatusEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }
 
-    public static SysRoleStatusEnum fromCode(Integer code) {
+    public static RoleStatusEnum fromCode(Integer code) {
         if (code == null) return null;
-        for (SysRoleStatusEnum value : values()) {
+        for (RoleStatusEnum value : values()) {
             if (value.code.equals(code)) {
                 return value;
             }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class SysRole {
+public class Role {
     /**
      * 角色主键
      */
@@ -38,7 +38,7 @@ public class SysRole {
     /**
      * 状态（0 正常 1 停用）
      */
-    private SysRoleStatusEnum status;
+    private RoleStatusEnum status;
 
     /**
      * 备注
@@ -50,16 +50,16 @@ public class SysRole {
      */
     private boolean enabled;
 
-    public static SysRole reconstitute(
+    public static Role reconstitute(
         Long id,
         String name,
         RoleEnum code,
         String sort,
-        SysRoleStatusEnum status,
+        RoleStatusEnum status,
         String remark,
         boolean enabled
     ) {
-        SysRole role = new SysRole();
+        Role role = new Role();
         role.setId(id);
         role.setName(name);
         role.setCode(code);
