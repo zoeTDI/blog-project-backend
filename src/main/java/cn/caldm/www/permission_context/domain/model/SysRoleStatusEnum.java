@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.domain.modal;
+package cn.caldm.www.permission_context.domain.model;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;

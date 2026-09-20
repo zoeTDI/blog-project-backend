@@ -2,6 +2,7 @@ package cn.caldm.www.user_context.infrastructure.repository;
 
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.SysRolePO;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
@@ -10,7 +11,6 @@ import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserRoleMapper;
-import cn.caldm.www.user_context.infrastructure.persistence.po.SysRolePO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;

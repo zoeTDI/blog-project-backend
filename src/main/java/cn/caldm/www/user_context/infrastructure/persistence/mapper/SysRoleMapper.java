@@ -1,7 +1,9 @@
 package cn.caldm.www.user_context.infrastructure.persistence.mapper;
 
-import cn.caldm.www.user_context.infrastructure.persistence.po.SysRolePO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import cn.caldm.www.permission_context.infrastructure.persistence.po.SysRolePO;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

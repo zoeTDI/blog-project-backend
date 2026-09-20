@@ -1,12 +1,12 @@
-package cn.caldm.www.user_context.infrastructure.persistence.po;
+package cn.caldm.www.permission_context.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import cn.caldm.www.permission_context.domain.model.SysRoleDeletedEnum;
+import cn.caldm.www.permission_context.domain.model.SysRoleStatusEnum;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
-import cn.caldm.www.user_context.domain.modal.SysRoleDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysRoleStatusEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;

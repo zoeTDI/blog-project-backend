@@ -1,12 +1,12 @@
-package cn.caldm.www.user_context.infrastructure.persistence.assembler;
+package cn.caldm.www.permission_context.infrastructure.persistence.assembler;
 
 import org.springframework.stereotype.Component;
 
+import cn.caldm.www.permission_context.domain.model.SysRole;
+import cn.caldm.www.permission_context.domain.model.SysRoleDeletedEnum;
+import cn.caldm.www.permission_context.domain.model.SysRoleStatusEnum;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.SysRolePO;
 import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
-import cn.caldm.www.user_context.domain.modal.SysRole;
-import cn.caldm.www.user_context.domain.modal.SysRoleDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysRoleStatusEnum;
-import cn.caldm.www.user_context.infrastructure.persistence.po.SysRolePO;
 
 @Component
 public class SysRoleAssembler implements BaseAssembler<SysRole, SysRolePO> {
