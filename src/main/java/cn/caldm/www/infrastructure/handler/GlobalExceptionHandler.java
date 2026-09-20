@@ -1,6 +1,7 @@
 package cn.caldm.www.infrastructure.handler;
 
 import cn.caldm.www.shared_kernel.domain.ErrorDetail;
+import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
@@ -96,6 +97,13 @@ public class GlobalExceptionHandler {
         saveErrorLog(e, request, traceId, false);
         ErrorDetail detail = new ErrorDetail(traceId, "No authenticated or session expired.");
         return Result.error(ResultCodeEnum.UNAUTHORIZED, detail);
+    }
+
+    public Result<ErrorDetail> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
+        String traceId = generateTraceId();
+        saveErrorLog(e, request, traceId, false);
+        ErrorDetail detail = new ErrorDetail(traceId, "Target resource not found.");
+        return Result.error(ResultCodeEnum.NOT_FOUND, detail);
     }
 
     // ============================ 5xx 系统内部错误，记录栈堆 ============================
