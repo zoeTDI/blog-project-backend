@@ -139,10 +139,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private List<RoleEnum> getRolesByUserId(Long userId) {
-        List<SysRolePO> rolePOS = roleMapper.selectRolesByUserId(userId);
-        if (rolePOS != null && !rolePOS.isEmpty()) {
-            return rolePOS.stream()
-                    .map(rolePO -> RoleEnum.fromCode(rolePO.getCode()))
+        List<SysRolePO> rolePOs = roleMapper.selectRolesByUserId(userId);
+        if (rolePOs != null && !rolePOs.isEmpty()) {
+            return rolePOs.stream()
+                    .map(rolePO -> rolePO.getCode())
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }

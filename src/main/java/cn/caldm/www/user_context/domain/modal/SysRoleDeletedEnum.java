@@ -32,7 +32,7 @@ public enum SysRoleDeletedEnum {
     }
 
     public boolean isDeleted() {
-        return this === DELETED;
+        return this == DELETED;
     }
 
     public boolean isNormal() {
