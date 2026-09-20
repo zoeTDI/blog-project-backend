@@ -4,12 +4,11 @@ import org.springframework.stereotype.Component;
 
 import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
-import cn.caldm.www.permission_context.domain.model.RoleStatusEnum;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
 import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 
 @Component
-public class SysRoleAssembler implements BaseAssembler<Role, RolePO> {
+public class RoleAssembler implements BaseAssembler<Role, RolePO> {
 
     @Override
     public Role toDomain(RolePO po) {
@@ -21,7 +20,6 @@ public class SysRoleAssembler implements BaseAssembler<Role, RolePO> {
             po.getStatus(),
             po.getRemark(), 
             RoleDeletedEnum.DELETED.equals(po.getDeleted())
-                && RoleStatusEnum.DISABLED.equals(po.getStatus())
         );
     }
 
