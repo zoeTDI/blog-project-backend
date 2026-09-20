@@ -9,6 +9,7 @@ public enum ResultCodeEnum {
     UNAUTHORIZED(401, "暂未登录或Token已过期"),
     REFRESH_FAILED(486, "Token 刷新失败"),
     FORBIDDEN(403, "没有相关权限"),
+    NOT_FOUND(404, "未找到资源"),
     INTERNAL_SERVER_ERROR(500, "系统内部异常");
 
     private final Integer code;
