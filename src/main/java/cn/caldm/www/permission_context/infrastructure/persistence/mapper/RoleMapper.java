@@ -27,9 +27,9 @@ public interface RoleMapper extends BaseMapper<RolePO> {
                         @Param("creator") String creator);
 
         @Insert("<script>"
-                        + "INSERT IGNORE INTO `system_user_role` (`user_id`, `role_id`) VALUES "
+                        + "INSERT IGNORE INTO `system_user_role` (`user_id`, `role_id`, `creator`) VALUES "
                         + "<foreach collection='roleIds' item='roleId' separator=','>"
-                        + "(#{userId}, #{roleId})"
+                        + "(#{userId}, #{roleId}, #{creator})"
                         + "</foreach>"
                         + "</script>")
         int insertUserRoles(@Param("userId") Long userId,
@@ -50,4 +50,5 @@ public interface RoleMapper extends BaseMapper<RolePO> {
                         + "</script>")
         int deleteUserRoles(@Param("userId") Long userId,
                         @Param("roleIds") List<Long> roleIds);
+
 }
