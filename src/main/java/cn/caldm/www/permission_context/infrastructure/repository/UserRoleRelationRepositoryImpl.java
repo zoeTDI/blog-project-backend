@@ -6,6 +6,8 @@ import java.util.Objects;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+
 import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.repository.UserRoleRelationRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
@@ -59,6 +61,17 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
         Assert.notEmpty(roleIds, "RoleIds must not be empty");
         List<Long> filteredList = roleIds.stream().filter(Objects::nonNull).toList();
         roleMapper.deleteUserRoles(userId, filteredList);
+    }
+
+    @Override
+    public List<Role> getRolesByCodes(List<String> codes) {
+        Assert.isNull(codes, "Codes must not be null");
+        Assert.notEmpty(codes, "Codes must contain element");
+        List<RolePO> pos = roleMapper.selectList(
+                Wrappers.<RolePO>lambdaQuery()
+                        .in(RolePO::getCode, codes));
+        List<Role> domains = roleAssembler.toDomainList(pos);
+        return List.copyOf(domains);
     }
 
 }
