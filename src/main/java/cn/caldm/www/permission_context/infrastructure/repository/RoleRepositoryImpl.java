@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 
 import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
@@ -43,6 +45,20 @@ public class RoleRepositoryImpl implements RoleRepository {
         wrapper.eq(RolePO::getCode, code);
         RolePO po = roleMapper.selectOne(wrapper);
         return roleAssembler.toDomain(po);
+    }
+
+    @Override
+    public List<Role> getRolesByCodes(List<String> codes) {
+        if (codes == null) {
+            throw new IllegalArgumentException("The code list must be not null.");
+        }
+        if (codes.isEmpty()) {
+            return List.of();
+        }
+        List<RolePO> pos = roleMapper.selectList(Wrappers.<RolePO>lambdaQuery()
+                .in(RolePO::getCode, codes));
+        List<Role> domains = roleAssembler.toDomainList(pos);
+        return List.copyOf(domains);
     }
 
     @Override
