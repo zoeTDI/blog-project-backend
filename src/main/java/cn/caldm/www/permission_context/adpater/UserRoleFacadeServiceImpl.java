@@ -46,14 +46,21 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
     @Override
     public void removeRoleFromUser(Long userId, String roleCode) {
-        // TODO Auto-generated method stub
+        Role role = roleRepository.getRoleByCode(roleCode);
+        if (role == null) {
+            throw new IllegalArgumentException("The role is null.(roleCode: " + roleCode + ")");
+        }
+        userRoleRelationRepository.removeRoleFromUser(userId, role.getId());
 
     }
 
     @Override
     public void removeRolesFromUser(Long userId, List<String> roleCodes) {
-        // TODO Auto-generated method stub
-
+        Assert.isNull(roleCodes, "The list of role code must be not null.");
+        Assert.notEmpty(roleCodes, "The list of role code must contain element.");
+        List<Role> roles = roleRepository.getRolesByCodes(roleCodes);
+        List<Long> ids = roles.stream().map(role -> role.getId()).toList();
+        userRoleRelationRepository.removeRolesFromUser(userId, ids);
     }
 
 }
