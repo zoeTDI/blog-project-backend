@@ -20,4 +20,6 @@ public interface RoleRepository {
     void updateRole(Role newRole);
 
     void deleteRole(Long id);
+
+    boolean existsRole(Long roleId);
 }

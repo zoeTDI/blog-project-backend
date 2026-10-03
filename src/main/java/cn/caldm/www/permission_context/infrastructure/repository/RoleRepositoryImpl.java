@@ -107,4 +107,14 @@ public class RoleRepositoryImpl implements RoleRepository {
     public void deleteRole(Long id) {
         roleMapper.deleteById(id);
     }
+
+    @Override
+    public boolean existsRole(Long roleId) {
+        if (roleId == null) {
+            return false;
+        }
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePO::getId, roleId);
+        return roleMapper.exists(wrapper);
+    }
 }
