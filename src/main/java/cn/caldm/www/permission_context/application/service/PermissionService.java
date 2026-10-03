@@ -40,4 +40,10 @@ public interface PermissionService {
     void disableResource(Long id);
 
     void deleteResource(Long id);
+
+    void grantResourceToRole(Long roleId, Long resourceId);
+
+    void revokeResourceFromRole(Long roleId, Long resourceId);
+
+    List<Long> getResourceIdsByRoleId(Long roleId);
 }
