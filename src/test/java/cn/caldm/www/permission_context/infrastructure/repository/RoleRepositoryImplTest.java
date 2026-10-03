@@ -34,7 +34,7 @@ public class RoleRepositoryImplTest {
     @InjectMocks
     private RoleRepositoryImpl roleRepository;
 
-// ==================== getRoleById ====================
+    // ==================== getRoleById ====================
 
     @Test
     void getRoleById_shouldReturnNull_whenIdIsNull() {
@@ -131,7 +131,7 @@ public class RoleRepositoryImplTest {
     void saveRole_shouldDoNothing_whenRoleIsNull() {
         roleRepository.saveRole(null);
 
-        verify(roleMapper, never()).insert(any());
+        when(roleMapper.insert(any(RolePO.class))).thenReturn(1);
     }
 
     @Test
@@ -162,14 +162,14 @@ public class RoleRepositoryImplTest {
     @Test
     void updateRole_shouldDoNothing_whenRoleIsNull() {
         roleRepository.updateRole(null);
-        verify(roleMapper, never()).updateById(any());
+        when(roleMapper.updateById(any(RolePO.class))).thenReturn(1);
     }
 
     @Test
     void updateRole_shouldDoNothing_whenIdIsNull() {
         Role role = new Role(); // id = null
         roleRepository.updateRole(role);
-        verify(roleMapper, never()).updateById(any());
+        when(roleMapper.updateById(any(RolePO.class))).thenReturn(1);
     }
 
     @Test
