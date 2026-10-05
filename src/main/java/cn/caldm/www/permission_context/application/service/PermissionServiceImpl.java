@@ -5,9 +5,9 @@ import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
-import cn.caldm.www.user_context.application.service.UserRoleFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -154,6 +154,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional
     public void grantResourceToRole(Long roleId, Long resourceId) {
         if (!roleRepository.existsRole(roleId)) {
             throw new IllegalArgumentException("角色不存在：" + roleId);
@@ -172,6 +173,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional
     public void revokeResourceFromRole(Long roleId, Long resourceId) {
         if (!roleRepository.existsRole(roleId)) {
             throw new IllegalArgumentException("角色不存在：" + roleId);
