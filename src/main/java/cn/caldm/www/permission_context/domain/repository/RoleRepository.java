@@ -22,4 +22,6 @@ public interface RoleRepository {
     void deleteRole(Long id);
 
     boolean existsRole(Long roleId);
+
+    List<Role> getAll();
 }

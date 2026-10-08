@@ -117,4 +117,15 @@ public class RoleRepositoryImpl implements RoleRepository {
         wrapper.eq(RolePO::getId, roleId);
         return roleMapper.exists(wrapper);
     }
+
+    /**
+     * 获取所有角色
+     *
+     * @return 系统中所有的角色
+     */
+    @Override
+    public List<Role> getAll() {
+        List<RolePO> poList = roleMapper.selectList(null);
+        return roleAssembler.toDomainList(poList);
+    }
 }
