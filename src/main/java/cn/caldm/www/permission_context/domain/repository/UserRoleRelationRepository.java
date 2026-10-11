@@ -2,15 +2,11 @@ package cn.caldm.www.permission_context.domain.repository;
 
 import java.util.List;
 
-import cn.caldm.www.permission_context.domain.model.Role;
+import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
 
 public interface UserRoleRelationRepository {
-    /**
-     * Retrieves the roles assigned to the user with the specified user ID.
-     * @param userId the user ID
-     * @return a read-only list of roles
-     */
-    List<Role> getRolesByUserId(Long userId);
+
+    List<UserRoleRelation> getRoleRelationByUserId(Long userId);
 
     void assignRoleToUser(Long userId, Long roleId);
 
@@ -20,5 +16,5 @@ public interface UserRoleRelationRepository {
 
     void removeRolesFromUser(Long userId, List<Long> roleIds);
 
-    List<Role> getRolesByCodes(List<String> codes);
+    List<UserRoleRelation> getRelationByUserId(Long userId);
 }

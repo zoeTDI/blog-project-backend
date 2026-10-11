@@ -1,18 +1,18 @@
 package cn.caldm.www.permission_context.infrastructure.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
+import cn.caldm.www.permission_context.infrastructure.persistence.assembler.UserRoleRelationAssembler;
+import cn.caldm.www.permission_context.infrastructure.persistence.mapper.UserRoleRelationMapper;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.UserRoleRelationPO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-
-import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.repository.UserRoleRelationRepository;
-import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
-import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleMapper;
-import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -20,14 +20,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepository {
 
-    private final RoleMapper roleMapper;
-    private final RoleAssembler roleAssembler;
+    private final UserRoleRelationMapper userRoleRelationMapper;
+    private final UserRoleRelationAssembler userRoleRelationAssembler;
 
     @Override
-    public List<Role> getRolesByUserId(Long userId) {
-        Assert.notNull(userId, "UserId must not be null");
-        List<RolePO> pos = roleMapper.selectRolesByUserId(userId);
-        return List.copyOf(roleAssembler.toDomainList(pos));
+    public List<UserRoleRelation> getRoleRelationByUserId(Long userId) {
+        Assert.notNull(userId, "UserId must not be null.");
+
+        LambdaQueryWrapper<UserRoleRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserRoleRelationPO::getUserId, userId);
+        List<UserRoleRelationPO> pos = userRoleRelationMapper.selectList(wrapper);
+        if (pos.isEmpty()) {
+            return List.of();
+        }
+        List<UserRoleRelation> domains = userRoleRelationAssembler.toDomainList(pos);
+        return List.copyOf(domains);
+
     }
 
     @Override
@@ -35,7 +43,12 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
         Assert.notNull(userId, "UserId must not be null");
         Assert.notNull(roleId, "RoleId must not be null");
         String creator = SecurityUtils.getUsername();
-        roleMapper.insertUserRole(userId, roleId, creator);
+        UserRoleRelationPO po = new UserRoleRelationPO();
+        po.setUserId(userId);
+        po.setRoleId(roleId);
+        po.setCreator(creator);
+        po.setCreateTime(LocalDateTime.now());
+        userRoleRelationMapper.insert(po);
 
     }
 
@@ -45,14 +58,17 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
         Assert.notEmpty(roleIds, "RoleIds must not be empty");
         List<Long> filteredList = roleIds.stream().filter(Objects::nonNull).toList();
         String creator = SecurityUtils.getUsername();
-        roleMapper.insertUserRoles(userId, filteredList, creator);
+        userRoleRelationMapper.batchInsertUserRoles(userId, filteredList, creator);
     }
 
     @Override
     public void removeRoleFromUser(Long userId, Long roleId) {
         Assert.notNull(userId, "UserId must not be null");
         Assert.notNull(roleId, "RoleId must not be null");
-        roleMapper.deleteUserRole(userId, roleId);
+        UserRoleRelationPO po = new UserRoleRelationPO();
+        po.setUserId(userId);
+        po.setRoleId(roleId);
+        userRoleRelationMapper.deleteByMultiId(po);
     }
 
     @Override
@@ -60,18 +76,22 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
         Assert.notNull(userId, "UserId must not be null");
         Assert.notEmpty(roleIds, "RoleIds must not be empty");
         List<Long> filteredList = roleIds.stream().filter(Objects::nonNull).toList();
-        roleMapper.deleteUserRoles(userId, filteredList);
+        LambdaQueryWrapper<UserRoleRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserRoleRelationPO::getUserId, userId);
+        wrapper.in(UserRoleRelationPO::getRoleId, filteredList);
+        userRoleRelationMapper.delete(wrapper);
     }
 
     @Override
-    public List<Role> getRolesByCodes(List<String> codes) {
-        Assert.isNull(codes, "Codes must not be null");
-        Assert.notEmpty(codes, "Codes must contain element");
-        List<RolePO> pos = roleMapper.selectList(
-                Wrappers.<RolePO>lambdaQuery()
-                        .in(RolePO::getCode, codes));
-        List<Role> domains = roleAssembler.toDomainList(pos);
-        return List.copyOf(domains);
+    public List<UserRoleRelation> getRelationByUserId(Long userId) {
+        Assert.notNull(userId, "UserId must not be null.");
+        LambdaQueryWrapper<UserRoleRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserRoleRelationPO::getUserId, userId);
+        List<UserRoleRelationPO> relationPOS = userRoleRelationMapper.selectList(wrapper);
+        if (relationPOS.isEmpty()) {
+            return List.of();
+        }
+        List<UserRoleRelation> domainList = userRoleRelationAssembler.toDomainList(relationPOS);
+        return List.copyOf(domainList);
     }
-
 }
