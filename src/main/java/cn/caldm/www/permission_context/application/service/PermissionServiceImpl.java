@@ -3,8 +3,8 @@ package cn.caldm.www.permission_context.application.service;
 import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
 import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
-import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
+import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
 
-    private final SystemResourceRepository resourceRepository;
+    private final ResourceRepository resourceRepository;
     private final RoleRepository roleRepository;
-    private final RoleResourceRepository roleResourceRepository;
+    private final RoleResourceRelationRepository roleResourceRelationRepository;
 
     @Override
     public Resource createResource(
@@ -165,11 +165,11 @@ public class PermissionServiceImpl implements PermissionService {
             throw new IllegalArgumentException("资源已停用，无法授权。");
         }
 
-        if (roleResourceRepository.exists(roleId, resourceId)) {
+        if (roleResourceRelationRepository.exists(roleId, resourceId)) {
             throw new IllegalArgumentException("角色已拥有该资源权限。");
         }
 
-        roleResourceRepository.grant(roleId, resourceId);
+        roleResourceRelationRepository.grant(roleId, resourceId);
     }
 
     @Override
@@ -181,10 +181,10 @@ public class PermissionServiceImpl implements PermissionService {
 
         Resource resource = getResource(resourceId);
 
-        if (!roleResourceRepository.exists(roleId, resourceId)) {
+        if (!roleResourceRelationRepository.exists(roleId, resourceId)) {
             throw new IllegalArgumentException("角色尚未拥有该资源权限。");
         }
-        roleResourceRepository.revoke(roleId, resourceId);
+        roleResourceRelationRepository.revoke(roleId, resourceId);
     }
 
     @Override
@@ -193,6 +193,6 @@ public class PermissionServiceImpl implements PermissionService {
             throw new IllegalArgumentException("角色不存在：" + roleId);
         }
 
-        return roleResourceRepository.findResourceIdsByRoleId(roleId);
+        return roleResourceRelationRepository.findResourceIdsByRoleId(roleId);
     }
 }

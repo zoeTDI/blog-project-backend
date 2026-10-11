@@ -2,7 +2,7 @@ package cn.caldm.www.permission_context.infrastructure.persistence.assembler;
 
 import cn.caldm.www.permission_context.domain.model.ResourceStatusEnum;
 import cn.caldm.www.permission_context.domain.model.Resource;
-import cn.caldm.www.permission_context.infrastructure.persistence.po.SystemResourcePO;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.ResourcePO;
 import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
  * @author caldm
  */
 @Component
-public class SystemResourceAssembler implements BaseAssembler<Resource, SystemResourcePO> {
+public class ResourceAssembler implements BaseAssembler<Resource, ResourcePO> {
     @Override
-    public Resource toDomain(SystemResourcePO po) {
+    public Resource toDomain(ResourcePO po) {
         if (po == null) {
             return null;
         }
@@ -35,12 +35,12 @@ public class SystemResourceAssembler implements BaseAssembler<Resource, SystemRe
     }
 
     @Override
-    public SystemResourcePO toPO(Resource domain) {
+    public ResourcePO toPO(Resource domain) {
         if (domain == null){
             return null;
         }
 
-        SystemResourcePO po = new SystemResourcePO();
+        ResourcePO po = new ResourcePO();
 
         po.setId(domain.getId());
         po.setName(domain.getName());

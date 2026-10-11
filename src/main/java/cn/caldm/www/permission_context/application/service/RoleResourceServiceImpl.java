@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
 import cn.caldm.www.permission_context.domain.model.Resource;
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
-import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
+import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import cn.caldm.www.permission_context.utils.ResourceUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -15,15 +15,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoleResourceServiceImpl implements RolePermissionService {
 
-    private final RoleResourceRepository roleResourceRepository;
-    private final SystemResourceRepository resourceRepository;
+    private final RoleResourceRelationRepository roleResourceRelationRepository;
+    private final ResourceRepository resourceRepository;
 
     @Override
     public List<ResourceNode> getResourceByRoleId(Long id) {
         if (id == null) {
             return List.of();
         }
-        List<Long> resourceIds = roleResourceRepository.findResourceIdsByRoleId(id);
+        List<Long> resourceIds = roleResourceRelationRepository.findResourceIdsByRoleId(id);
         if (resourceIds == null || resourceIds.isEmpty()) {
             return List.of();
         }
