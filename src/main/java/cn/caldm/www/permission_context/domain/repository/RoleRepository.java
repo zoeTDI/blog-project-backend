@@ -9,6 +9,8 @@ public interface RoleRepository {
 
     Role getRoleById(Long id);
 
+    List<Role> getRolesByIds(List<Long> ids);
+
     Role getRoleByCode(String code);
 
     List<Role> getRolesByCodes(List<String> codes);

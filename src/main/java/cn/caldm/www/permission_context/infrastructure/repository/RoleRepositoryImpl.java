@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import com.baomidou.mybatisplus.core.toolkit.Assert;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -34,6 +35,25 @@ public class RoleRepositoryImpl implements RoleRepository {
         }
         RolePO po = roleMapper.selectById(id);
         return roleAssembler.toDomain(po);
+    }
+
+    @Override
+    public List<Role> getRolesByIds(List<Long> ids) {
+        Assert.notNull(ids, "ids must not be null.");
+
+        List<Long> validIds = ids.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(RolePO::getId, validIds);
+        List<RolePO> pos = roleMapper.selectList(wrapper);
+        if (pos.isEmpty()) {
+            return List.of();
+        }
+        List<Role> domainList = roleAssembler.toDomainList(pos);
+        return List.copyOf(domainList);
     }
 
     @Override
