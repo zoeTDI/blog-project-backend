@@ -36,7 +36,7 @@ public class SysUser {
     /**
      * 用户角色
      */
-    private List<RoleEnum> roles = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
 
     /**
      * 昵称
@@ -98,12 +98,12 @@ public class SysUser {
      * @param targetRole 目标角色
      * @return 是否拥有该角色
      */
-    public boolean hasRole(RoleEnum targetRole) {
+    public boolean hasRole(UserRole targetRole) {
         if (roles == null || targetRole == null) {
             return false;
         }
-        for (RoleEnum role : roles) {
-            if (role.equalsRole(targetRole)) {
+        for (UserRole role : roles) {
+            if (role.equals(targetRole)) {
                 return true;
             }
         }
