@@ -12,12 +12,12 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class UserRole {
-    private String name;
+    private String code;
 
     public boolean equals(UserRole role) {
-        if (role == null || role.getName() == null || role.getName().isBlank()) {
+        if (role == null || role.getCode() == null || role.getCode().isBlank()) {
             return false;
         }
-        return name.equals(role.getName());
+        return code.equals(role.getCode());
     }
 }

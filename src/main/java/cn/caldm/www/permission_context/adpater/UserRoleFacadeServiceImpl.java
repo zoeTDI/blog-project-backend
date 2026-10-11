@@ -3,6 +3,8 @@ package cn.caldm.www.permission_context.adpater;
 import java.util.List;
 import java.util.Objects;
 
+import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
+import cn.caldm.www.user_context.domain.modal.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -20,12 +22,14 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     private final RoleRepository roleRepository;
 
     @Override
-    public List<String> getUserRolesById(Long userId) {
+    public List<UserRole> getUserRolesById(Long userId) {
         if (userId == null) {
             return List.of();
         }
-        List<Role> roles = userRoleRelationRepository.getRolesByUserId(userId);
-        return roles.stream().map(role -> role.getCode()).toList();
+        List<UserRoleRelation> userRoleRelations = userRoleRelationRepository.getRoleRelationByUserId(userId);
+        List<Long> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
+        List<Role> roles = roleRepository.getRolesByIds(userIds);
+        return roles.stream().map(role -> new UserRole(role.getCode())).toList();
     }
 
     @Override
@@ -38,8 +42,11 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     public void assignRolesToUser(Long userId, List<String> roleCodes) {
         Assert.isNull(roleCodes, "The list of role code must not be null");
         Assert.notEmpty(roleCodes, "The list of role code must contain element");
-        List<Role> roles = userRoleRelationRepository.getRolesByCodes(roleCodes);
-        List<Long> roleIds = roles.stream().map(role -> role.getId()).filter(Objects::nonNull).toList();
+
+        List<String> filtered = roleCodes.stream().filter(Objects::nonNull).toList();
+        List<Role> roles = roleRepository.getRolesByCodes(filtered);
+        List<Long> roleIds = roles.stream().map(Role::getId).filter(Objects::nonNull).toList();
+
         userRoleRelationRepository.assignRolesToUser(userId, roleIds);
 
     }

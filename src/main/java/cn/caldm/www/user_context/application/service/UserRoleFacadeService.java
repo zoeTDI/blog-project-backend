@@ -1,5 +1,7 @@
 package cn.caldm.www.user_context.application.service;
 
+import cn.caldm.www.user_context.domain.modal.UserRole;
+
 import java.util.List;
 
 public interface UserRoleFacadeService {
@@ -8,7 +10,7 @@ public interface UserRoleFacadeService {
      * @param userId the ID of the user
      * @return the role codes assigned to the user
      */
-    List<String> getUserRolesById(Long userId);
+    List<UserRole> getUserRolesById(Long userId);
 
     /**
      * Assigns a role to the specified user.
