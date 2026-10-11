@@ -1,12 +1,7 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
-import cn.caldm.www.permission_context.domain.repository.SystemResourceRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
-import cn.caldm.www.user_context.domain.modal.SysUser;
-import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import cn.caldm.www.user_context.domain.modal.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
@@ -20,7 +15,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,9 +31,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
-    private final SystemResourceRepository resourceRepository;
     private final SysUserRoleMapper userRoleMapper;
-    private final RoleResourceRepository roleResourceRepository;
     private final UserAssembler userAssembler;
 
     @Override
@@ -83,7 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public SysUser insert(String creator, String username, String password, List<RoleEnum> roles) {
+    public SysUser insert(String creator, String username, String password, List<UserRole> roles) {
         SysUserPO sysUserPO = new SysUserPO();
         sysUserPO.setUsername(username);
         sysUserPO.setPassword(password);
@@ -106,7 +98,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (roles != null && !roles.isEmpty()) {
             List<String> roleCodes = roles.stream()
                     .filter(Objects::nonNull)
-                    .map(RoleEnum::getCode)
+                    .map(UserRole::getCode)
                     .collect(Collectors.toList());
 
             if (!roleCodes.isEmpty()) {
@@ -138,14 +130,14 @@ public class UserRepositoryImpl implements UserRepository {
         return i == 1;
     }
 
-    private List<RoleEnum> getRolesByUserId(Long userId) {
+    private List<UserRole> getRolesByUserId(Long userId) {
         List<RolePO> rolePOs = roleMapper.selectRolesByUserId(userId);
         if (rolePOs != null && !rolePOs.isEmpty()) {
             return rolePOs.stream()
-                    .map(rolePO -> rolePO.getCode())
                     .filter(Objects::nonNull)
+                    .map(rolePO -> new UserRole(rolePO.getCode()))
                     .collect(Collectors.toList());
         }
-        return new ArrayList<>();
+        return List.of();
     }
 }
