@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
 import cn.caldm.www.user_context.domain.modal.UserRole;
+import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -40,7 +41,7 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
     @Override
     public void assignRolesToUser(Long userId, List<String> roleCodes) {
-        Assert.isNull(roleCodes, "The list of role code must not be null");
+        Assert.notNull(roleCodes, "The list of role code must not be null");
         Assert.notEmpty(roleCodes, "The list of role code must contain element");
 
         List<String> filtered = roleCodes.stream().filter(Objects::nonNull).toList();
@@ -63,11 +64,22 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
     @Override
     public void removeRolesFromUser(Long userId, List<String> roleCodes) {
-        Assert.isNull(roleCodes, "The list of role code must be not null.");
+        Assert.notNull(roleCodes, "The list of role code must be not null.");
         Assert.notEmpty(roleCodes, "The list of role code must contain element.");
         List<Role> roles = roleRepository.getRolesByCodes(roleCodes);
-        List<Long> ids = roles.stream().map(role -> role.getId()).toList();
+        List<Long> ids = roles.stream().map(Role::getId).toList();
         userRoleRelationRepository.removeRolesFromUser(userId, ids);
     }
 
+    @Override
+    @Nonnull
+    public List<UserRole> getRolesByIds(List<Long> roleIds) {
+        Assert.notNull(roleIds, "The list of role id must be not null.");
+        List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        List<Role> roles = roleRepository.getRolesByIds(filtered);
+        return roles.stream()
+                .filter(Objects::nonNull)
+                .map(role -> new UserRole(role.getCode()))
+                .toList();
+    }
 }

@@ -39,4 +39,6 @@ public interface UserRoleFacadeService {
      * @param roleCodes the codes of the roles to remove
      */
     void removeRolesFromUser(Long userId, List<String> roleCodes);
+
+    List<UserRole> getRolesByIds(List<Long> roleIds);
 }
