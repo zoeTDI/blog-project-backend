@@ -99,15 +99,10 @@ public class SysUser {
      * @return 是否拥有该角色
      */
     public boolean hasRole(UserRole targetRole) {
-        if (roles == null || targetRole == null) {
+        if (targetRole == null || targetRole.getCode() == null) {
             return false;
         }
-        for (UserRole role : roles) {
-            if (role.equals(targetRole)) {
-                return true;
-            }
-        }
-        return false;
+        return roles != null && roles.contains(targetRole);
     }
 
     /**
