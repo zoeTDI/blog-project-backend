@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.baomidou.mybatisplus.core.toolkit.Assert;
+import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -38,6 +39,7 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
+    @Nonnull
     public List<Role> getRolesByIds(List<Long> ids) {
         Assert.notNull(ids, "ids must not be null.");
 
@@ -88,11 +90,10 @@ public class RoleRepositoryImpl implements RoleRepository {
         List<RolePO> pos = roleMapper.selectList(wrapper);
         List<Role> domains = roleAssembler.toDomainList(pos)
                 .stream()
-                .filter(role -> role != null)
+                .filter(Objects::nonNull)
                 .toList();
         HashMap<String, Role> map = new HashMap<>();
-        domains.stream()
-                .forEach(role -> map.put(role.getCode(), role));
+        domains.forEach(role -> map.put(role.getCode(), role));
         return map;
     }
 
