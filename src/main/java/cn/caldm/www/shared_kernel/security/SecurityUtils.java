@@ -1,11 +1,11 @@
 package cn.caldm.www.shared_kernel.security;
 
 import cn.caldm.www.auth_context.domain.model.AuthUser;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
+import cn.caldm.www.user_context.domain.modal.UserRole;
+import jakarta.annotation.Nonnull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,9 +41,10 @@ public class SecurityUtils {
         return getCurrentUser().getUsername();
     }
 
-    public static List<RoleEnum> getRoles() {
-        List<RoleEnum> roles = getCurrentUser().getRoles();
-        return roles != null ? roles : Collections.emptyList();
+    @Nonnull
+    public static List<UserRole> getRoles() {
+        List<UserRole> roles = getCurrentUser().getRoles();
+        return roles == null ? List.of() : List.copyOf(roles);
     }
 
     public static boolean isAuthenticated() {

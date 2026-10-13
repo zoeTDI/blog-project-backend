@@ -11,7 +11,7 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.security.SecurityUtils;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
+import cn.caldm.www.user_context.domain.modal.UserRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -132,8 +132,8 @@ public class BlogPostService {
             throw new IllegalArgumentException("Blog post is already deleted.");
         }
         Long curUserId = SecurityUtils.getUserId();
-        List<RoleEnum> curRoles = SecurityUtils.getRoles();
-        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(RoleEnum.ADMIN)) {
+        List<UserRole> curRoles = SecurityUtils.getRoles();
+        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(new UserRole("ROLE_ADMIN"))) {
             throw new IllegalArgumentException("Current user is not author.");
         }
         // set category
@@ -159,9 +159,9 @@ public class BlogPostService {
         Long postId = post.getId();
         Long curUserId = SecurityUtils.getUserId();
         String curUsername = SecurityUtils.getUsername();
-        List<RoleEnum> roles = SecurityUtils.getRoles();
+        List<UserRole> roles = SecurityUtils.getRoles();
         Boolean isAuthor = post.getAuthorId().equals(curUserId);
-        Boolean isAdmin = roles != null && roles.contains(RoleEnum.ADMIN);
+        Boolean isAdmin = roles != null && roles.contains(new UserRole("ROLE_ADMIN"));
         if (!isAuthor || !isAdmin) {
             throw new IllegalArgumentException("No permission to update post.");
         }
@@ -264,9 +264,9 @@ public class BlogPostService {
             throw new IllegalStateException("Target post is deleted.");
         }
         Long userId = SecurityUtils.getUserId();
-        List<RoleEnum> roles = SecurityUtils.getRoles();
-        Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(RoleEnum.AUTHOR);
-        Boolean isAdmin = roles.contains(RoleEnum.ADMIN);
+        List<UserRole> roles = SecurityUtils.getRoles();
+        Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(new UserRole("ROLE_AUTHOR"));
+        Boolean isAdmin = roles.contains(new UserRole("ROLE_ADMIN"));
         if (!isAuthor && !isAdmin) {
             throw new IllegalStateException("No permission to do it.");
         }
@@ -281,8 +281,8 @@ public class BlogPostService {
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
         }
-        List<RoleEnum> roles = SecurityUtils.getRoles();
-        if (!roles.contains(RoleEnum.ADMIN) && !roles.contains(RoleEnum.AUDITOR)) {
+        List<UserRole> roles = SecurityUtils.getRoles();
+        if (!roles.contains(new UserRole("ROLE_ADMIN")) && !roles.contains(new UserRole("ROLE_AUDITOR"))) {
             throw new IllegalStateException("No permission to do it.");
         }
         blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.PUBLISHED);

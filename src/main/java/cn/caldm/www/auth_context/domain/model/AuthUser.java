@@ -1,6 +1,5 @@
 package cn.caldm.www.auth_context.domain.model;
 
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
 import cn.caldm.www.user_context.domain.modal.UserRole;
@@ -36,13 +35,15 @@ public class AuthUser implements UserDetails {
     private Long accessTokenExpiresAt;
     private Long refreshTokenExpiresAt;
 
+    public static String ROLE_PREFIX = "ROLE_";
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         if (roles != null) {
             for (UserRole role : roles) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getCode()));
+                authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getCode()));
             }
         }
 
