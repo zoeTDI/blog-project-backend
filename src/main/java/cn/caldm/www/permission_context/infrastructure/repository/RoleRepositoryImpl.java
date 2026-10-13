@@ -1,0 +1,152 @@
+package cn.caldm.www.permission_context.infrastructure.repository;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import com.baomidou.mybatisplus.core.toolkit.Assert;
+import jakarta.annotation.Nonnull;
+import org.springframework.stereotype.Repository;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+
+import cn.caldm.www.permission_context.domain.model.Role;
+import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
+import cn.caldm.www.permission_context.domain.repository.RoleRepository;
+import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
+import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleMapper;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
+import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+
+@Repository
+@RequiredArgsConstructor
+public class RoleRepositoryImpl implements RoleRepository {
+
+    private final RoleMapper roleMapper;
+    private final RoleAssembler roleAssembler;
+
+    @Override
+    public Role getRoleById(Long id) {
+        if (id == null) {
+            return null;
+        }
+        RolePO po = roleMapper.selectById(id);
+        return roleAssembler.toDomain(po);
+    }
+
+    @Override
+    @Nonnull
+    public List<Role> getRolesByIds(List<Long> ids) {
+        Assert.notNull(ids, "ids must not be null.");
+
+        List<Long> validIds = ids.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(RolePO::getId, validIds);
+        List<RolePO> pos = roleMapper.selectList(wrapper);
+        if (pos.isEmpty()) {
+            return List.of();
+        }
+        List<Role> domainList = roleAssembler.toDomainList(pos);
+        return List.copyOf(domainList);
+    }
+
+    @Override
+    public Role getRoleByCode(String code) {
+        if (code == null) {
+            return null;
+        }
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePO::getCode, code);
+        RolePO po = roleMapper.selectOne(wrapper);
+        return roleAssembler.toDomain(po);
+    }
+
+    @Override
+    public List<Role> getRolesByCodes(List<String> codes) {
+        if (codes == null) {
+            throw new IllegalArgumentException("The code list must be not null.");
+        }
+        if (codes.isEmpty()) {
+            return List.of();
+        }
+        List<RolePO> pos = roleMapper.selectList(Wrappers.<RolePO>lambdaQuery()
+                .in(RolePO::getCode, codes));
+        List<Role> domains = roleAssembler.toDomainList(pos);
+        return List.copyOf(domains);
+    }
+
+    @Override
+    public Map<String, Role> getRoleMap() {
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePO::getDeleted, RoleDeletedEnum.NORMAL);
+        List<RolePO> pos = roleMapper.selectList(wrapper);
+        List<Role> domains = roleAssembler.toDomainList(pos)
+                .stream()
+                .filter(Objects::nonNull)
+                .toList();
+        HashMap<String, Role> map = new HashMap<>();
+        domains.forEach(role -> map.put(role.getCode(), role));
+        return map;
+    }
+
+    @Override
+    public void saveRole(Role role) {
+        if (role == null) {
+            return;
+        }
+        RolePO po = roleAssembler.toPO(role);
+        String operatorName = SecurityUtils.getUsername();
+        po.setCreator(operatorName);
+        po.setCreateTime(LocalDateTime.now());
+        po.setUpdater(operatorName);
+        po.setUpdateTime(LocalDateTime.now());
+        roleMapper.insert(po);
+    }
+
+    @Override
+    public void updateRole(Role newRole) {
+        if (newRole == null || newRole.getId() == null) {
+            return;
+        }
+
+        RolePO po = roleAssembler.toPO(newRole);
+        String operatorName = SecurityUtils.getUsername();
+        po.setUpdater(operatorName);
+        po.setUpdateTime(LocalDateTime.now());
+        roleMapper.updateById(po);
+    }
+
+    @Override
+    public void deleteRole(Long id) {
+        roleMapper.deleteById(id);
+    }
+
+    @Override
+    public boolean existsRole(Long roleId) {
+        if (roleId == null) {
+            return false;
+        }
+        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePO::getId, roleId);
+        return roleMapper.exists(wrapper);
+    }
+
+    /**
+     * 获取所有角色
+     *
+     * @return 系统中所有的角色
+     */
+    @Override
+    public List<Role> getAll() {
+        List<RolePO> poList = roleMapper.selectList(null);
+        return roleAssembler.toDomainList(poList);
+    }
+}

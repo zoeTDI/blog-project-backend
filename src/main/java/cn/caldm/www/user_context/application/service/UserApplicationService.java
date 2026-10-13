@@ -1,20 +1,20 @@
 package cn.caldm.www.user_context.application.service;
 
+import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.shared_kernel.utils.LogUtils;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
-import cn.caldm.www.user_context.domain.modal.SysUser;
-import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import cn.caldm.www.user_context.domain.modal.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class UserApplicationService {
     private final UserRepository userRepository;
     private final UserNotificationFacadeService userNotificationFacadeService;
+    private final UserRoleFacadeService userRoleFacadeService;
     private final PasswordEncoder passwordEncoder;
 
     @Resource
@@ -35,30 +36,34 @@ public class UserApplicationService {
 
     private static final String RESET_PWD_PREFIX = "user:reset:code:";
 
-    public SysUser create(Long creatorId, String username, String password, List<RoleEnum> roles) {
+    public SysUser create(Long creatorId, String username, String password, List<Long> roleIds) {
+        Assert.notNull(roleIds, "The roles of new user must not be null.");
+
+        List<UserRole> roles = userRoleFacadeService.getRolesByIds(roleIds);
+
         // 禁止创建管理员角色的用户
-        for (RoleEnum role : roles) {
-            if (RoleEnum.ADMIN.equalsRole(role)) {
-                LogUtils.warn("不能创建 ADMIN 角色的用户");
-                return null;
-            }
+        if (roles.contains(new UserRole("ADMIN"))) {
+            LogUtils.warn("不能创建 ADMIN 角色的用户");
+            return null;
         }
+
         SysUser creator = userRepository.findById(creatorId);
-        boolean isAdmin = creator.hasRole(RoleEnum.ADMIN);
-        // 不是管理员，不能创建用户
-        if (!isAdmin) {
+
+        if (creator == null || !creator.hasRole(new UserRole("ADMIN"))) {
             LogUtils.warn("没有权限创建用户");
             return null;
         }
+
         String encode = passwordEncoder.encode(password);
-        return userRepository.insert(creator.getUsername(), username, encode, roles);
+        List<UserRole> filtered = roles.stream().filter(Objects::nonNull).toList();
+        return userRepository.insert(creator.getUsername(), username, encode, filtered);
     }
 
     public boolean ban(Long updaterId, Long targetUserId) {
         SysUser updater = userRepository.findById(updaterId);
         if (
                 updater == null
-                        || !updater.hasRole(RoleEnum.ADMIN)
+                        || !updater.hasRole(null)// todo
         ) {
             return false;
         }
@@ -66,7 +71,7 @@ public class UserApplicationService {
         SysUser targetUser = userRepository.findById(targetUserId);
         if (
                 targetUser == null
-                        || targetUser.hasRole(RoleEnum.ADMIN)
+                        || targetUser.hasRole(null) // todo
                         || targetUser.isDeleted()
         ) {
             return false;
@@ -95,8 +100,8 @@ public class UserApplicationService {
             return false;
         }
 
-        boolean updaterIsAdmin = updater.hasRole(RoleEnum.ADMIN);
-        boolean targetIsAdmin = targetUser.hasRole(RoleEnum.ADMIN);
+        boolean updaterIsAdmin = updater.hasRole(null); // todo
+        boolean targetIsAdmin = targetUser.hasRole(null); // todo
         boolean isSelf = updaterId.equals(targetUserId);
 
         // 管理员不能删除管理员用户

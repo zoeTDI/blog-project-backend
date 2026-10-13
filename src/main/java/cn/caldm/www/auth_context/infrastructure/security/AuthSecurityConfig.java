@@ -50,7 +50,7 @@ public class AuthSecurityConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<RefreshTokenFilter> refreshTokenFIlterRegistration(RefreshTokenFilter filter) {
+    public FilterRegistrationBean<RefreshTokenFilter> refreshTokenFilterRegistration(RefreshTokenFilter filter) {
         FilterRegistrationBean<RefreshTokenFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;

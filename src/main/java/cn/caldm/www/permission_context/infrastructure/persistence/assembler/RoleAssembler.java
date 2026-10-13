@@ -1,0 +1,37 @@
+package cn.caldm.www.permission_context.infrastructure.persistence.assembler;
+
+import org.springframework.stereotype.Component;
+
+import cn.caldm.www.permission_context.domain.model.Role;
+import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
+import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
+import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
+
+@Component
+public class RoleAssembler implements BaseAssembler<Role, RolePO> {
+
+    @Override
+    public Role toDomain(RolePO po) {
+        return  Role.reconstitute(
+            po.getId(), 
+            po.getName(), 
+            po.getCode(), 
+            po.getSort(), 
+            po.getRemark(), 
+            RoleDeletedEnum.DELETED.equals(po.getDeleted())
+        );
+    }
+
+    @Override
+    public RolePO toPO(Role domain) {
+        RolePO po = new RolePO();
+        po.setId(domain.getId());
+        po.setName(domain.getName());
+        po.setCode(domain.getCode());
+        po.setSort(domain.getSort());
+        po.setRemark(domain.getRemark());
+        po.setDeleted(RoleDeletedEnum.NORMAL);
+        return po;
+    }
+
+}

@@ -5,7 +5,7 @@ import cn.caldm.www.permission_context.domain.model.Resource;
 import java.util.List;
 import java.util.Optional;
 
-public interface SystemResourceRepository {
+public interface ResourceRepository {
     Optional<Resource> findById(Long id);
 
     List<Resource> findByIds(List<Long> ids);

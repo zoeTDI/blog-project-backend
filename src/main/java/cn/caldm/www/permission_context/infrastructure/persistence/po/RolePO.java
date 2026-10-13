@@ -1,8 +1,11 @@
-package cn.caldm.www.user_context.infrastructure.persistence.po;
+package cn.caldm.www.permission_context.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
+import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,7 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("system_role")
-public class SysRolePO {
+public class RolePO {
     /**
      * 角色主键
      */
@@ -36,11 +39,6 @@ public class SysRolePO {
      * 显示顺序
      */
     private String sort;
-
-    /**
-     * 状态（0 正常 1 停用）
-     */
-    private short status;
 
     /**
      * 备注
@@ -70,5 +68,5 @@ public class SysRolePO {
     /**
      * 是否删除（0 不删除 1 删除）
      */
-    private boolean deleted;
+    private RoleDeletedEnum deleted;
 }

@@ -3,6 +3,7 @@ package cn.caldm.www.auth_context.domain.model;
 import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import cn.caldm.www.user_context.domain.modal.UserRole;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +28,7 @@ public class AuthUser implements UserDetails {
     private String password;
     private String nickname;
     private String avatar;
-    private List<RoleEnum> roles;
+    private List<UserRole> roles;
     private SysUserStatusEnum status;
     private SysUserDeletedEnum deleted;
     private String accessToken;
@@ -40,7 +41,7 @@ public class AuthUser implements UserDetails {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         if (roles != null) {
-            for (RoleEnum role : roles) {
+            for (UserRole role : roles) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getCode()));
             }
         }

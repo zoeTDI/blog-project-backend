@@ -11,6 +11,7 @@ import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,23 +31,24 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class UserController {
 
-    private UserApplicationService userService;
+    private final UserApplicationService userService;
 
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")
     @PreAuthorize("@ss.isAdmin()")
     public Result<SysUser> create(@RequestBody CreateReqDTO createReqDTO) {
         Long creatorId = createReqDTO.getCreatorId();
-        List<String> roleCodes = createReqDTO.getRoles();
+        List<Long> roleIds = createReqDTO.getRoleIds();
         String username = createReqDTO.getUsername();
         String password = createReqDTO.getPassword();
 
         if (
                 creatorId == null
-                || roleCodes == null
-                || roleCodes.isEmpty()
+                || roleIds == null
+                || roleIds.isEmpty()
                 || username == null
                 || username.isEmpty()
                 || password == null
@@ -54,10 +56,7 @@ public class UserController {
         ) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        List<RoleEnum> roles = roleCodes.stream()
-                .map(RoleEnum::fromCode)
-                .collect(Collectors.toList());
-        SysUser newUser = userService.create(creatorId, username, password, roles);
+        SysUser newUser = userService.create(creatorId, username, password, roleIds);
         if (newUser == null) {
             return Result.error(ResultCodeEnum.FORBIDDEN);
         } else {

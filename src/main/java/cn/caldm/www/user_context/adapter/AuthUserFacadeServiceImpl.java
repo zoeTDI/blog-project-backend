@@ -2,11 +2,15 @@ package cn.caldm.www.user_context.adapter;
 
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.user_context.application.service.UserRoleFacadeService;
 import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.domain.modal.UserRole;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  *
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
 
     private final UserRepository userRepository;
+    private final UserRoleFacadeService userRoleFacadeService;
 
     @Override
     public AuthUser getCredentialByEmail(String email) {
@@ -26,7 +31,9 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
         if (sysUser == null) {
             return null;
         }
-        return toDto(sysUser);
+        Long id = sysUser.getId();
+        List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
+        return toDto(sysUser, roles);
     }
 
     @Override
@@ -36,7 +43,9 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
             return null;
         }
 
-        return toDto(user);
+        Long id = user.getId();
+        List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
+        return toDto(user, roles);
     }
 
     @Override
@@ -45,11 +54,11 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
         if (user == null) {
             return null;
         }
-
-        return toDto(user);
+        List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
+        return toDto(user, roles);
     }
 
-    private AuthUser toDto(SysUser user) {
+    private AuthUser toDto(SysUser user, List<UserRole> roles) {
         AuthUser dto = new AuthUser();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
@@ -57,7 +66,7 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
         dto.setPassword(user.getPassword());
         dto.setNickname(user.getNickname());
         dto.setAvatar(user.getAvatar());
-        dto.setRoles(user.getRoles());
+        dto.setRoles(roles);
         dto.setStatus(user.getStatus());
         dto.setDeleted(user.getDeleted());
         return dto;

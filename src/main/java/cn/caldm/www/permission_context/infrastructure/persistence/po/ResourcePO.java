@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Data
 @TableName("system_resource")
-public class SystemResourcePO {
+public class ResourcePO {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

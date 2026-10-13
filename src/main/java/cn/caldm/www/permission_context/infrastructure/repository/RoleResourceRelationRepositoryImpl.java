@@ -1,6 +1,6 @@
 package cn.caldm.www.permission_context.infrastructure.repository;
 
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleResourceRelationMapper;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RoleResourceRelationPO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Repository
 @RequiredArgsConstructor
-public class RoleResourceRepositoryImpl implements RoleResourceRepository {
+public class RoleResourceRelationRepositoryImpl implements RoleResourceRelationRepository {
     private final RoleResourceRelationMapper mapper;
 
     @Override
