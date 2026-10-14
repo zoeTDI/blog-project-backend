@@ -46,4 +46,6 @@ public interface PermissionService {
     void revokeResourceFromRole(Long roleId, Long resourceId);
 
     List<Long> getResourceIdsByRoleId(Long roleId);
+
+    List<Resource> getResourcesByRoleId(Long roleId);
 }
