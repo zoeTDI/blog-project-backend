@@ -13,6 +13,8 @@ public interface RoleResourceRelationRepository {
 
     List<Long> findResourceIdsByRoleId(Long roleId);
 
+    List<Long> findResourceIdsByRoleIds(List<Long> roleIds);
+
     List<Long> findRoleIdsByResourceId(Long resourceId);
 
     boolean exists(Long roleId, Long resourceId);
