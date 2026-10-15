@@ -3,7 +3,11 @@ package cn.caldm.www.permission_context.adpater;
 import java.util.List;
 import java.util.Objects;
 
+import cn.caldm.www.auth_context.domain.model.Permission;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
+import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.user_context.domain.modal.UserRole;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,8 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
     private final UserRoleRelationRepository userRoleRelationRepository;
     private final RoleRepository roleRepository;
+    private final RoleResourceRelationRepository roleResourceRelationRepository;
+    private final ResourceRepository resourceRepository;
 
     @Override
     public List<UserRole> getUserRolesById(Long userId) {
@@ -80,6 +86,26 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
         return roles.stream()
                 .filter(Objects::nonNull)
                 .map(role -> new UserRole(role.getCode()))
+                .toList();
+    }
+
+    @Override
+    @Nonnull
+    public List<Permission> getPermissionByRoleIds(List<Long> roleIds) {
+        Assert.notNull(roleIds, "The list of role id must be not null.");
+        List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(filtered);
+        List<Resource> resources = resourceRepository.findByIds(relationIds);
+        return resources.stream()
+                .filter(Objects::nonNull)
+                .map(resource -> new Permission(
+                        resource.getId(),
+                        resource.getName(),
+                        resource.getPermission(),
+                        resource.getType(),
+                        resource.getParentId(),
+                        resource.isEnabled())
+                )
                 .toList();
     }
 }
