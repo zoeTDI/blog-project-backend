@@ -1,6 +1,7 @@
 package cn.caldm.www.shared_kernel.security;
 
 import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.domain.modal.UserRole;
 import jakarta.annotation.Nonnull;
 import org.springframework.security.core.Authentication;
@@ -45,6 +46,12 @@ public class SecurityUtils {
     public static List<UserRole> getRoles() {
         List<UserRole> roles = getCurrentUser().getRoles();
         return roles == null ? List.of() : List.copyOf(roles);
+    }
+
+    @Nonnull
+    public static List<Permission> getPermissions() {
+        List<Permission> permissions = getCurrentUser().getPermissions();
+        return permissions == null ? List.of() : List.copyOf(permissions);
     }
 
     public static boolean isAuthenticated() {

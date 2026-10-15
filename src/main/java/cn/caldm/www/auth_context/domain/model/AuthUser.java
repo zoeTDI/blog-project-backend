@@ -28,6 +28,7 @@ public class AuthUser implements UserDetails {
     private String nickname;
     private String avatar;
     private List<UserRole> roles;
+    private List<Permission> permissions;
     private SysUserStatusEnum status;
     private SysUserDeletedEnum deleted;
     private String accessToken;
