@@ -36,7 +36,7 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
         List<UserRoleRelation> userRoleRelations = userRoleRelationRepository.getRoleRelationByUserId(userId);
         List<Long> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
         List<Role> roles = roleRepository.getRolesByIds(userIds);
-        return roles.stream().map(role -> new UserRole(role.getCode())).toList();
+        return roles.stream().map(role -> new UserRole(role.getId(), role.getCode())).toList();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
         List<Role> roles = roleRepository.getRolesByIds(filtered);
         return roles.stream()
                 .filter(Objects::nonNull)
-                .map(role -> new UserRole(role.getCode()))
+                .map(role -> new UserRole(role.getId(), role.getCode()))
                 .toList();
     }
 

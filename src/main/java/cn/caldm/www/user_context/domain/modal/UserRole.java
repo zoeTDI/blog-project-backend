@@ -14,5 +14,10 @@ import lombok.Getter;
 @EqualsAndHashCode
 @Getter
 public class UserRole {
+    private Long id;
     private String code;
+
+    public UserRole(String code) {
+        this.code = code;
+    }
 }

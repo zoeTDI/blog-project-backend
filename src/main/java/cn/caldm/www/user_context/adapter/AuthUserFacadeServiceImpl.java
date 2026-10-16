@@ -2,6 +2,7 @@ package cn.caldm.www.user_context.adapter;
 
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.application.service.UserRoleFacadeService;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.domain.modal.UserRole;
@@ -27,13 +28,15 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
 
     @Override
     public AuthUser getCredentialByEmail(String email) {
-        SysUser sysUser = userRepository.findByEmail(email);
-        if (sysUser == null) {
+        SysUser user = userRepository.findByEmail(email);
+        if (user == null) {
             return null;
         }
-        Long id = sysUser.getId();
+        Long id = user.getId();
         List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
-        return toDto(sysUser, roles);
+        List<Long> roleIds = roles.stream().map(UserRole::getId).toList();
+        List<Permission> permissions = userRoleFacadeService.getPermissionByRoleIds(roleIds);
+        return toDto(user, roles, permissions);
     }
 
     @Override
@@ -45,7 +48,9 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
 
         Long id = user.getId();
         List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
-        return toDto(user, roles);
+        List<Long> roleIds = roles.stream().map(UserRole::getId).toList();
+        List<Permission> permissions = userRoleFacadeService.getPermissionByRoleIds(roleIds);
+        return toDto(user, roles, permissions);
     }
 
     @Override
@@ -55,10 +60,12 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
             return null;
         }
         List<UserRole> roles = userRoleFacadeService.getUserRolesById(id);
-        return toDto(user, roles);
+        List<Long> roleIds = roles.stream().map(UserRole::getId).toList();
+        List<Permission> permissions = userRoleFacadeService.getPermissionByRoleIds(roleIds);
+        return toDto(user, roles, permissions);
     }
 
-    private AuthUser toDto(SysUser user, List<UserRole> roles) {
+    private AuthUser toDto(SysUser user, List<UserRole> roles, List<Permission> permissions) {
         AuthUser dto = new AuthUser();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
@@ -67,6 +74,7 @@ public class AuthUserFacadeServiceImpl implements AuthUserFacadeService {
         dto.setNickname(user.getNickname());
         dto.setAvatar(user.getAvatar());
         dto.setRoles(roles);
+        dto.setPermissions(permissions);
         dto.setStatus(user.getStatus());
         dto.setDeleted(user.getDeleted());
         return dto;
