@@ -1,6 +1,6 @@
 package cn.caldm.www.auth_context.interfaces.dto;
 
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
+import cn.caldm.www.user_context.domain.modal.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class LoginResDTO {
     private String username;
     private String nickname;
     private String avatar;
-    private List<RoleEnum> roles;
+    private List<UserRole> roles;
     private List<String> menus;
     private Long accessTokenExpiresAt;
     private Long refreshTokenExpiresAt;
