@@ -74,7 +74,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public List<Resource> getChildren(Long parentId) {
         getResource(parentId);
-        return  resourceRepository.findChildren(parentId);
+        return resourceRepository.findChildren(parentId);
     }
 
     @Override
@@ -94,17 +94,7 @@ public class PermissionServiceImpl implements PermissionService {
         Resource parent = null;
 
         if (!Long.valueOf(0L).equals(parentId)) {
-            parent = resourceRepository.findById(parentId)
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                    "父资源不存在：" + parentId
-                            ));
-        }
-
-        if (parent != null) {
-            resource.validateParent(parent);
-        } else if (!resource.isDirectory()) {
-            throw new IllegalArgumentException("顶级资源必须是目录。");
+            parent = resourceRepository.findById(parentId).orElseThrow(() -> new IllegalArgumentException("父资源不存在：" + parentId));
         }
 
         resource.update(
@@ -117,6 +107,8 @@ public class PermissionServiceImpl implements PermissionService {
                 icon,
                 titleKey
         );
+
+        resource.validateParent(parent);
 
         return resourceRepository.update(resource);
     }
