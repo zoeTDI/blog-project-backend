@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@AllArgsConstructor
 public class UserController {
 
     private final UserApplicationService userService;
