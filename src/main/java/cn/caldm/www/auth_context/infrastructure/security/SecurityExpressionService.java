@@ -56,7 +56,14 @@ public class SecurityExpressionService {
             return false;
         }
         List<UserRole> currentRoles = SecurityUtils.getRoles();
-        return currentRoles.stream().anyMatch(r -> role.getCode().equals(r.getCode()));
+        return currentRoles.stream().anyMatch(r -> {
+            String rawCode = r.getCode();
+            if (rawCode.startsWith("ROLE_")) {
+                return role.getCode().equals(rawCode);
+            } else {
+                return role.getCode().equals("ROLE_" + r.getCode());
+            }
+        });
     }
 
     /**
