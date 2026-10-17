@@ -1,11 +1,12 @@
 package cn.caldm.www.permission_context.infrastructure.persistence.po;
 
+import cn.caldm.www.permission_context.domain.model.RoleStatusEnum;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,11 @@ public class RolePO {
     private String sort;
 
     /**
+     * 角色状态（0启用 1禁用）
+     */
+    private RoleStatusEnum status;
+
+    /**
      * 备注
      */
     private String remark;
@@ -68,5 +74,6 @@ public class RolePO {
     /**
      * 是否删除（0 不删除 1 删除）
      */
+    @TableLogic
     private RoleDeletedEnum deleted;
 }
