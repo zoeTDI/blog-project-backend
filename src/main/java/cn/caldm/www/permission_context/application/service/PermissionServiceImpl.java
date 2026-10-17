@@ -5,11 +5,9 @@ import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
-import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -179,26 +177,5 @@ public class PermissionServiceImpl implements PermissionService {
             throw new IllegalArgumentException("角色尚未拥有该资源权限。");
         }
         roleResourceRelationRepository.revoke(roleId, resourceId);
-    }
-
-    @Override
-    public List<Long> getResourceIdsByRoleId(Long roleId) {
-        if (!roleRepository.existsRole(roleId)) {
-            throw new IllegalArgumentException("角色不存在：" + roleId);
-        }
-
-        return roleResourceRelationRepository.findResourceIdsByRoleId(roleId);
-    }
-
-    @Override
-    @Nonnull
-    public List<Resource> getResourcesByRoleId(Long roleId) {
-        Assert.notNull(roleId, "The id of role must not be null.");
-        if (!roleRepository.existsRole(roleId)) {
-            throw new IllegalArgumentException("角色不存在：" + roleId);
-        }
-        List<Long> resourceIds = roleResourceRelationRepository.findRoleIdsByResourceId(roleId);
-        List<Resource> resources = resourceRepository.findByIds(resourceIds);
-        return List.copyOf(resources);
     }
 }
