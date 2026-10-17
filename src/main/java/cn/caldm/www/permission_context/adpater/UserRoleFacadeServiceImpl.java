@@ -34,9 +34,13 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
             return List.of();
         }
         List<UserRoleRelation> userRoleRelations = userRoleRelationRepository.getRoleRelationByUserId(userId);
-        List<Long> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
-        List<Role> roles = roleRepository.getRolesByIds(userIds);
-        return roles.stream().map(role -> new UserRole(role.getId(), role.getCode())).toList();
+        List<Long> roleIds = userRoleRelations.stream()
+                .map(UserRoleRelation::getRoleId)
+                .toList();
+        List<Role> roles = roleRepository.getRolesByIds(roleIds);
+        return roles.stream()
+                .map(role -> new UserRole(role.getId(), role.getCode()))
+                .toList();
     }
 
     @Override
@@ -82,6 +86,9 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     public List<UserRole> getRolesByIds(List<Long> roleIds) {
         Assert.notNull(roleIds, "The list of role id must be not null.");
         List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        if (filtered.isEmpty()) {
+            return List.of();
+        }
         List<Role> roles = roleRepository.getRolesByIds(filtered);
         return roles.stream()
                 .filter(Objects::nonNull)
@@ -94,6 +101,9 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     public List<Permission> getPermissionByRoleIds(List<Long> roleIds) {
         Assert.notNull(roleIds, "The list of role id must be not null.");
         List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        if (filtered.isEmpty()) {
+            return List.of();
+        }
         List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(filtered);
         List<Resource> resources = resourceRepository.findByIds(relationIds);
         return resources.stream()
