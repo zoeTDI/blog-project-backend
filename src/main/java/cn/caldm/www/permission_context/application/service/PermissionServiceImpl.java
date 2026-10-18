@@ -1,6 +1,6 @@
 package cn.caldm.www.permission_context.application.service;
 
-import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
+import cn.caldm.www.permission_context.application.command.CreateResourceCommand;
 import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
@@ -8,6 +8,7 @@ import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -26,19 +27,10 @@ public class PermissionServiceImpl implements PermissionService {
     private final RoleResourceRelationRepository roleResourceRelationRepository;
 
     @Override
-    public Resource createResource(
-            String name,
-            String permission,
-            ResourceTypeEnum type,
-            Long parentId,
-            Integer sort,
-            String path,
-            String component,
-            String icon,
-            String titleKey) {
-
+    public Resource createResource(CreateResourceCommand command) {
+        Assert.notNull(command, "The CreateResourceCommand must not be null.");
         Resource parent = null;
-
+        Long parentId = command.getParentId();
         if (!Long.valueOf(0L).equals(parentId)) {
             parent = resourceRepository.findById(parentId)
                     .orElseThrow(() ->
@@ -48,15 +40,15 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         Resource resource = Resource.create(
-                name,
-                permission,
-                type,
+                command.getName(),
+                command.getPermission(),
+                command.getType(),
                 parentId,
-                sort,
-                path,
-                component,
-                icon,
-                titleKey
+                command.getSort(),
+                command.getPath(),
+                command.getComponent(),
+                command.getIcon(),
+                command.getTitleKey()
         );
 
         resource.validateParent(parent);

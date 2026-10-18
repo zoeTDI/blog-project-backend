@@ -1,23 +1,13 @@
 package cn.caldm.www.permission_context.application.service;
 
-import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
+import cn.caldm.www.permission_context.application.command.CreateResourceCommand;
 import cn.caldm.www.permission_context.domain.model.Resource;
 
 import java.util.List;
 
 public interface PermissionService {
 
-    Resource createResource(
-            String name,
-            String permission,
-            ResourceTypeEnum type,
-            Long parentId,
-            Integer sort,
-            String path,
-            String component,
-            String icon,
-            String titleKey
-    );
+    Resource createResource(CreateResourceCommand command);
 
     Resource getResource(Long id);
 

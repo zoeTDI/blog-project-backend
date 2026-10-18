@@ -31,17 +31,7 @@ public class PermissionResourceController {
     @PostMapping
     @PreAuthorize ("@ss.isAdmin()")
     public Result<ResourceResponse> create(@Valid @RequestBody CreateResourceRequest request) {
-        Resource resource = permissionService.createResource(
-                request.getName(),
-                request.getPermission(),
-                request.getType(),
-                request.getParentId(),
-                request.getSort(),
-                request.getPath(),
-                request.getComponent(),
-                request.getIcon(),
-                request.getTitleKey()
-        );
+        Resource resource = permissionService.createResource(request.toCommand());
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
