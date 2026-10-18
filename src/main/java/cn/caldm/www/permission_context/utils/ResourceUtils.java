@@ -3,9 +3,7 @@ package cn.caldm.www.permission_context.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
 import cn.caldm.www.permission_context.domain.model.Resource;
@@ -31,21 +29,5 @@ public class ResourceUtils {
                 });
         map.values().stream().forEach(node -> node.freezeChildren());
         return Collections.unmodifiableList(rootNodes);
-    }
-
-    public static List<Resource> flattenTree(List<ResourceNode> rootNodes) {
-        if (rootNodes == null || rootNodes.isEmpty()) {
-            return List.of();
-        }
-        List<Resource> result = new ArrayList<>();
-        Queue<ResourceNode> queue = new LinkedList<>(rootNodes);
-        while (!queue.isEmpty()) {
-            ResourceNode node = queue.poll();
-            result.add(node.getNode());
-            if (node.getChildren() != null) {
-                queue.addAll(node.getChildren());
-            }
-        }
-        return Collections.unmodifiableList(result);
     }
 }
