@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
-
 @RestController
 @RequestMapping("/permission")
 @RequiredArgsConstructor
@@ -23,13 +22,14 @@ public class RoleResourceController {
 
     @GetMapping("/resource/{id}")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<List<ResourceNode>> getMethodName(@PathVariable("id") Long roleId) {
+    public Result<List<ResourceNode>> getResourcesByRoleId(@PathVariable("id") Long roleId) {
         return Result.success(rolePermissionService.getResourceByRoleId(roleId));
     }
 
     @PostMapping("/roles/{roleId}/resources/{resourceId}")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<Void> grantResourceToRole(@PathVariable("roleId") Long roleId, @PathVariable("resourceId") Long resourceId) {
+    public Result<Void> grantResourceToRole(@PathVariable("roleId") Long roleId,
+            @PathVariable("resourceId") Long resourceId) {
         if (roleId == null || resourceId == null) {
             throw new IllegalArgumentException("非法参数");
         }
@@ -39,7 +39,8 @@ public class RoleResourceController {
 
     @DeleteMapping("/roles/{roleId}/resources/{resourceId}")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<Void> revokeResourceFromRole(@PathVariable("roleId") Long roleId, @PathVariable("resourceId") Long resourceId) {
+    public Result<Void> revokeResourceFromRole(@PathVariable("roleId") Long roleId,
+            @PathVariable("resourceId") Long resourceId) {
         if (roleId == null || resourceId == null) {
             throw new IllegalArgumentException("非法参数");
         }
