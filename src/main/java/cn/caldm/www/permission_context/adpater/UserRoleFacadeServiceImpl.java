@@ -46,6 +46,9 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     @Override
     public void assignRoleToUser(Long userId, String roleCode) {
         Role role = roleRepository.getRoleByCode(roleCode);
+        if (!role.isEnabled()) {
+            return;
+        }
         userRoleRelationRepository.assignRoleToUser(userId, role.getId());
     }
 
@@ -56,7 +59,8 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
         List<String> filtered = roleCodes.stream().filter(Objects::nonNull).toList();
         List<Role> roles = roleRepository.getRolesByCodes(filtered);
-        List<Long> roleIds = roles.stream().map(Role::getId).filter(Objects::nonNull).toList();
+        List<Role> enabledRoles = roles.stream().filter(Role::isEnabled).toList();
+        List<Long> roleIds = enabledRoles.stream().map(Role::getId).filter(Objects::nonNull).toList();
 
         userRoleRelationRepository.assignRolesToUser(userId, roleIds);
 
@@ -114,8 +118,7 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
                         resource.getPermission(),
                         resource.getType(),
                         resource.getParentId(),
-                        resource.isEnabled())
-                )
+                        resource.isEnabled()))
                 .toList();
     }
 }
