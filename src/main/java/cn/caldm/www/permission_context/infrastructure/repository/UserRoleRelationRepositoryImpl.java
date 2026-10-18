@@ -81,17 +81,4 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
         wrapper.in(UserRoleRelationPO::getRoleId, filteredList);
         userRoleRelationMapper.delete(wrapper);
     }
-
-    @Override
-    public List<UserRoleRelation> getRelationByUserId(Long userId) {
-        Assert.notNull(userId, "UserId must not be null.");
-        LambdaQueryWrapper<UserRoleRelationPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserRoleRelationPO::getUserId, userId);
-        List<UserRoleRelationPO> relationPOS = userRoleRelationMapper.selectList(wrapper);
-        if (relationPOS.isEmpty()) {
-            return List.of();
-        }
-        List<UserRoleRelation> domainList = userRoleRelationAssembler.toDomainList(relationPOS);
-        return List.copyOf(domainList);
-    }
 }
