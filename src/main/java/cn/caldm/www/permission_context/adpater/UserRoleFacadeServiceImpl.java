@@ -105,10 +105,12 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     public List<Permission> getPermissionByRoleIds(List<Long> roleIds) {
         Assert.notNull(roleIds, "The list of role id must be not null.");
         List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
-        if (filtered.isEmpty()) {
+        List<Role> roles = roleRepository.getRolesByIds(filtered);
+        List<Long> enabledRoleIds = roles.stream().filter(Role::isEnabled).map(Role::getId).toList();
+        if (enabledRoleIds.isEmpty()) {
             return List.of();
         }
-        List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(filtered);
+        List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(enabledRoleIds);
         List<Resource> resources = resourceRepository.findByIds(relationIds);
         return resources.stream()
                 .filter(Objects::nonNull)
