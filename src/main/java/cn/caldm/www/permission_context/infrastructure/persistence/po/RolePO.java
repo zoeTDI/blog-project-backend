@@ -39,7 +39,7 @@ public class RolePO {
     /**
      * 显示顺序
      */
-    private String sort;
+    private int sort;
 
     /**
      * 角色状态（0启用 1禁用）

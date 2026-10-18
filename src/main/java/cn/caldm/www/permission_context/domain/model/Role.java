@@ -32,7 +32,7 @@ public class Role {
     /**
      * 显示顺序
      */
-    private String sort;
+    private int sort;
 
     /**
      * 备注
@@ -48,7 +48,7 @@ public class Role {
             Long id,
             String name,
             String code,
-            String sort,
+            int sort,
             String remark,
             boolean enabled) {
         Role role = new Role();
