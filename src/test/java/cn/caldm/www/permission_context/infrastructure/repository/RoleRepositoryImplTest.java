@@ -60,6 +60,24 @@ public class RoleRepositoryImplTest {
         verify(roleMapper).selectById(1L);
     }
 
+    @Test
+    void getRoleById_shouldReturnNull_whenNotFound() {
+        when(roleMapper.selectById(99L)).thenReturn(null);
+        when(roleAssembler.toDomain(null)).thenReturn(null);
+
+        Role result = roleRepository.getRoleById(99L);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void getRolesByIds_shouldReturnEmpty_whenIdsEmpty() {
+        List<Role> result = roleRepository.getRolesByIds(List.of());
+
+        assertThat(result).isEmpty();
+        verify(roleMapper, never()).selectList(any());
+    }
+
     // ==================== getRoleByCode ====================
 
     @Test
@@ -131,7 +149,7 @@ public class RoleRepositoryImplTest {
     void saveRole_shouldDoNothing_whenRoleIsNull() {
         roleRepository.saveRole(null);
 
-        when(roleMapper.insert(any(RolePO.class))).thenReturn(1);
+        verify(roleMapper, never()).insert(any(RolePO.class));
     }
 
     @Test
@@ -162,14 +180,16 @@ public class RoleRepositoryImplTest {
     @Test
     void updateRole_shouldDoNothing_whenRoleIsNull() {
         roleRepository.updateRole(null);
-        when(roleMapper.updateById(any(RolePO.class))).thenReturn(1);
+
+        verify(roleMapper, never()).updateById(any(RolePO.class));
     }
 
     @Test
     void updateRole_shouldDoNothing_whenIdIsNull() {
         Role role = new Role(); // id = null
         roleRepository.updateRole(role);
-        when(roleMapper.updateById(any(RolePO.class))).thenReturn(1);
+
+        verify(roleMapper, never()).updateById(any(RolePO.class));
     }
 
     @Test
