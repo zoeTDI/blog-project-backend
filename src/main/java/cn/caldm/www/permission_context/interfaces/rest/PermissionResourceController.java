@@ -52,17 +52,7 @@ public class PermissionResourceController {
     @PutMapping("/{id}")
     @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateResourceRequest request) {
-        Resource resource = permissionService.updateResource(
-                id,
-                request.getName(),
-                request.getPermission(),
-                request.getParentId(),
-                request.getSort(),
-                request.getPath(),
-                request.getComponent(),
-                request.getIcon(),
-                request.getTitleKey()
-        );
+        Resource resource = permissionService.updateResource(request.toCommand(id));
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 

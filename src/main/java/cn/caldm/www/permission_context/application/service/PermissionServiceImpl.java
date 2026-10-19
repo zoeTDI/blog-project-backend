@@ -1,7 +1,9 @@
 package cn.caldm.www.permission_context.application.service;
 
 import cn.caldm.www.permission_context.application.command.CreateResourceCommand;
+import cn.caldm.www.permission_context.application.command.UpdateResourceCommand;
 import cn.caldm.www.permission_context.domain.model.Resource;
+import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
@@ -33,10 +35,8 @@ public class PermissionServiceImpl implements PermissionService {
         Long parentId = command.getParentId();
         if (!Long.valueOf(0L).equals(parentId)) {
             parent = resourceRepository.findById(parentId)
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                    "父资源不存在：" + parentId
-                            ));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "父资源不存在：" + parentId));
         }
 
         Resource resource = Resource.create(
@@ -48,8 +48,7 @@ public class PermissionServiceImpl implements PermissionService {
                 command.getPath(),
                 command.getComponent(),
                 command.getIcon(),
-                command.getTitleKey()
-        );
+                command.getTitleKey());
 
         resource.validateParent(parent);
 
@@ -68,35 +67,27 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Resource updateResource(
-            Long id,
-            String name,
-            String permission,
-            Long parentId,
-            Integer sort,
-            String path,
-            String component,
-            String icon,
-            String titleKey) {
-
-        Resource resource = getResource(id);
+    public Resource updateResource(UpdateResourceCommand command) {
+        Assert.notNull(command, "The UpdateResourceCommand must not be null.");
+        Resource resource = getResource(command.getId());
 
         Resource parent = null;
+        Long parentId = command.getParentId();
 
         if (!Long.valueOf(0L).equals(parentId)) {
-            parent = resourceRepository.findById(parentId).orElseThrow(() -> new IllegalArgumentException("父资源不存在：" + parentId));
+            parent = resourceRepository.findById(parentId)
+                    .orElseThrow(() -> new IllegalArgumentException("父资源不存在：" + parentId));
         }
 
         resource.update(
-                name,
-                permission,
+                command.getName(),
+                command.getPermission(),
                 parentId,
-                sort,
-                path,
-                component,
-                icon,
-                titleKey
-        );
+                command.getSort(),
+                command.getPath(),
+                command.getComponent(),
+                command.getIcon(),
+                command.getTitleKey());
 
         resource.validateParent(parent);
 
@@ -125,13 +116,11 @@ public class PermissionServiceImpl implements PermissionService {
     public void deleteResource(Long id) {
         Resource resource = getResource(id);
 
-        List<Resource> children =
-                resourceRepository.findChildren(id);
+        List<Resource> children = resourceRepository.findChildren(id);
 
         if (!children.isEmpty()) {
             throw new IllegalArgumentException(
-                    "资源存在子资源，无法删除：" + resource.getName()
-            );
+                    "资源存在子资源，无法删除：" + resource.getName());
         }
 
         resourceRepository.deleteById(id);
@@ -140,8 +129,12 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void grantResourceToRole(Long roleId, Long resourceId) {
-        if (!roleRepository.existsRole(roleId)) {
+        Role role = roleRepository.getRoleById(roleId);
+        if (role == null) {
             throw new IllegalArgumentException("角色不存在：" + roleId);
+        }
+        if (!role.isEnabled()) {
+            throw new IllegalArgumentException("角色已停用，无法授权：" + roleId);
         }
 
         Resource resource = getResource(resourceId);
@@ -159,11 +152,19 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void revokeResourceFromRole(Long roleId, Long resourceId) {
-        if (!roleRepository.existsRole(roleId)) {
+        Role role = roleRepository.getRoleById(roleId);
+        if (role == null) {
             throw new IllegalArgumentException("角色不存在：" + roleId);
+        }
+        
+        if (!role.isEnabled()) {
+            throw new IllegalArgumentException("无法从停用的角色上移除权限：" + roleId);
         }
 
         Resource resource = getResource(resourceId);
+        if (!resource.isEnabled()) {
+            throw new IllegalArgumentException("无法从角色上移除停用的权限：" + resourceId);
+        }
 
         if (!roleResourceRelationRepository.exists(roleId, resourceId)) {
             throw new IllegalArgumentException("角色尚未拥有该资源权限。");
