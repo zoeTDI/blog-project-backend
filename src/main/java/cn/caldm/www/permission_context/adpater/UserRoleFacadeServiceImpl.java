@@ -46,8 +46,11 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     @Override
     public void assignRoleToUser(Long userId, String roleCode) {
         Role role = roleRepository.getRoleByCode(roleCode);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在：" + roleCode);
+        }
         if (!role.isEnabled()) {
-            return;
+            throw new IllegalArgumentException("角色已停用，无法分配：" + roleCode);
         }
         userRoleRelationRepository.assignRoleToUser(userId, role.getId());
     }

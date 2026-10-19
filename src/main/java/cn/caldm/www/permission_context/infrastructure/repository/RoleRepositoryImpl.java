@@ -48,6 +48,10 @@ public class RoleRepositoryImpl implements RoleRepository {
                 .distinct()
                 .toList();
 
+        if (validIds.isEmpty()) {
+            return List.of();
+        }
+
         LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(RolePO::getId, validIds);
         List<RolePO> pos = roleMapper.selectList(wrapper);
