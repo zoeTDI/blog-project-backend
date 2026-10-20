@@ -1,12 +1,12 @@
 package cn.caldm.www.auth_context.infrastructure.security;
 
 import cn.caldm.www.auth_context.domain.model.AuthUser;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.user_context.domain.modal.UserRole;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -15,15 +15,17 @@ import java.util.List;
  * @author caldm
  */
 @Component("ss")
+@RequiredArgsConstructor
 public class SecurityExpressionService {
+
+    private final CurrentUserProvider currentUserProvider;
     
     /**
      * 校验当前用户是否具备任意角色
      * @return 是否包含角色
      */
     public boolean hasRole() {
-        List<UserRole> currentRoles = SecurityUtils.getRoles();
-        return !currentRoles.isEmpty();
+        return !currentUserProvider.getRoles().isEmpty();
     }
 
     /**
@@ -36,16 +38,10 @@ public class SecurityExpressionService {
         if (roleCode == null || roleCode.trim().isEmpty()) {
             return false;
         }
-        String processRoleCode;
-        if (!roleCode.startsWith(AuthUser.ROLE_PREFIX)) {
-            processRoleCode = AuthUser.ROLE_PREFIX + roleCode;
-        } else {
-            processRoleCode = roleCode;
-        }
-
-        List<UserRole> currentRoles = SecurityUtils.getRoles();
-        return currentRoles.stream()
-                .anyMatch(r -> processRoleCode.equals(r.getCode()));
+        String normalized = roleCode.startsWith(AuthUser.ROLE_PREFIX)
+                ? roleCode.substring(AuthUser.ROLE_PREFIX.length())
+                : roleCode;
+        return currentUserProvider.getRoles().contains(normalized);
     }
 
     /**
@@ -55,15 +51,7 @@ public class SecurityExpressionService {
         if (role == null || role.getCode() == null) {
             return false;
         }
-        List<UserRole> currentRoles = SecurityUtils.getRoles();
-        return currentRoles.stream().anyMatch(r -> {
-            String rawCode = r.getCode();
-            if (rawCode.startsWith("ROLE_")) {
-                return role.getCode().equals(rawCode);
-            } else {
-                return role.getCode().equals("ROLE_" + r.getCode());
-            }
-        });
+        return hasRole(role.getCode());
     }
 
     /**

@@ -4,7 +4,7 @@ import cn.caldm.www.shared_kernel.domain.ErrorDetail;
 import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiErrorLogPO;
 import cn.caldm.www.system_context.application.service.ApiErrorLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
     
     private final ApiErrorLogService apiErrorLogService;
     private final ObjectMapper objectMapper;
+    private final CurrentUserProvider currentUserProvider;
 
     // ============================ 4xx 客户端错误，不记录栈堆 ============================
 
@@ -142,7 +143,7 @@ public class GlobalExceptionHandler {
             InfraApiErrorLogPO errorLog = new InfraApiErrorLogPO();
             // 基础信息
             errorLog.setTraceId(traceId);
-            errorLog.setUserId(SecurityUtils.getUserId());
+            errorLog.setUserId(currentUserProvider.getUserId());
             errorLog.setUserType(1);
             errorLog.setApplicationName("blog-backend");
 

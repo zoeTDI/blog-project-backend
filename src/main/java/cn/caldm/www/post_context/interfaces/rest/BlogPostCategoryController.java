@@ -6,7 +6,7 @@ import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRen
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class BlogPostCategoryController {
 
     private final BlogPostCategoryService categoryService;
+    private final CurrentUserProvider currentUserProvider;
 
     @PostMapping("/createCategory")
     @PreAuthorize("@ss.isContentOperator()")
@@ -58,7 +59,7 @@ public class BlogPostCategoryController {
     @GetMapping("/getAllCategoriesByAuthor")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<List<CategoryTreeNode>> getAllCategoriesByAuthor() {
-        Long userId = SecurityUtils.getUserId();
+        Long userId = currentUserProvider.getUserId();
         List<CategoryTreeNode> selected = categoryService.getCategoryTreeByAuthorId(userId);
         return Result.success(selected);
     }

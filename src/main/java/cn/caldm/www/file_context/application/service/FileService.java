@@ -3,8 +3,8 @@ package cn.caldm.www.file_context.application.service;
 import cn.caldm.www.file_context.infrastructure.persistence.po.InfraFilePO;
 import cn.caldm.www.infrastructure.file.core.client.FileClient;
 import cn.caldm.www.infrastructure.file.core.client.FileClientFactory;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.file_context.infrastructure.persistence.mapper.InfraFileMapper;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ public class FileService {
     private final InfraFileMapper fileMapper;
     private final FileConfigService fileConfigService;
     private final FileClientFactory fileClientFactory;
+    private final CurrentUserProvider currentUserProvider;
 
     /**
      * 核心业务方法：一键上传文件（使用默认主存储介质）
@@ -54,7 +55,7 @@ public class FileService {
             fileRecord.setType(name.substring(name.lastIndexOf(".") + 1));
         }
 
-        String currentOperator = SecurityUtils.getUsername();
+        String currentOperator = currentUserProvider.getUsername();
         fileRecord.setCreator(currentOperator);
         fileRecord.setUpdater(currentOperator);
 

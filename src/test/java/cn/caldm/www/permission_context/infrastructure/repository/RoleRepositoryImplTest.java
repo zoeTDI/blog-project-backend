@@ -2,19 +2,18 @@ package cn.caldm.www.permission_context.infrastructure.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -23,7 +22,6 @@ import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
 import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleMapper;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class RoleRepositoryImplTest {
@@ -31,6 +29,8 @@ public class RoleRepositoryImplTest {
     private RoleMapper roleMapper;
     @Mock
     private RoleAssembler roleAssembler;
+    @Mock
+    private CurrentUserProvider currentUserProvider;
     @InjectMocks
     private RoleRepositoryImpl roleRepository;
 
@@ -160,10 +160,8 @@ public class RoleRepositoryImplTest {
         RolePO po = new RolePO();
         when(roleAssembler.toPO(role)).thenReturn(po);
 
-        try (MockedStatic<SecurityUtils> mocked = mockStatic(SecurityUtils.class)) {
-            mocked.when(SecurityUtils::getUsername).thenReturn("tester");
-            roleRepository.saveRole(role);
-        }
+        when (currentUserProvider.getUsername()).thenReturn("tester");
+        roleRepository.saveRole(role);
 
         assertThat(po.getCreator()).isEqualTo("tester");
         assertThat(po.getUpdater()).isEqualTo("tester");
@@ -200,10 +198,8 @@ public class RoleRepositoryImplTest {
         RolePO po = new RolePO();
         when(roleAssembler.toPO(role)).thenReturn(po);
 
-        try (MockedStatic<SecurityUtils> mocked = mockStatic(SecurityUtils.class)) {
-            mocked.when(SecurityUtils::getUsername).thenReturn("tester");
-            roleRepository.updateRole(role);
-        }
+        when (currentUserProvider.getUsername()).thenReturn("tester");
+        roleRepository.updateRole(role);
 
         assertThat(po.getUpdater()).isEqualTo("tester");
         assertThat(po.getUpdateTime()).isNotNull();

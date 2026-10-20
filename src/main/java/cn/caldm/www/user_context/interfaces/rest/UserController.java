@@ -3,15 +3,13 @@ package cn.caldm.www.user_context.interfaces.rest;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
-import cn.caldm.www.user_context.domain.modal.RoleEnum;
 import cn.caldm.www.user_context.domain.modal.SysUser;
 import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -34,6 +31,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserApplicationService userService;
+    private final CurrentUserProvider currentUserProvider;
 
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")
@@ -98,7 +96,7 @@ public class UserController {
     @PostMapping("/sendResetPasswordEmail")
     @PreAuthorize("isAuthenticated()")
     public Result<Void> sendResetPasswordEmail() {
-        Long userId = SecurityUtils.getUserId();
+        Long userId = currentUserProvider.getUserId();
         if (userId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
@@ -114,7 +112,7 @@ public class UserController {
     @PostMapping("/resetPassword")
     @PreAuthorize("isAuthenticated()")
     public Result<Void> resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
-        Long id = SecurityUtils.getUserId();
+        Long id = currentUserProvider.getUserId();
         String code = resetPasswordReqDTO.getCode();
         String newPassword = resetPasswordReqDTO.getNewPassword();
         if (id == 0L || code == null || code.isEmpty() || newPassword == null || newPassword.isEmpty()) {

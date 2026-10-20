@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import com.baomidou.mybatisplus.core.toolkit.Assert;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,6 @@ import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
 import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleMapper;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -28,6 +28,7 @@ public class RoleRepositoryImpl implements RoleRepository {
 
     private final RoleMapper roleMapper;
     private final RoleAssembler roleAssembler;
+    private final CurrentUserProvider currentUserProvider;
 
     @Override
     public Role getRoleById(Long id) {
@@ -107,7 +108,7 @@ public class RoleRepositoryImpl implements RoleRepository {
             return;
         }
         RolePO po = roleAssembler.toPO(role);
-        String operatorName = SecurityUtils.getUsername();
+        String operatorName = currentUserProvider.getUsername();
         po.setCreator(operatorName);
         po.setCreateTime(LocalDateTime.now());
         po.setUpdater(operatorName);
@@ -122,7 +123,7 @@ public class RoleRepositoryImpl implements RoleRepository {
         }
 
         RolePO po = roleAssembler.toPO(newRole);
-        String operatorName = SecurityUtils.getUsername();
+        String operatorName = currentUserProvider.getUsername();
         po.setUpdater(operatorName);
         po.setUpdateTime(LocalDateTime.now());
         roleMapper.updateById(po);

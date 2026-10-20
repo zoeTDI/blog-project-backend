@@ -5,7 +5,7 @@ import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCo
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +27,7 @@ import java.util.Map;
 public class BlogPostTagController {
 
     private final BlogPostTagService tagService;
+    private final CurrentUserProvider currentUserProvider;
 
     @GetMapping("/createTag")
     @PreAuthorize("@ss.isContentOperator()")
@@ -58,7 +59,7 @@ public class BlogPostTagController {
     @GetMapping("/getAllTagsByAuthor")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<List<BlogPostTag>> getAllTags() {
-        Long authorId = SecurityUtils.getUserId();
+        Long authorId = currentUserProvider.getUserId();
         return Result.success(tagService.getTagsByAuthorId(authorId));
     }
 }

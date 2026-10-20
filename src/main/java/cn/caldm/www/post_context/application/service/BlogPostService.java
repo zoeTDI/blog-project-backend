@@ -10,8 +10,7 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.domain.PageResult;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,7 @@ public class BlogPostService {
     private final BlogPostTagRelationRepository tagRelationRepository;
     private final BlogPostCategoryRepository categoryRepository;
     private final BlogPostTagRepository tagRepository;
+    private final CurrentUserProvider currentUserProvider;
 
     /**
      * Queries the complete (all statuses), non-deleted article list of the
@@ -51,7 +51,7 @@ public class BlogPostService {
         if (size < 1 || size > 100) {
             throw new IllegalArgumentException("size must be between 1 and 100");
         }
-        return blogPostRepository.findPageByAuthorId(SecurityUtils.getUserId(), page, size);
+        return blogPostRepository.findPageByAuthorId(currentUserProvider.getUserId(), page, size);
     }
 
     public Long createPost(@Valid BlogPostCreateCommand command) {
@@ -60,8 +60,8 @@ public class BlogPostService {
         }
 
         BlogPost blogPost = new BlogPost();
-        Long curUserId = SecurityUtils.getUserId();
-        String curUsername = SecurityUtils.getUsername();
+        Long curUserId = currentUserProvider.getUserId();
+        String curUsername = currentUserProvider.getUsername();
         blogPost.setAuthorId(curUserId);
         blogPost.setCreator(curUsername);
         blogPost.setUpdater(curUsername);
@@ -131,9 +131,9 @@ public class BlogPostService {
         if (blogPost == null || blogPost.getDeleted()) {
             throw new IllegalArgumentException("Blog post is already deleted.");
         }
-        Long curUserId = SecurityUtils.getUserId();
-        List<UserRole> curRoles = SecurityUtils.getRoles();
-        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains(new UserRole("ROLE_ADMIN"))) {
+        Long curUserId = currentUserProvider.getUserId();
+        List<String> curRoles = currentUserProvider.getRoles();
+        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains("ADMIN")) {
             throw new IllegalArgumentException("Current user is not author.");
         }
         // set category
@@ -157,12 +157,12 @@ public class BlogPostService {
             throw new IllegalArgumentException("Target article is under review, cannot modify.");
         }
         Long postId = post.getId();
-        Long curUserId = SecurityUtils.getUserId();
-        String curUsername = SecurityUtils.getUsername();
-        List<UserRole> roles = SecurityUtils.getRoles();
+        Long curUserId = currentUserProvider.getUserId();
+        String curUsername = currentUserProvider.getUsername();
+        List<String> roles = currentUserProvider.getRoles();
         Boolean isAuthor = post.getAuthorId().equals(curUserId);
-        Boolean isAdmin = roles != null && roles.contains(new UserRole("ROLE_ADMIN"));
-        if (!isAuthor || !isAdmin) {
+        Boolean isAdmin = roles != null && roles.contains("ADMIN");
+        if (!isAuthor && !isAdmin) {
             throw new IllegalArgumentException("No permission to update post.");
         }
         BlogPost newPost = new BlogPost();
@@ -263,10 +263,10 @@ public class BlogPostService {
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
         }
-        Long userId = SecurityUtils.getUserId();
-        List<UserRole> roles = SecurityUtils.getRoles();
-        Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains(new UserRole("ROLE_AUTHOR"));
-        Boolean isAdmin = roles.contains(new UserRole("ROLE_ADMIN"));
+        Long userId = currentUserProvider.getUserId();
+        List<String> roles = currentUserProvider.getRoles();
+        Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains("AUTHOR");
+        Boolean isAdmin = roles.contains("ADMIN");
         if (!isAuthor && !isAdmin) {
             throw new IllegalStateException("No permission to do it.");
         }
@@ -281,8 +281,8 @@ public class BlogPostService {
         if (cached == null || cached.getDeleted()) {
             throw new IllegalStateException("Target post is deleted.");
         }
-        List<UserRole> roles = SecurityUtils.getRoles();
-        if (!roles.contains(new UserRole("ROLE_ADMIN")) && !roles.contains(new UserRole("ROLE_AUDITOR"))) {
+        List<String> roles = currentUserProvider.getRoles();
+        if (!roles.contains("ADMIN") && !roles.contains("AUDITOR")) {
             throw new IllegalStateException("No permission to do it.");
         }
         blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.PUBLISHED);
