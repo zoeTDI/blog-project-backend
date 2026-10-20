@@ -20,38 +20,40 @@ public class SecurityUtils {
     private SecurityUtils() {
     }
 
-    public static Optional<AuthUser> getOptCurrentUser() {
+    public static Optional<CurrentUser> getOptCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && authentication.isAuthenticated()
                 && authentication.getPrincipal() instanceof AuthUser authUser) {
-            return Optional.of(authUser);
+            return Optional.of(new CurrentUser(
+                    authUser.getId(),
+                    authUser.getUsername(),
+                    authUser.getRoles(),
+                    authUser.getPermissions()));
         }
         return Optional.empty();
     }
 
-    public static AuthUser getCurrentUser() {
+    public static CurrentUser getCurrentUser() {
         return getOptCurrentUser().orElseThrow(() -> new IllegalStateException("The current thread is not bound to a valid user context."));
     }
 
     public static Long getUserId() {
-        return getCurrentUser().getId();
+        return getCurrentUser().id();
     }
 
     public static String getUsername() {
-        return getCurrentUser().getUsername();
+        return getCurrentUser().username();
     }
 
     @Nonnull
     public static List<UserRole> getRoles() {
-        List<UserRole> roles = getCurrentUser().getRoles();
-        return roles == null ? List.of() : List.copyOf(roles);
+        return getCurrentUser().roles();
     }
 
     @Nonnull
     public static List<Permission> getPermissions() {
-        List<Permission> permissions = getCurrentUser().getPermissions();
-        return permissions == null ? List.of() : List.copyOf(permissions);
+        return getCurrentUser().permissions();
     }
 
     public static boolean isAuthenticated() {
