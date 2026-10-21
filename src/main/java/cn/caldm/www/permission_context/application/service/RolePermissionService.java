@@ -21,4 +21,8 @@ public interface RolePermissionService {
      * @return 该角色可见的资源树；角色无任何资源时返回空列表
      */
     List<ResourceNode> getResourceByRoleId(Long id);
+
+    void grantResourceToRole(Long roleId, Long resourceId);
+
+    void revokeResourceFromRole(Long roleId, Long resourceId);
 }

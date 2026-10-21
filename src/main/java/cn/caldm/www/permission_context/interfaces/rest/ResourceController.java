@@ -1,6 +1,6 @@
 package cn.caldm.www.permission_context.interfaces.rest;
 
-import cn.caldm.www.permission_context.application.service.PermissionService;
+import cn.caldm.www.permission_context.application.service.ResourceService;
 import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.interfaces.assembler.ResourceDtoAssembler;
 import cn.caldm.www.permission_context.interfaces.dto.resource.CreateResourceRequest;
@@ -24,56 +24,56 @@ import java.util.List;
 @RestController
 @RequestMapping("/permission/resources")
 @RequiredArgsConstructor
-public class PermissionResourceController {
-    private final PermissionService permissionService;
+public class ResourceController {
+    private final ResourceService resourceService;
     private final ResourceDtoAssembler resourceDtoAssembler;
 
     @PostMapping
     @PreAuthorize ("@ss.isAdmin()")
     public Result<ResourceResponse> create(@Valid @RequestBody CreateResourceRequest request) {
-        Resource resource = permissionService.createResource(request.toCommand());
+        Resource resource = resourceService.createResource(request.toCommand());
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> getById(@PathVariable Long id) {
-        Resource resource = permissionService.getResource(id);
+        Resource resource = resourceService.getResource(id);
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @GetMapping("/{id}/children")
     @PreAuthorize ("@ss.hasRole()")
     public Result<List<ResourceResponse>> getChildren(@PathVariable Long id) {
-        List<Resource> resources = permissionService.getChildren(id);
+        List<Resource> resources = resourceService.getChildren(id);
         return Result.success(resourceDtoAssembler.toResponseList(resources));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize ("@ss.hasRole()")
     public Result<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateResourceRequest request) {
-        Resource resource = permissionService.updateResource(request.toCommand(id));
+        Resource resource = resourceService.updateResource(request.toCommand(id));
         return Result.success(resourceDtoAssembler.toResponse(resource));
     }
 
     @PutMapping("/{id}/enable")
     @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> enable(@PathVariable Long id) {
-        permissionService.enableResource(id);
+        resourceService.enableResource(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/disable")
     @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> disable(@PathVariable Long id) {
-        permissionService.disableResource(id);
+        resourceService.disableResource(id);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize ("@ss.isAdmin()")
     public Result<Void> delete(@PathVariable Long id) {
-        permissionService.deleteResource(id);
+        resourceService.deleteResource(id);
         return Result.success();
     }
 }

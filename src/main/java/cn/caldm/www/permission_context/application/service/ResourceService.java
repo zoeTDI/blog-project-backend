@@ -6,8 +6,7 @@ import cn.caldm.www.permission_context.domain.model.Resource;
 
 import java.util.List;
 
-public interface PermissionService {
-
+public interface ResourceService {
     Resource createResource(CreateResourceCommand command);
 
     Resource getResource(Long id);
@@ -21,8 +20,4 @@ public interface PermissionService {
     void disableResource(Long id);
 
     void deleteResource(Long id);
-
-    void grantResourceToRole(Long roleId, Long resourceId);
-
-    void revokeResourceFromRole(Long roleId, Long resourceId);
 }

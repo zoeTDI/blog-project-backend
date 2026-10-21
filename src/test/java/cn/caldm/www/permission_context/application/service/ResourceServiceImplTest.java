@@ -14,22 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import cn.caldm.www.permission_context.application.command.UpdateResourceCommand;
 import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.model.ResourceTypeEnum;
-import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
-import cn.caldm.www.permission_context.domain.repository.RoleRepository;
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class PermissionServiceImplTest {
+public class ResourceServiceImplTest {
 
     @Mock
     private ResourceRepository resourceRepository;
-    @Mock
-    private RoleRepository roleRepository;
-    @Mock
-    private RoleResourceRelationRepository roleResourceRelationRepository;
     @InjectMocks
-    private PermissionServiceImpl permissionService;
+    private ResourceServiceImpl resourceService;
 
     @Test
     void updateResource_shouldRejectDirectoryUnderMenu() {
@@ -56,43 +49,8 @@ public class PermissionServiceImplTest {
         command.setIcon(null);
         command.setTitleKey("menu.system");
 
-        assertThatThrownBy(() -> permissionService.updateResource(command))
+        assertThatThrownBy(() -> resourceService.updateResource(command))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("非法的资源父子关系");
-    }
-
-    @Test
-    void revokeResourceFromRole_shouldThrow_whenRoleNotFound() {
-        when(roleRepository.getRoleById(1L)).thenReturn(null);
-
-        assertThatThrownBy(() -> permissionService.revokeResourceFromRole(1L, 5L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("角色不存在");
-    }
-
-    @Test
-    void grantResourceToRole_shouldThrow_whenRoleDisabled() {
-        Role disabledRole = new Role();
-        disabledRole.setId(1L);
-        disabledRole.setEnabled(false);
-
-        when(roleRepository.getRoleById(1L)).thenReturn(disabledRole);
-
-        assertThatThrownBy(() -> permissionService.grantResourceToRole(1L, 5L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("停用");
-    }
-
-    @Test
-    void revokeResourceFromRole_shouldThrow_whenRoleDisabled() {
-        Role disabledRole = new Role();
-        disabledRole.setId(1L);
-        disabledRole.setEnabled(false);
-
-        when(roleRepository.getRoleById(1L)).thenReturn(disabledRole);
-
-        assertThatThrownBy(() -> permissionService.revokeResourceFromRole(1L, 5L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("停用");
     }
 }

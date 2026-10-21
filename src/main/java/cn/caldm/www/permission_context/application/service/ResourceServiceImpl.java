@@ -3,13 +3,9 @@ package cn.caldm.www.permission_context.application.service;
 import cn.caldm.www.permission_context.application.command.CreateResourceCommand;
 import cn.caldm.www.permission_context.application.command.UpdateResourceCommand;
 import cn.caldm.www.permission_context.domain.model.Resource;
-import cn.caldm.www.permission_context.domain.model.Role;
-import cn.caldm.www.permission_context.domain.repository.RoleRepository;
-import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -22,11 +18,9 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class PermissionServiceImpl implements PermissionService {
+public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
-    private final RoleRepository roleRepository;
-    private final RoleResourceRelationRepository roleResourceRelationRepository;
 
     @Override
     public Resource createResource(CreateResourceCommand command) {
@@ -124,51 +118,5 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         resourceRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
-    public void grantResourceToRole(Long roleId, Long resourceId) {
-        Role role = roleRepository.getRoleById(roleId);
-        if (role == null) {
-            throw new IllegalArgumentException("角色不存在：" + roleId);
-        }
-        if (!role.isEnabled()) {
-            throw new IllegalArgumentException("角色已停用，无法授权：" + roleId);
-        }
-
-        Resource resource = getResource(resourceId);
-        if (!resource.isEnabled()) {
-            throw new IllegalArgumentException("资源已停用，无法授权。");
-        }
-
-        if (roleResourceRelationRepository.exists(roleId, resourceId)) {
-            throw new IllegalArgumentException("角色已拥有该资源权限。");
-        }
-
-        roleResourceRelationRepository.grant(roleId, resourceId);
-    }
-
-    @Override
-    @Transactional
-    public void revokeResourceFromRole(Long roleId, Long resourceId) {
-        Role role = roleRepository.getRoleById(roleId);
-        if (role == null) {
-            throw new IllegalArgumentException("角色不存在：" + roleId);
-        }
-        
-        if (!role.isEnabled()) {
-            throw new IllegalArgumentException("无法从停用的角色上移除权限：" + roleId);
-        }
-
-        Resource resource = getResource(resourceId);
-        if (!resource.isEnabled()) {
-            throw new IllegalArgumentException("无法从角色上移除停用的权限：" + resourceId);
-        }
-
-        if (!roleResourceRelationRepository.exists(roleId, resourceId)) {
-            throw new IllegalArgumentException("角色尚未拥有该资源权限。");
-        }
-        roleResourceRelationRepository.revoke(roleId, resourceId);
     }
 }
