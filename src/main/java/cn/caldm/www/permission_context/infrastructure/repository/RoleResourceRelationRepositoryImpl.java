@@ -39,16 +39,6 @@ public class RoleResourceRelationRepositoryImpl implements RoleResourceRelationR
     }
 
     @Override
-    public void revokeAllByResourceId(Long resourceId) {
-        roleResourceRelationMapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>().eq(RoleResourceRelationPO::getResourceId, resourceId));
-    }
-
-    @Override
-    public void revokeAllByRoleId(Long roleId) {
-        roleResourceRelationMapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>().eq(RoleResourceRelationPO::getRoleId, roleId));
-    }
-
-    @Override
     public List<Long> findResourceIdsByRoleId(Long roleId) {
         return roleResourceRelationMapper.selectList(new LambdaQueryWrapper<RoleResourceRelationPO>()
                         .select(RoleResourceRelationPO::getResourceId)
@@ -67,17 +57,6 @@ public class RoleResourceRelationRepositoryImpl implements RoleResourceRelationR
         wrapper.in(RoleResourceRelationPO::getRoleId, filtered);
         List<RoleResourceRelationPO> relationPOS = roleResourceRelationMapper.selectList(wrapper);
         return relationPOS.stream().map(RoleResourceRelationPO::getResourceId).toList();
-    }
-
-    @Override
-    public List<Long> findRoleIdsByResourceId(Long resourceId) {
-        return roleResourceRelationMapper.selectList(new LambdaQueryWrapper<RoleResourceRelationPO>()
-                        .select(RoleResourceRelationPO::getRoleId)
-                        .eq(RoleResourceRelationPO::getResourceId, resourceId)
-                )
-                .stream()
-                .map(RoleResourceRelationPO::getRoleId)
-                .toList();
     }
 
     @Override

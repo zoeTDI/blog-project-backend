@@ -7,15 +7,9 @@ public interface RoleResourceRelationRepository {
 
     void revoke(Long roleId, Long resourceId);
 
-    void revokeAllByResourceId(Long resourceId);
-
-    void revokeAllByRoleId(Long roleId);
-
     List<Long> findResourceIdsByRoleId(Long roleId);
 
     List<Long> findResourceIdsByRoleIds(List<Long> roleIds);
-
-    List<Long> findRoleIdsByResourceId(Long resourceId);
 
     boolean exists(Long roleId, Long resourceId);
 }

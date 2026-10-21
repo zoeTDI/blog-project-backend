@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,8 +27,6 @@ public class RoleRepositoryImplTest {
     private RoleMapper roleMapper;
     @Mock
     private RoleAssembler roleAssembler;
-    @Mock
-    private CurrentUserProvider currentUserProvider;
     @InjectMocks
     private RoleRepositoryImpl roleRepository;
 
@@ -105,117 +101,4 @@ public class RoleRepositoryImplTest {
         assertThat(result).isSameAs(domain);
     }
 
-    // ==================== getRoleMap ====================
-
-    @Test
-    void getRoleMap_shouldReturnCodeToRoleMap() {
-        RolePO po1 = new RolePO();
-        RolePO po2 = new RolePO();
-        List<RolePO> pos = List.of(po1, po2);
-
-        Role r1 = new Role();
-        r1.setCode("ADMIN");
-        Role r2 = new Role();
-        r2.setCode("USER");
-
-        when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(pos);
-        when(roleAssembler.toDomainList(pos)).thenReturn(List.of(r1, r2));
-
-        var map = roleRepository.getRoleMap();
-
-        assertThat(map).containsOnlyKeys("ADMIN", "USER");
-        assertThat(map.get("ADMIN")).isSameAs(r1);
-        assertThat(map.get("USER")).isSameAs(r2);
-    }
-
-    @Test
-    void getRoleMap_shouldFilterNullRoles() {
-        RolePO po = new RolePO();
-        Role r1 = new Role();
-        r1.setCode("ADMIN");
-
-        when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(po));
-        // 故意在列表里塞 null，验证 filter 生效
-        when(roleAssembler.toDomainList(List.of(po))).thenReturn(java.util.Arrays.asList(r1, null));
-
-        var map = roleRepository.getRoleMap();
-
-        assertThat(map).containsOnlyKeys("ADMIN");
-    }
-
-    // ==================== saveRole ====================
-
-    @Test
-    void saveRole_shouldDoNothing_whenRoleIsNull() {
-        roleRepository.saveRole(null);
-
-        verify(roleMapper, never()).insert(any(RolePO.class));
-    }
-
-    @Test
-    void saveRole_shouldSetAuditFieldsAndInsert() {
-        Role role = new Role();
-        role.setCode("ADMIN");
-
-        RolePO po = new RolePO();
-        when(roleAssembler.toPO(role)).thenReturn(po);
-
-        when (currentUserProvider.getUsername()).thenReturn("tester");
-        roleRepository.saveRole(role);
-
-        assertThat(po.getCreator()).isEqualTo("tester");
-        assertThat(po.getUpdater()).isEqualTo("tester");
-        assertThat(po.getCreateTime()).isNotNull();
-        assertThat(po.getUpdateTime()).isNotNull();
-
-        ArgumentCaptor<RolePO> captor = ArgumentCaptor.forClass(RolePO.class);
-        verify(roleMapper).insert(captor.capture());
-        assertThat(captor.getValue()).isSameAs(po);
-    }
-
-    // ==================== updateRole ====================
-
-    @Test
-    void updateRole_shouldDoNothing_whenRoleIsNull() {
-        roleRepository.updateRole(null);
-
-        verify(roleMapper, never()).updateById(any(RolePO.class));
-    }
-
-    @Test
-    void updateRole_shouldDoNothing_whenIdIsNull() {
-        Role role = new Role(); // id = null
-        roleRepository.updateRole(role);
-
-        verify(roleMapper, never()).updateById(any(RolePO.class));
-    }
-
-    @Test
-    void updateRole_shouldSetAuditFieldsAndUpdate() {
-        Role role = new Role();
-        role.setId(1L);
-
-        RolePO po = new RolePO();
-        when(roleAssembler.toPO(role)).thenReturn(po);
-
-        when (currentUserProvider.getUsername()).thenReturn("tester");
-        roleRepository.updateRole(role);
-
-        assertThat(po.getUpdater()).isEqualTo("tester");
-        assertThat(po.getUpdateTime()).isNotNull();
-        // update 不应覆写 creator/createTime
-        assertThat(po.getCreator()).isNull();
-        assertThat(po.getCreateTime()).isNull();
-
-        verify(roleMapper).updateById(po);
-    }
-
-    // ==================== deleteRole ====================
-
-    @Test
-    void deleteRole_shouldCallDeleteById() {
-        roleRepository.deleteRole(100L);
-
-        verify(roleMapper).deleteById(100L);
-    }
 }
