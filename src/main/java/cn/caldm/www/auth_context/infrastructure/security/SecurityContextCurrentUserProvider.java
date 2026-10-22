@@ -3,7 +3,7 @@ package cn.caldm.www.auth_context.infrastructure.security;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.shared_kernel.security.CurrentUser;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.UserRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

@@ -5,7 +5,7 @@ import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.user_context.application.service.UserApplicationService;
-import cn.caldm.www.user_context.domain.modal.SysUser;
+import cn.caldm.www.user_context.domain.model.SysUser;
 import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;

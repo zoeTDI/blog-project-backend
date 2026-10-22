@@ -4,8 +4,8 @@ import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.application.service.UserRoleFacadeService;
-import cn.caldm.www.user_context.domain.modal.SysUser;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.SysUser;
+import cn.caldm.www.user_context.domain.model.UserRole;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 

@@ -20,7 +20,7 @@ import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.permission_context.domain.repository.UserRoleRelationRepository;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.UserRole;
 
 @ExtendWith(MockitoExtension.class)
 public class UserRoleFacadeServiceImplTest {
