@@ -1,5 +1,6 @@
 package cn.caldm.www.user_context.application.service;
 
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
@@ -29,13 +30,14 @@ public class UserApplicationService {
     private final UserNotificationFacadeService userNotificationFacadeService;
     private final UserRoleFacadeService userRoleFacadeService;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserProvider currentUserProvider;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
     private static final String RESET_PWD_PREFIX = "user:reset:code:";
 
-    public SysUser create(Long creatorId, String username, String password, List<Long> roleIds) {
+    public SysUser create(String username, String password, List<Long> roleIds) {
         Assert.notNull(roleIds, "The roles of new user must not be null.");
 
         List<UserRole> roles = userRoleFacadeService.getRolesByIds(roleIds);
@@ -45,7 +47,7 @@ public class UserApplicationService {
             LogUtils.warn("不能创建 ADMIN 角色的用户");
             return null;
         }
-
+        Long creatorId = currentUserProvider.getUserId();
         SysUser creator = userRepository.findById(creatorId);
 
         if (creator == null || !userRoleFacadeService.hasRole(creatorId, "ADMIN")) {
@@ -58,7 +60,8 @@ public class UserApplicationService {
         return userRepository.insert(creator.getUsername(), username, encode, filtered);
     }
 
-    public boolean ban(Long updaterId, Long targetUserId) {
+    public boolean ban(Long targetUserId) {
+        Long updaterId = currentUserProvider.getUserId();
         SysUser updater = userRepository.findById(updaterId);
         if (updater == null || !userRoleFacadeService.hasRole(updaterId, "ADMIN")) {
             return false;
@@ -80,7 +83,8 @@ public class UserApplicationService {
         return userRepository.update(sysUser);
     }
 
-    public boolean softDelete(Long updaterId, Long targetUserId) {
+    public boolean softDelete(Long targetUserId) {
+        Long updaterId = currentUserProvider.getUserId();
         SysUser updater = userRepository.findById(updaterId);
         if (updater == null) {
             return false;

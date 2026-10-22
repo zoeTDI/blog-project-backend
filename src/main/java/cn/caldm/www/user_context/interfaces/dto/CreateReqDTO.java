@@ -12,7 +12,6 @@ import java.util.List;
  */
 @Data
 public class CreateReqDTO {
-    private Long creatorId;
     private List<Long> roleIds;
     private String username;
     private String password;

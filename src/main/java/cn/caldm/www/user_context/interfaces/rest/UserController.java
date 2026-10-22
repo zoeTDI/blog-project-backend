@@ -37,14 +37,12 @@ public class UserController {
     @PostMapping("/create")
     @PreAuthorize("@ss.isAdmin()")
     public Result<SysUser> create(@RequestBody CreateReqDTO createReqDTO) {
-        Long creatorId = createReqDTO.getCreatorId();
         List<Long> roleIds = createReqDTO.getRoleIds();
         String username = createReqDTO.getUsername();
         String password = createReqDTO.getPassword();
 
         if (
-                creatorId == null
-                || roleIds == null
+                roleIds == null
                 || roleIds.isEmpty()
                 || username == null
                 || username.isEmpty()
@@ -53,7 +51,7 @@ public class UserController {
         ) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        SysUser newUser = userService.create(creatorId, username, password, roleIds);
+        SysUser newUser = userService.create(username, password, roleIds);
         if (newUser == null) {
             return Result.error(ResultCodeEnum.FORBIDDEN);
         } else {
@@ -64,12 +62,11 @@ public class UserController {
     @PostMapping("/ban")
     @PreAuthorize("@ss.isAdmin()")
     public Result<Void> ban(@RequestBody BanReqDTO banReqDTO) {
-        Long updaterId = banReqDTO.getUpdaterId();
         Long targetUserId = banReqDTO.getTargetUserId();
-        if (updaterId == null || targetUserId == null) {
+        if (targetUserId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        if (userService.ban(updaterId, targetUserId)) {
+        if (userService.ban(targetUserId)) {
             return Result.success();
         } else {
             return Result.error(ResultCodeEnum.FORBIDDEN);
@@ -80,12 +77,11 @@ public class UserController {
     @PostMapping("/softDelete")
     @PreAuthorize("isAuthenticated()")
     public Result<Void> softDelete(@RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
-        Long updaterId = softDeleteReqDTO.getUpdaterId();
         Long targetUserId = softDeleteReqDTO.getTargetUserId();
-        if (updaterId == null || targetUserId == null) {
+        if (targetUserId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        if (userService.softDelete(updaterId, targetUserId)) {
+        if (userService.softDelete(targetUserId)) {
             return Result.success();
         } else {
             return Result.error(ResultCodeEnum.FORBIDDEN);
