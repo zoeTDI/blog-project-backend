@@ -1,7 +1,7 @@
 package cn.caldm.www.user_context.infrastructure.persistence.po;
 
-import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
+import cn.caldm.www.user_context.domain.model.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.model.SysUserStatusEnum;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.domain.modal;
+package cn.caldm.www.user_context.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package cn.caldm.www.user_context.domain.repository;
 
-import cn.caldm.www.user_context.domain.modal.SysUser;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.SysUser;
+import cn.caldm.www.user_context.domain.model.UserRole;
 
 import java.util.List;
 
