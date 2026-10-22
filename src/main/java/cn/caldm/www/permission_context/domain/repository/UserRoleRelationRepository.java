@@ -15,6 +15,4 @@ public interface UserRoleRelationRepository {
     void removeRoleFromUser(Long userId, Long roleId);
 
     void removeRolesFromUser(Long userId, List<Long> roleIds);
-
-    List<UserRoleRelation> getRelationByUserId(Long userId);
 }

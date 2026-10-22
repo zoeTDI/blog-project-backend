@@ -26,6 +26,6 @@ public enum ResourceTypeEnum {
                 return type;
             }
         }
-        throw new IllegalArgumentException("位置的权限类型：" + code);
+        throw new IllegalArgumentException("未知的权限类型：" + code);
     }
 }

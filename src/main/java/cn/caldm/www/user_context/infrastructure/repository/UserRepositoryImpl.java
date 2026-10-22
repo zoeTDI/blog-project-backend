@@ -135,7 +135,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (rolePOs != null && !rolePOs.isEmpty()) {
             return rolePOs.stream()
                     .filter(Objects::nonNull)
-                    .map(rolePO -> new UserRole(rolePO.getCode()))
+                    .map(rolePO -> new UserRole(rolePO.getId(), rolePO.getCode()))
                     .collect(Collectors.toList());
         }
         return List.of();

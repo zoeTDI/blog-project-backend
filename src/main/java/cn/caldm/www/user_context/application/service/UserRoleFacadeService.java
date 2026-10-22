@@ -1,5 +1,6 @@
 package cn.caldm.www.user_context.application.service;
 
+import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.domain.modal.UserRole;
 
 import java.util.List;
@@ -41,4 +42,6 @@ public interface UserRoleFacadeService {
     void removeRolesFromUser(Long userId, List<String> roleCodes);
 
     List<UserRole> getRolesByIds(List<Long> roleIds);
+
+    List<Permission> getPermissionByRoleIds(List<Long> roleIds);
 }

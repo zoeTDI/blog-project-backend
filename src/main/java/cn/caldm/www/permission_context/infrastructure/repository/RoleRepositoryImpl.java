@@ -1,9 +1,6 @@
 package cn.caldm.www.permission_context.infrastructure.repository;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.baomidou.mybatisplus.core.toolkit.Assert;
@@ -14,12 +11,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 
 import cn.caldm.www.permission_context.domain.model.Role;
-import cn.caldm.www.permission_context.domain.model.RoleDeletedEnum;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.infrastructure.persistence.assembler.RoleAssembler;
 import cn.caldm.www.permission_context.infrastructure.persistence.mapper.RoleMapper;
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -47,6 +42,10 @@ public class RoleRepositoryImpl implements RoleRepository {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
+
+        if (validIds.isEmpty()) {
+            return List.of();
+        }
 
         LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(RolePO::getId, validIds);
@@ -84,52 +83,6 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
-    public Map<String, Role> getRoleMap() {
-        LambdaQueryWrapper<RolePO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(RolePO::getDeleted, RoleDeletedEnum.NORMAL);
-        List<RolePO> pos = roleMapper.selectList(wrapper);
-        List<Role> domains = roleAssembler.toDomainList(pos)
-                .stream()
-                .filter(Objects::nonNull)
-                .toList();
-        HashMap<String, Role> map = new HashMap<>();
-        domains.forEach(role -> map.put(role.getCode(), role));
-        return map;
-    }
-
-    @Override
-    public void saveRole(Role role) {
-        if (role == null) {
-            return;
-        }
-        RolePO po = roleAssembler.toPO(role);
-        String operatorName = SecurityUtils.getUsername();
-        po.setCreator(operatorName);
-        po.setCreateTime(LocalDateTime.now());
-        po.setUpdater(operatorName);
-        po.setUpdateTime(LocalDateTime.now());
-        roleMapper.insert(po);
-    }
-
-    @Override
-    public void updateRole(Role newRole) {
-        if (newRole == null || newRole.getId() == null) {
-            return;
-        }
-
-        RolePO po = roleAssembler.toPO(newRole);
-        String operatorName = SecurityUtils.getUsername();
-        po.setUpdater(operatorName);
-        po.setUpdateTime(LocalDateTime.now());
-        roleMapper.updateById(po);
-    }
-
-    @Override
-    public void deleteRole(Long id) {
-        roleMapper.deleteById(id);
-    }
-
-    @Override
     public boolean existsRole(Long roleId) {
         if (roleId == null) {
             return false;
@@ -139,14 +92,4 @@ public class RoleRepositoryImpl implements RoleRepository {
         return roleMapper.exists(wrapper);
     }
 
-    /**
-     * 获取所有角色
-     *
-     * @return 系统中所有的角色
-     */
-    @Override
-    public List<Role> getAll() {
-        List<RolePO> poList = roleMapper.selectList(null);
-        return roleAssembler.toDomainList(poList);
-    }
 }

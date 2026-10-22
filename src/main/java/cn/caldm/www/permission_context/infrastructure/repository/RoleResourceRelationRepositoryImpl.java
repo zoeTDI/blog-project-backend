@@ -6,8 +6,10 @@ import cn.caldm.www.permission_context.infrastructure.persistence.po.RoleResourc
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -18,37 +20,27 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 public class RoleResourceRelationRepositoryImpl implements RoleResourceRelationRepository {
-    private final RoleResourceRelationMapper mapper;
+    private final RoleResourceRelationMapper roleResourceRelationMapper;
 
     @Override
     public void grant(Long roleId, Long resourceId) {
         RoleResourceRelationPO po = new RoleResourceRelationPO();
         po.setRoleId(roleId);
         po.setResourceId(resourceId);
-        mapper.insert(po);
+        roleResourceRelationMapper.insert(po);
     }
 
     @Override
     public void revoke(Long roleId, Long resourceId) {
-        mapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>()
+        roleResourceRelationMapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>()
                 .eq(RoleResourceRelationPO::getRoleId, roleId)
                 .eq(RoleResourceRelationPO::getResourceId, resourceId)
         );
     }
 
     @Override
-    public void revokeAllByResourceId(Long resourceId) {
-        mapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>().eq(RoleResourceRelationPO::getResourceId, resourceId));
-    }
-
-    @Override
-    public void revokeAllByRoleId(Long roleId) {
-        mapper.delete(new LambdaQueryWrapper<RoleResourceRelationPO>().eq(RoleResourceRelationPO::getRoleId, roleId));
-    }
-
-    @Override
     public List<Long> findResourceIdsByRoleId(Long roleId) {
-        return mapper.selectList(new LambdaQueryWrapper<RoleResourceRelationPO>()
+        return roleResourceRelationMapper.selectList(new LambdaQueryWrapper<RoleResourceRelationPO>()
                         .select(RoleResourceRelationPO::getResourceId)
                         .eq(RoleResourceRelationPO::getRoleId, roleId)
                 )
@@ -58,19 +50,18 @@ public class RoleResourceRelationRepositoryImpl implements RoleResourceRelationR
     }
 
     @Override
-    public List<Long> findRoleIdsByResourceId(Long resourceId) {
-        return mapper.selectList(new LambdaQueryWrapper<RoleResourceRelationPO>()
-                        .select(RoleResourceRelationPO::getRoleId)
-                        .eq(RoleResourceRelationPO::getResourceId, resourceId)
-                )
-                .stream()
-                .map(RoleResourceRelationPO::getRoleId)
-                .toList();
+    public List<Long> findResourceIdsByRoleIds(List<Long> roleIds) {
+        Assert.notNull(roleIds, "The list of role id must be not null.");
+        List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        LambdaQueryWrapper<RoleResourceRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(RoleResourceRelationPO::getRoleId, filtered);
+        List<RoleResourceRelationPO> relationPOS = roleResourceRelationMapper.selectList(wrapper);
+        return relationPOS.stream().map(RoleResourceRelationPO::getResourceId).toList();
     }
 
     @Override
     public boolean exists(Long roleId, Long resourceId) {
-        return mapper.selectCount(new LambdaQueryWrapper<RoleResourceRelationPO>()
+        return roleResourceRelationMapper.selectCount(new LambdaQueryWrapper<RoleResourceRelationPO>()
                 .eq(RoleResourceRelationPO::getRoleId, roleId)
                 .eq(RoleResourceRelationPO::getResourceId, resourceId)
         ) > 0;

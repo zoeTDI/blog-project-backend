@@ -3,7 +3,11 @@ package cn.caldm.www.permission_context.adpater;
 import java.util.List;
 import java.util.Objects;
 
+import cn.caldm.www.auth_context.domain.model.Permission;
+import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
+import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
+import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
 import cn.caldm.www.user_context.domain.modal.UserRole;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,8 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
     private final UserRoleRelationRepository userRoleRelationRepository;
     private final RoleRepository roleRepository;
+    private final RoleResourceRelationRepository roleResourceRelationRepository;
+    private final ResourceRepository resourceRepository;
 
     @Override
     public List<UserRole> getUserRolesById(Long userId) {
@@ -28,14 +34,24 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
             return List.of();
         }
         List<UserRoleRelation> userRoleRelations = userRoleRelationRepository.getRoleRelationByUserId(userId);
-        List<Long> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
-        List<Role> roles = roleRepository.getRolesByIds(userIds);
-        return roles.stream().map(role -> new UserRole(role.getCode())).toList();
+        List<Long> roleIds = userRoleRelations.stream()
+                .map(UserRoleRelation::getRoleId)
+                .toList();
+        List<Role> roles = roleRepository.getRolesByIds(roleIds);
+        return roles.stream()
+                .map(role -> new UserRole(role.getId(), role.getCode()))
+                .toList();
     }
 
     @Override
     public void assignRoleToUser(Long userId, String roleCode) {
         Role role = roleRepository.getRoleByCode(roleCode);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在：" + roleCode);
+        }
+        if (!role.isEnabled()) {
+            throw new IllegalArgumentException("角色已停用，无法分配：" + roleCode);
+        }
         userRoleRelationRepository.assignRoleToUser(userId, role.getId());
     }
 
@@ -46,7 +62,8 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
 
         List<String> filtered = roleCodes.stream().filter(Objects::nonNull).toList();
         List<Role> roles = roleRepository.getRolesByCodes(filtered);
-        List<Long> roleIds = roles.stream().map(Role::getId).filter(Objects::nonNull).toList();
+        List<Role> enabledRoles = roles.stream().filter(Role::isEnabled).toList();
+        List<Long> roleIds = enabledRoles.stream().map(Role::getId).filter(Objects::nonNull).toList();
 
         userRoleRelationRepository.assignRolesToUser(userId, roleIds);
 
@@ -76,10 +93,37 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
     public List<UserRole> getRolesByIds(List<Long> roleIds) {
         Assert.notNull(roleIds, "The list of role id must be not null.");
         List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        if (filtered.isEmpty()) {
+            return List.of();
+        }
         List<Role> roles = roleRepository.getRolesByIds(filtered);
         return roles.stream()
                 .filter(Objects::nonNull)
-                .map(role -> new UserRole(role.getCode()))
+                .map(role -> new UserRole(role.getId(), role.getCode()))
+                .toList();
+    }
+
+    @Override
+    @Nonnull
+    public List<Permission> getPermissionByRoleIds(List<Long> roleIds) {
+        Assert.notNull(roleIds, "The list of role id must be not null.");
+        List<Long> filtered = roleIds.stream().filter(Objects::nonNull).toList();
+        List<Role> roles = roleRepository.getRolesByIds(filtered);
+        List<Long> enabledRoleIds = roles.stream().filter(Role::isEnabled).map(Role::getId).toList();
+        if (enabledRoleIds.isEmpty()) {
+            return List.of();
+        }
+        List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(enabledRoleIds);
+        List<Resource> resources = resourceRepository.findByIds(relationIds);
+        return resources.stream()
+                .filter(Objects::nonNull)
+                .map(resource -> new Permission(
+                        resource.getId(),
+                        resource.getName(),
+                        resource.getPermission(),
+                        resource.getType(),
+                        resource.getParentId(),
+                        resource.isEnabled()))
                 .toList();
     }
 }

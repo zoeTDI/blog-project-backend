@@ -32,7 +32,7 @@ public class Role {
     /**
      * 显示顺序
      */
-    private String sort;
+    private int sort;
 
     /**
      * 备注
@@ -45,13 +45,12 @@ public class Role {
     private boolean enabled;
 
     public static Role reconstitute(
-        Long id,
-        String name,
-        String code,
-        String sort,
-        String remark,
-        boolean enabled
-    ) {
+            Long id,
+            String name,
+            String code,
+            int sort,
+            String remark,
+            boolean enabled) {
         Role role = new Role();
         role.setId(id);
         role.setName(name);
@@ -72,9 +71,5 @@ public class Role {
 
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public boolean isValid() {
-        return id != null && name != null && !name.isBlank() && code != null && !code.isBlank() && sort != null && !sort.isBlank();
     }
 }

@@ -1,7 +1,7 @@
 package cn.caldm.www.infrastructure.aspect;
 
-import cn.caldm.www.shared_kernel.security.SecurityUtils;
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
+import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.system_context.domain.model.ApiAccessLogUserTypeEnum;
 import cn.caldm.www.system_context.infrastructure.persistence.po.InfraApiAccessLogPO;
 import cn.caldm.www.system_context.application.service.ApiAccessLogService;
@@ -31,6 +31,7 @@ public class ApiAccessLogAspect {
 
     private final ApiAccessLogService apiAccessLogService;
     private final ObjectMapper objectMapper;
+    private final CurrentUserProvider currentUserProvider;
 
     @Around("@annotation(apiAccessLog)")
     public Object doAround(ProceedingJoinPoint joinPoint, ApiAccessLog apiAccessLog) throws Throwable {
@@ -61,7 +62,7 @@ public class ApiAccessLogAspect {
                 try {
                     InfraApiAccessLogPO accessLog = new InfraApiAccessLogPO();
                     accessLog.setTraceId(traceId);
-                    accessLog.setUserId(SecurityUtils.getUserId());
+                    accessLog.setUserId(currentUserProvider.getUserId());
                     accessLog.setUserType(ApiAccessLogUserTypeEnum.MANAGER); // todo 添加用户类型
                     accessLog.setApplicationName("blog-backend");
 

@@ -1,5 +1,6 @@
 package cn.caldm.www.permission_context.interfaces.dto.resource;
 
+import cn.caldm.www.permission_context.application.command.UpdateResourceCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,4 +24,18 @@ public class UpdateResourceRequest {
     private String component;
     private String icon;
     private String titleKey;
+
+    public UpdateResourceCommand toCommand(Long id) {
+        UpdateResourceCommand command = new UpdateResourceCommand();
+        command.setId(id);
+        command.setName(this.name);
+        command.setPermission(this.permission);
+        command.setParentId(this.parentId);
+        command.setSort(this.sort);
+        command.setPath(this.path);
+        command.setComponent(this.component);
+        command.setIcon(this.icon);
+        command.setTitleKey(this.titleKey);
+        return command;
+    }
 }
