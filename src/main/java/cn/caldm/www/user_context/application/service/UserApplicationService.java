@@ -41,14 +41,14 @@ public class UserApplicationService {
         List<UserRole> roles = userRoleFacadeService.getRolesByIds(roleIds);
 
         // 禁止创建管理员角色的用户
-        if (roles.contains(new UserRole("ADMIN"))) {
+        if (roles.stream().anyMatch(role -> "ADMIN".equals(role.getCode()))) {
             LogUtils.warn("不能创建 ADMIN 角色的用户");
             return null;
         }
 
         SysUser creator = userRepository.findById(creatorId);
 
-        if (creator == null || !creator.hasRole(new UserRole("ADMIN"))) {
+        if (creator == null || !userRoleFacadeService.hasRole(creatorId, "ADMIN")) {
             LogUtils.warn("没有权限创建用户");
             return null;
         }
@@ -60,19 +60,14 @@ public class UserApplicationService {
 
     public boolean ban(Long updaterId, Long targetUserId) {
         SysUser updater = userRepository.findById(updaterId);
-        if (
-                updater == null
-                        || !updater.hasRole(null)// todo
-        ) {
+        if (updater == null || !userRoleFacadeService.hasRole(updaterId, "ADMIN")) {
             return false;
         }
 
         SysUser targetUser = userRepository.findById(targetUserId);
-        if (
-                targetUser == null
-                        || targetUser.hasRole(null) // todo
-                        || targetUser.isDeleted()
-        ) {
+        if (targetUser == null
+                || userRoleFacadeService.hasRole(targetUserId, "ADMIN")
+                || targetUser.isDeleted()) {
             return false;
         }
 
@@ -99,8 +94,8 @@ public class UserApplicationService {
             return false;
         }
 
-        boolean updaterIsAdmin = updater.hasRole(null); // todo
-        boolean targetIsAdmin = targetUser.hasRole(null); // todo
+        boolean updaterIsAdmin = userRoleFacadeService.hasRole(updaterId, "ADMIN");
+        boolean targetIsAdmin = userRoleFacadeService.hasRole(targetUserId, "ADMIN");
         boolean isSelf = updaterId.equals(targetUserId);
 
         // 管理员不能删除管理员用户

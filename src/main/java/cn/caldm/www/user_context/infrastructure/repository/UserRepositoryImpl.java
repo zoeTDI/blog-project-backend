@@ -1,9 +1,7 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
-import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
 import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -30,7 +27,6 @@ import java.util.stream.Collectors;
 public class UserRepositoryImpl implements UserRepository {
 
     private final SysUserMapper userMapper;
-    private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final UserAssembler userAssembler;
 
@@ -43,9 +39,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = userAssembler.toDomain(po);
-        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
-        return sysUser;
+        return userAssembler.toDomain(po);
     }
 
     @Override
@@ -57,9 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = userAssembler.toDomain(po);
-        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
-        return sysUser;
+        return userAssembler.toDomain(po);
     }
 
     @Override
@@ -69,9 +61,7 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         }
 
-        SysUser sysUser = userAssembler.toDomain(po);
-        sysUser.setRoles(getRolesByUserId(sysUser.getId()));
-        return sysUser;
+        return userAssembler.toDomain(po);
     }
 
     @Override
@@ -96,24 +86,20 @@ public class UserRepositoryImpl implements UserRepository {
 
         // 写入关联表
         if (roles != null && !roles.isEmpty()) {
-            List<String> roleCodes = roles.stream()
+            List<Long> roleIds = roles.stream()
                     .filter(Objects::nonNull)
-                    .map(UserRole::getCode)
-                    .collect(Collectors.toList());
+                    .map(UserRole::getId)
+                    .toList();
 
-            if (!roleCodes.isEmpty()) {
-                List<RolePO> rolePOS = roleMapper.selectByCodes(roleCodes);
+            if (!roleIds.isEmpty()) {
+                for (Long roleId : roleIds) {
+                    SysUserRolePO userRolePO = new SysUserRolePO();
+                    userRolePO.setUserId(sysUserPO.getId());
+                    userRolePO.setRoleId(roleId);
+                    userRolePO.setCreator(creator);
+                    userRolePO.setCreateTime(LocalDateTime.now());
 
-                if (rolePOS != null && !rolePOS.isEmpty()) {
-                    for (RolePO rolePO : rolePOS) {
-                        SysUserRolePO userRolePO = new SysUserRolePO();
-                        userRolePO.setUserId(sysUserPO.getId());
-                        userRolePO.setRoleId(rolePO.getId());
-                        userRolePO.setCreator(creator);
-                        userRolePO.setCreateTime(LocalDateTime.now());
-
-                        userRoleMapper.insert(userRolePO);
-                    }
+                    userRoleMapper.insert(userRolePO);
                 }
             }
         }
@@ -128,16 +114,5 @@ public class UserRepositoryImpl implements UserRepository {
         SysUserPO po = userAssembler.toPO(sysUser);
         int i = userMapper.updateById(po);
         return i == 1;
-    }
-
-    private List<UserRole> getRolesByUserId(Long userId) {
-        List<RolePO> rolePOs = roleMapper.selectRolesByUserId(userId);
-        if (rolePOs != null && !rolePOs.isEmpty()) {
-            return rolePOs.stream()
-                    .filter(Objects::nonNull)
-                    .map(rolePO -> new UserRole(rolePO.getId(), rolePO.getCode()))
-                    .collect(Collectors.toList());
-        }
-        return List.of();
     }
 }

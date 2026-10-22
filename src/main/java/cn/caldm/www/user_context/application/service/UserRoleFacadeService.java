@@ -2,10 +2,19 @@ package cn.caldm.www.user_context.application.service;
 
 import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.domain.model.UserRole;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
 public interface UserRoleFacadeService {
+
+    default boolean hasRole(Long userId, String roleCode) {
+        if (userId == null || roleCode == null || roleCode.isBlank()) {
+            return false;
+        }
+        return getUserRolesById(userId).stream().anyMatch(role -> roleCode.equals(role.getCode()));
+    }
+
     /**
      * Retrieves the role codes assigned to the specified user.
      * @param userId the ID of the user

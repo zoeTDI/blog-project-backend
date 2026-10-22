@@ -94,18 +94,6 @@ public class SysUser {
     private SysUserDeletedEnum deleted;
 
     /**
-     * 判断当前用户是否具备某个角色
-     * @param targetRole 目标角色
-     * @return 是否拥有该角色
-     */
-    public boolean hasRole(UserRole targetRole) {
-        if (targetRole == null || targetRole.getCode() == null) {
-            return false;
-        }
-        return roles != null && roles.contains(targetRole);
-    }
-
-    /**
      * 判断当前用户是否被停用
      *
      * @return true 表示已停用，false 表示未停用（包含状态为 null 的情况）
