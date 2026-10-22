@@ -1,14 +1,14 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
 import cn.caldm.www.permission_context.infrastructure.persistence.po.RolePO;
-import cn.caldm.www.user_context.domain.modal.*;
+import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserRoleMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
-import cn.caldm.www.user_context.interfaces.assembler.UserAssembler;
+import cn.caldm.www.user_context.infrastructure.persistence.assembler.UserAssembler;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

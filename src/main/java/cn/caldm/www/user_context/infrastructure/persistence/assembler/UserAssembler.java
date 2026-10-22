@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.interfaces.assembler;
+package cn.caldm.www.user_context.infrastructure.persistence.assembler;
 
 import cn.caldm.www.shared_kernel.assembler.BaseAssembler;
 import cn.caldm.www.user_context.domain.model.SysUser;
