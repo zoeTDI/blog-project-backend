@@ -1,8 +1,8 @@
 package cn.caldm.www.auth_context.domain.model;
 
-import cn.caldm.www.user_context.domain.modal.SysUserDeletedEnum;
-import cn.caldm.www.user_context.domain.modal.SysUserStatusEnum;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.SysUserDeletedEnum;
+import cn.caldm.www.user_context.domain.model.SysUserStatusEnum;
+import cn.caldm.www.user_context.domain.model.UserRole;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

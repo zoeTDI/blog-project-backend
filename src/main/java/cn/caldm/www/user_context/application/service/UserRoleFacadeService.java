@@ -1,7 +1,7 @@
 package cn.caldm.www.user_context.application.service;
 
 import cn.caldm.www.auth_context.domain.model.Permission;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.UserRole;
 
 import java.util.List;
 

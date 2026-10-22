@@ -8,7 +8,7 @@ import cn.caldm.www.permission_context.domain.model.Resource;
 import cn.caldm.www.permission_context.domain.model.UserRoleRelation;
 import cn.caldm.www.permission_context.domain.repository.ResourceRepository;
 import cn.caldm.www.permission_context.domain.repository.RoleResourceRelationRepository;
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.UserRole;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;

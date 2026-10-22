@@ -1,6 +1,6 @@
 package cn.caldm.www.auth_context.interfaces.dto;
 
-import cn.caldm.www.user_context.domain.modal.UserRole;
+import cn.caldm.www.user_context.domain.model.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

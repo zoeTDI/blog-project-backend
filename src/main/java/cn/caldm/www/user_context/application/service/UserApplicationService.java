@@ -1,7 +1,7 @@
 package cn.caldm.www.user_context.application.service;
 
 import cn.caldm.www.shared_kernel.utils.LogUtils;
-import cn.caldm.www.user_context.domain.modal.*;
+import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
