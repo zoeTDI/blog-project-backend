@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -74,13 +73,7 @@ public class UserApplicationService {
             return false;
         }
 
-        SysUser sysUser = new SysUser();
-        sysUser.setId(targetUserId);
-        sysUser.setStatus(SysUserStatusEnum.DISABLED);
-        sysUser.setUpdater(updater.getUsername());
-        sysUser.setUpdateTime(LocalDateTime.now());
-
-        return userRepository.update(sysUser);
+        return userRepository.updateStatus(targetUserId, SysUserStatusEnum.DISABLED, updater.getUsername());
     }
 
     public boolean softDelete(Long targetUserId) {
@@ -111,13 +104,7 @@ public class UserApplicationService {
             return false;
         }
 
-        SysUser sysUser = new SysUser();
-        sysUser.setId(targetUserId);
-        sysUser.setDeleted(SysUserDeletedEnum.DELETED);
-        sysUser.setUpdater(updater.getUsername());
-        sysUser.setUpdateTime(LocalDateTime.now());
-
-        return userRepository.update(sysUser);
+        return userRepository.markDeleted(targetUserId, updater.getUsername());
     }
 
     public boolean sendPasswordResetEmail(Long userId) {
@@ -153,14 +140,8 @@ public class UserApplicationService {
             return false;
         }
 
-        SysUser updateUser = new SysUser();
         String encode = passwordEncoder.encode(newPassword);
-        updateUser.setId(targetUserId);
-        updateUser.setPassword(encode);
-        updateUser.setUpdater(sysUser.getUpdater());
-        updateUser.setUpdateTime(LocalDateTime.now());
-
-        boolean updated = userRepository.update(updateUser);
+        boolean updated = userRepository.updatePassword(targetUserId, encode, sysUser.getUsername());
         if (updated) {
             stringRedisTemplate.delete(redisKey);
         }

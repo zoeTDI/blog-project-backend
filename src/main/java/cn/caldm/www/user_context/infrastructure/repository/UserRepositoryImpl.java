@@ -7,6 +7,7 @@ import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserRoleMa
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserRolePO;
 import cn.caldm.www.user_context.infrastructure.persistence.assembler.UserAssembler;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -110,9 +111,32 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean update(SysUser sysUser) {
-        SysUserPO po = userAssembler.toPO(sysUser);
-        int i = userMapper.updateById(po);
-        return i == 1;
+    public boolean updateStatus(Long id, SysUserStatusEnum status, String updater) {
+        LambdaUpdateWrapper<SysUserPO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(SysUserPO::getId, id);
+        wrapper.set(SysUserPO::getStatus, status);
+        wrapper.set(SysUserPO::getUpdater, updater);
+        wrapper.set(SysUserPO::getUpdateTime, LocalDateTime.now());
+        return userMapper.update(wrapper) == 1;
+    }
+
+    @Override
+    public boolean markDeleted(Long id, String updater) {
+        LambdaUpdateWrapper<SysUserPO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(SysUserPO::getId, id);
+        wrapper.set(SysUserPO::getDeleted, SysUserDeletedEnum.DELETED);
+        wrapper.set(SysUserPO::getUpdater, updater);
+        wrapper.set(SysUserPO::getUpdateTime, LocalDateTime.now());
+        return userMapper.update(wrapper) == 1;
+    }
+
+    @Override
+    public boolean updatePassword(Long id, String encodedPassword, String updater) {
+        LambdaUpdateWrapper<SysUserPO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(SysUserPO::getId, id);
+        wrapper.set(SysUserPO::getPassword, encodedPassword);
+        wrapper.set(SysUserPO::getUpdater, updater);
+        wrapper.set(SysUserPO::getUpdateTime, LocalDateTime.now());
+        return userMapper.update(wrapper) == 1;
     }
 }
