@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 import cn.caldm.www.permission_context.domain.model.Role;
 import cn.caldm.www.permission_context.domain.repository.RoleRepository;
 import cn.caldm.www.permission_context.domain.repository.UserRoleRelationRepository;
-import cn.caldm.www.user_context.application.service.UserRoleFacadeService;
+import cn.caldm.www.user_context.ports.UserRoleFacadeService;
 import lombok.RequiredArgsConstructor;
 
 @Service

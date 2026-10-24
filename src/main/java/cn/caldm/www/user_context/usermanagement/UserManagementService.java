@@ -1,42 +1,34 @@
-package cn.caldm.www.user_context.application.service;
+package cn.caldm.www.user_context.usermanagement;
 
 import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
-import jakarta.annotation.Resource;
+import cn.caldm.www.user_context.ports.UserRoleFacadeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
- *
+ * 用户管理用例：创建用户、封禁用户、软删除用户
  *
  * @author caldm
  */
 @Service
 @RequiredArgsConstructor
-public class UserApplicationService {
+public class UserManagementService {
+
     private final UserRepository userRepository;
-    private final UserNotificationFacadeService userNotificationFacadeService;
     private final UserRoleFacadeService userRoleFacadeService;
     private final PasswordEncoder passwordEncoder;
     private final CurrentUserProvider currentUserProvider;
-
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
-    private static final String RESET_PWD_PREFIX = "user:reset:code:";
 
     @Transactional(rollbackFor = Exception.class)
     public SysUser create(String username, String password, String email, String nickname, List<Long> roleIds) {
@@ -132,42 +124,5 @@ public class UserApplicationService {
         }
 
         userRepository.markDeleted(targetUserId, updater.getUsername());
-    }
-
-    public void sendPasswordResetEmail(Long userId) {
-        SysUser sysUser = userRepository.findById(userId);
-        if (sysUser == null) {
-            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
-        }
-        String email = sysUser.getEmail();
-        String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
-
-        userNotificationFacadeService.sendPasswordResetCode(email, code);
-
-        stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX + email, code, 5, TimeUnit.MINUTES);
-    }
-
-    public void resetPassword(Long targetUserId, String code, String newPassword) {
-        SysUser sysUser = userRepository.findById(targetUserId);
-        if (sysUser == null) {
-            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
-        }
-
-        if (sysUser.isDisabled() || sysUser.isDeleted()) {
-            throw new IllegalArgumentException("用户状态异常，无法重置密码");
-        }
-
-        String redisKey = RESET_PWD_PREFIX + sysUser.getEmail();
-        String tokenCode = stringRedisTemplate.opsForValue().get(redisKey);
-
-        if (tokenCode == null || !tokenCode.equals(code)) {
-            throw new IllegalArgumentException("验证码错误或已过期");
-        }
-
-        String encode = passwordEncoder.encode(newPassword);
-        boolean updated = userRepository.updatePassword(targetUserId, encode, sysUser.getUsername());
-        if (updated) {
-            stringRedisTemplate.delete(redisKey);
-        }
     }
 }

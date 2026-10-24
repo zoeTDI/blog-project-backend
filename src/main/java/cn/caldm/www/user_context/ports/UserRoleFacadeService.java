@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.application.service;
+package cn.caldm.www.user_context.ports;
 
 import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.user_context.domain.model.UserRole;

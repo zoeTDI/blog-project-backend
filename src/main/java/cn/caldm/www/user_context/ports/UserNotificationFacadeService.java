@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.application.service;
+package cn.caldm.www.user_context.ports;
 
 public interface UserNotificationFacadeService {
     /**

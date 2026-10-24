@@ -1,4 +1,4 @@
-package cn.caldm.www.user_context.interfaces.dto;
+package cn.caldm.www.user_context.usermanagement;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

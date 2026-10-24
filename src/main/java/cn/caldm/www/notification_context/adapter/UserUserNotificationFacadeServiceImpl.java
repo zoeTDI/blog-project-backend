@@ -2,7 +2,7 @@ package cn.caldm.www.notification_context.adapter;
 
 import cn.caldm.www.notification_context.infrastructure.email.EmailSender;
 import cn.caldm.www.notification_context.infrastructure.email.EmailTemplateBuilder;
-import cn.caldm.www.user_context.application.service.UserNotificationFacadeService;
+import cn.caldm.www.user_context.ports.UserNotificationFacadeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
