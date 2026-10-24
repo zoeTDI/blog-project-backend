@@ -1,5 +1,6 @@
 package cn.caldm.www.user_context.interfaces.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -10,5 +11,6 @@ import lombok.Data;
  */
 @Data
 public class BanReqDTO {
+    @NotNull
     private Long targetUserId;
 }

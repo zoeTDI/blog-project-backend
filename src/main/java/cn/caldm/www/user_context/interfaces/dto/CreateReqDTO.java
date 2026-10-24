@@ -1,5 +1,7 @@
 package cn.caldm.www.user_context.interfaces.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.List;
@@ -12,9 +14,13 @@ import java.util.List;
  */
 @Data
 public class CreateReqDTO {
+    @NotEmpty
     private List<Long> roleIds;
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
+    @NotBlank
     private String email;
     private String nickname;
 }

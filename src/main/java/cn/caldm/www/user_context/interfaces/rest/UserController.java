@@ -10,14 +10,13 @@ import cn.caldm.www.user_context.interfaces.dto.BanReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.CreateReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.ResetPasswordReqDTO;
 import cn.caldm.www.user_context.interfaces.dto.SoftDeleteReqDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  *
@@ -36,49 +35,27 @@ public class UserController {
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<SysUser> create(@RequestBody CreateReqDTO createReqDTO) {
-        List<Long> roleIds = createReqDTO.getRoleIds();
-        String username = createReqDTO.getUsername();
-        String password = createReqDTO.getPassword();
-        String email = createReqDTO.getEmail();
-
-        if (
-                roleIds == null
-                || roleIds.isEmpty()
-                || username == null
-                || username.isEmpty()
-                || password == null
-                || password.isEmpty()
-                || email == null
-                || email.isEmpty()
-        ) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        return Result.success(userService.create(username, password, email, createReqDTO.getNickname(), roleIds));
+    public Result<SysUser> create(@Valid @RequestBody CreateReqDTO createReqDTO) {
+        return Result.success(userService.create(
+                createReqDTO.getUsername(),
+                createReqDTO.getPassword(),
+                createReqDTO.getEmail(),
+                createReqDTO.getNickname(),
+                createReqDTO.getRoleIds()));
     }
 
     @PostMapping("/ban")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<Void> ban(@RequestBody BanReqDTO banReqDTO) {
-        Long targetUserId = banReqDTO.getTargetUserId();
-        if (targetUserId == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        userService.ban(targetUserId);
+    public Result<Void> ban(@Valid @RequestBody BanReqDTO banReqDTO) {
+        userService.ban(banReqDTO.getTargetUserId());
         return Result.success();
-
     }
 
     @PostMapping("/softDelete")
     @PreAuthorize("isAuthenticated()")
-    public Result<Void> softDelete(@RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
-        Long targetUserId = softDeleteReqDTO.getTargetUserId();
-        if (targetUserId == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        userService.softDelete(targetUserId);
+    public Result<Void> softDelete(@Valid @RequestBody SoftDeleteReqDTO softDeleteReqDTO) {
+        userService.softDelete(softDeleteReqDTO.getTargetUserId());
         return Result.success();
-
     }
 
     @PostMapping("/sendResetPasswordEmail")
@@ -95,15 +72,11 @@ public class UserController {
 
     @PostMapping("/resetPassword")
     @PreAuthorize("isAuthenticated()")
-    public Result<Void> resetPassword(@RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
-        Long id = currentUserProvider.getUserId();
-        String code = resetPasswordReqDTO.getCode();
-        String newPassword = resetPasswordReqDTO.getNewPassword();
-        if (id == 0L || code == null || code.isEmpty() || newPassword == null || newPassword.isEmpty()) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-
-        userService.resetPassword(id, code, newPassword);
+    public Result<Void> resetPassword(@Valid @RequestBody ResetPasswordReqDTO resetPasswordReqDTO) {
+        userService.resetPassword(
+                currentUserProvider.getUserId(),
+                resetPasswordReqDTO.getCode(),
+                resetPasswordReqDTO.getNewPassword());
         return Result.success();
     }
 }
