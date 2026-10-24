@@ -15,4 +15,6 @@ public class CreateReqDTO {
     private List<Long> roleIds;
     private String username;
     private String password;
+    private String email;
+    private String nickname;
 }

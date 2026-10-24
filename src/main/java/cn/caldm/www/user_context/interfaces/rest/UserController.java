@@ -40,6 +40,7 @@ public class UserController {
         List<Long> roleIds = createReqDTO.getRoleIds();
         String username = createReqDTO.getUsername();
         String password = createReqDTO.getPassword();
+        String email = createReqDTO.getEmail();
 
         if (
                 roleIds == null
@@ -48,10 +49,12 @@ public class UserController {
                 || username.isEmpty()
                 || password == null
                 || password.isEmpty()
+                || email == null
+                || email.isEmpty()
         ) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        return Result.success(userService.create(username, password, roleIds));
+        return Result.success(userService.create(username, password, email, createReqDTO.getNickname(), roleIds));
     }
 
     @PostMapping("/ban")

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.security.SecureRandom;
@@ -37,7 +38,8 @@ public class UserApplicationService {
 
     private static final String RESET_PWD_PREFIX = "user:reset:code:";
 
-    public SysUser create(String username, String password, List<Long> roleIds) {
+    @Transactional(rollbackFor = Exception.class)
+    public SysUser create(String username, String password, String email, String nickname, List<Long> roleIds) {
         Assert.notNull(roleIds, "The roles of new user must not be null.");
 
         List<UserRole> roles = userRoleFacadeService.getRolesByIds(roleIds);
@@ -59,10 +61,16 @@ public class UserApplicationService {
 
         String encode = passwordEncoder.encode(password);
         List<UserRole> filtered = roles.stream().filter(Objects::nonNull).toList();
-        SysUser inserted = userRepository.insert(creator.getUsername(), username, encode, filtered);
+        String finalNickname = (nickname == null || nickname.isBlank()) ? username : nickname;
+        SysUser inserted = userRepository.insert(creator.getUsername(), username, encode, email, finalNickname);
         if (inserted == null) {
             throw new IllegalStateException("创建用户失败");
         }
+        if (!filtered.isEmpty()) {
+            List<String> roleCodes = filtered.stream().map(UserRole::getCode).toList();
+            userRoleFacadeService.assignRolesToUser(inserted.getId(), roleCodes);
+        }
+        inserted.setRoles(userRoleFacadeService.getUserRolesById(inserted.getId()));
         return inserted;
     }
 
