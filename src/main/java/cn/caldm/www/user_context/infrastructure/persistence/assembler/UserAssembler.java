@@ -39,6 +39,9 @@ public class UserAssembler implements BaseAssembler<SysUser, SysUserPO> {
         return domainUser;
     }
 
+    /**
+     * 当前无调用方，按对称约定保留；若未来需要全量保存，请先评估列级更新的必要性
+     */
     @Override
     public SysUserPO toPO(SysUser domain) {
         if (domain == null) {
