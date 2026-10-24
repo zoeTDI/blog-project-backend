@@ -51,12 +51,7 @@ public class UserController {
         ) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        SysUser newUser = userService.create(username, password, roleIds);
-        if (newUser == null) {
-            return Result.error(ResultCodeEnum.FORBIDDEN);
-        } else {
-            return Result.success(newUser);
-        }
+        return Result.success(userService.create(username, password, roleIds));
     }
 
     @PostMapping("/ban")
@@ -66,11 +61,8 @@ public class UserController {
         if (targetUserId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        if (userService.ban(targetUserId)) {
-            return Result.success();
-        } else {
-            return Result.error(ResultCodeEnum.FORBIDDEN);
-        }
+        userService.ban(targetUserId);
+        return Result.success();
 
     }
 
@@ -81,11 +73,8 @@ public class UserController {
         if (targetUserId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        if (userService.softDelete(targetUserId)) {
-            return Result.success();
-        } else {
-            return Result.error(ResultCodeEnum.FORBIDDEN);
-        }
+        userService.softDelete(targetUserId);
+        return Result.success();
 
     }
 
@@ -96,12 +85,8 @@ public class UserController {
         if (userId == null) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        boolean isSuccess = userService.sendPasswordResetEmail(userId);
-        if (isSuccess) {
-            return Result.success();
-        } else {
-            return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
-        }
+        userService.sendPasswordResetEmail(userId);
+        return Result.success();
 
     }
 
@@ -114,10 +99,8 @@ public class UserController {
         if (id == 0L || code == null || code.isEmpty() || newPassword == null || newPassword.isEmpty()) {
             return Result.error(ResultCodeEnum.BAD_REQUEST);
         }
-        if (userService.resetPassword(id, code, newPassword)) {
-            return Result.success();
-        } else {
-            return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
-        }
+
+        userService.resetPassword(id, code, newPassword);
+        return Result.success();
     }
 }

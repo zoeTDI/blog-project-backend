@@ -93,6 +93,7 @@ public class GlobalExceptionHandler {
     /**
      * 处理 Spring Security 未登录/认证失败异常 (401 Unauthorized)
      */
+    @ExceptionHandler(AuthenticationException.class)
     public Result<ErrorDetail> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
         String traceId = generateTraceId();
         saveErrorLog(e, request, traceId, false);
@@ -100,10 +101,11 @@ public class GlobalExceptionHandler {
         return Result.error(ResultCodeEnum.UNAUTHORIZED, detail);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
     public Result<ErrorDetail> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
         String traceId = generateTraceId();
         saveErrorLog(e, request, traceId, false);
-        ErrorDetail detail = new ErrorDetail(traceId, "Target resource not found.");
+        ErrorDetail detail = new ErrorDetail(traceId, e.getMessage() == null ? "Target resource not found." : e.getMessage());
         return Result.error(ResultCodeEnum.NOT_FOUND, detail);
     }
 

@@ -1,7 +1,8 @@
 package cn.caldm.www.user_context.application.service;
 
+import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
-import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import jakarta.annotation.Resource;
@@ -43,52 +44,70 @@ public class UserApplicationService {
 
         // 禁止创建管理员角色的用户
         if (roles.stream().anyMatch(role -> "ADMIN".equals(role.getCode()))) {
-            LogUtils.warn("不能创建 ADMIN 角色的用户");
-            return null;
+            throw new IllegalArgumentException("不能创建 ADMIN 角色的用户");
         }
         Long creatorId = currentUserProvider.getUserId();
         SysUser creator = userRepository.findById(creatorId);
 
-        if (creator == null || !userRoleFacadeService.hasRole(creatorId, "ADMIN")) {
-            LogUtils.warn("没有权限创建用户");
-            return null;
+        if (creator == null) {
+            throw new IllegalStateException("当前登录用户不存在");
+        }
+
+        if (!userRoleFacadeService.hasRole(creatorId, "ADMIN")) {
+            throw new IllegalArgumentException("没有权限创建用户");
         }
 
         String encode = passwordEncoder.encode(password);
         List<UserRole> filtered = roles.stream().filter(Objects::nonNull).toList();
-        return userRepository.insert(creator.getUsername(), username, encode, filtered);
+        SysUser inserted = userRepository.insert(creator.getUsername(), username, encode, filtered);
+        if (inserted == null) {
+            throw new IllegalStateException("创建用户失败");
+        }
+        return inserted;
     }
 
-    public boolean ban(Long targetUserId) {
+    public void ban(Long targetUserId) {
         Long updaterId = currentUserProvider.getUserId();
         SysUser updater = userRepository.findById(updaterId);
-        if (updater == null || !userRoleFacadeService.hasRole(updaterId, "ADMIN")) {
-            return false;
+
+        if (updater == null) {
+            throw new IllegalStateException("当前登录用户不存在");
+        }
+
+        if (!userRoleFacadeService.hasRole(updaterId, "ADMIN")) {
+            throw new IllegalArgumentException("没有权限封禁用户");
         }
 
         SysUser targetUser = userRepository.findById(targetUserId);
-        if (targetUser == null
-                || userRoleFacadeService.hasRole(targetUserId, "ADMIN")
-                || targetUser.isDeleted()) {
-            return false;
+
+        if (targetUser == null) {
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
         }
 
-        return userRepository.updateStatus(targetUserId, SysUserStatusEnum.DISABLED, updater.getUsername());
+        if (userRoleFacadeService.hasRole(targetUserId, "ADMIN")) {
+            throw new IllegalArgumentException("管理员不可封禁");
+        }
+
+        if (targetUser.isDeleted()) {
+            throw new IllegalArgumentException("目标用户已删除");
+        }
+
+        userRepository.updateStatus(targetUserId, SysUserStatusEnum.DISABLED, updater.getUsername());
     }
 
-    public boolean softDelete(Long targetUserId) {
+    public void softDelete(Long targetUserId) {
         Long updaterId = currentUserProvider.getUserId();
         SysUser updater = userRepository.findById(updaterId);
         if (updater == null) {
-            return false;
+            throw new IllegalStateException("当前登录用户不存在");
         }
         SysUser targetUser = userRepository.findById(targetUserId);
         if (targetUser == null) {
-            return false;
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
         }
         // 已删除的用户不能再次删除
         if (targetUser.isDeleted()) {
-            return false;
+            throw new IllegalArgumentException("目标用户已删除");
         }
 
         boolean updaterIsAdmin = userRoleFacadeService.hasRole(updaterId, "ADMIN");
@@ -97,47 +116,44 @@ public class UserApplicationService {
 
         // 管理员不能删除管理员用户
         if (updaterIsAdmin && targetIsAdmin) {
-            return false;
+            throw new IllegalArgumentException("管理员不可删除");
         }
         // 非管理员用户无权删除他人
         if (!updaterIsAdmin && !isSelf) {
-            return false;
+            throw new IllegalArgumentException("没有权限删除用户");
         }
 
-        return userRepository.markDeleted(targetUserId, updater.getUsername());
+        userRepository.markDeleted(targetUserId, updater.getUsername());
     }
 
-    public boolean sendPasswordResetEmail(Long userId) {
+    public void sendPasswordResetEmail(Long userId) {
         SysUser sysUser = userRepository.findById(userId);
         if (sysUser == null) {
-            return false;
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
         }
         String email = sysUser.getEmail();
         String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
 
-        try {
-            userNotificationFacadeService.sendPasswordResetCode(email, code);
-        } catch (Exception e) {
-            LogUtils.error("用户「" + userId + "」密码重置邮件发送失败: " + e.getMessage());
-            return false;
-        }
+        userNotificationFacadeService.sendPasswordResetCode(email, code);
+
         stringRedisTemplate.opsForValue().set(RESET_PWD_PREFIX + email, code, 5, TimeUnit.MINUTES);
-        return true;
     }
 
-    public boolean resetPassword(Long targetUserId, String code, String newPassword) {
+    public void resetPassword(Long targetUserId, String code, String newPassword) {
         SysUser sysUser = userRepository.findById(targetUserId);
         if (sysUser == null) {
-            return false;
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标用户不存在");
         }
+
         if (sysUser.isDisabled() || sysUser.isDeleted()) {
-            LogUtils.warn("用户「" + targetUserId + "」状态异常，无法重置密码");
-            return false;
+            throw new IllegalArgumentException("用户状态异常，无法重置密码");
         }
+
         String redisKey = RESET_PWD_PREFIX + sysUser.getEmail();
         String tokenCode = stringRedisTemplate.opsForValue().get(redisKey);
+
         if (tokenCode == null || !tokenCode.equals(code)) {
-            return false;
+            throw new IllegalArgumentException("验证码错误或已过期");
         }
 
         String encode = passwordEncoder.encode(newPassword);
@@ -145,6 +161,5 @@ public class UserApplicationService {
         if (updated) {
             stringRedisTemplate.delete(redisKey);
         }
-        return updated;
     }
 }
