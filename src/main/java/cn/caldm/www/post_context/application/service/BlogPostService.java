@@ -14,6 +14,7 @@ import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
@@ -54,6 +55,7 @@ public class BlogPostService {
         return blogPostRepository.findPageByAuthorId(currentUserProvider.getUserId(), page, size);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Long createPost(@Valid BlogPostCreateCommand command) {
         if (command == null) {
             throw new IllegalArgumentException("创建文章参数不能为空");
@@ -98,14 +100,11 @@ public class BlogPostService {
             return null;
         }
         if (command.getTagIds() != null && !command.getTagIds().isEmpty()) {
-            List<BlogPostTag> tags = command.getTagIds().stream()
-                    .map(tagId -> {
-                        BlogPostTag tag = new BlogPostTag();
-                        tag.setId(tagId);
-                        return tag;
-                    })
-                    .collect(Collectors.toList());
-            blogPost.assignTags(tags);
+            List<BlogPostTagRelation> tagRelations = command.getTagIds().stream()
+                    .filter(Objects::nonNull)
+                    .map(id -> new BlogPostTagRelation().setPostId(postId).setTagId(id))
+                    .toList();
+            tagRelationRepository.batchSave(tagRelations);
         }
         List<List<Long>> categoryTrees = command.getCategoryTrees();
         if (categoryTrees != null && !categoryTrees.isEmpty()) {

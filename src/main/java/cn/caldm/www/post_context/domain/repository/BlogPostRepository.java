@@ -8,10 +8,7 @@ import java.util.List;
 
 public interface BlogPostRepository {
     /**
-     * 保存文章（包含设置其分类树与标签关联数据）
-     *
-     * @param blogPost 文章聚合根
-     * @return 保存成功后的文章聚合根（包含生成的 ID 等）
+     * 保存文章（仅文章本体；分类与标签关联由用例层负责）
      */
     BlogPost save(BlogPost blogPost);
 
