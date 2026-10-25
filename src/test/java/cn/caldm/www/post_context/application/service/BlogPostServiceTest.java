@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
+import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
 import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
@@ -84,5 +85,44 @@ public class BlogPostServiceTest {
                 .containsExactlyInAnyOrder(5L, 6L);
         assertThat(categoryCaptor.getValue())
                 .allMatch(BlogPostCategoryRelation::isDirectRelation);
+    }
+
+    @Test
+    void getBlogPostById_shouldAllowAdminToViewOthersPost() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+        when(categoryRelationRepository.findByPostId(5L)).thenReturn(List.of());
+        when(tagRelationRepository.findByPostId(5L)).thenReturn(List.of());
+
+        BlogPost result = blogPostService.getBlogPostById(5L);
+
+        assertThat(result).isSameAs(post);
+    }
+
+    @Test
+    void updateBlogPost_shouldAllowAdminToUpdateOthersPost() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setDeleted(false);
+
+        BlogPostUpdateCommand command = new BlogPostUpdateCommand();
+        command.setTargetPostId(5L);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getUsername()).thenReturn("admin");
+        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+        when(blogPostRepository.updateById(any(BlogPost.class))).thenReturn(true);
+
+        blogPostService.updateBlogPost(command);
+
+        verify(blogPostRepository).updateById(any(BlogPost.class));
     }
 }

@@ -10,6 +10,8 @@ import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
 import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.domain.PageResult;
+import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
+import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -127,13 +129,11 @@ public class BlogPostService {
             throw new IllegalArgumentException("Blog post id must be not null.");
         }
         BlogPost blogPost = blogPostRepository.findById(id);
-        if (blogPost == null || blogPost.getDeleted()) {
-            throw new IllegalArgumentException("Blog post is already deleted.");
+        if (blogPost == null) {
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "Blog post isn't exist.");
         }
-        Long curUserId = currentUserProvider.getUserId();
-        List<String> curRoles = currentUserProvider.getRoles();
-        if (!blogPost.getAuthorId().equals(curUserId) || curRoles == null || !curRoles.contains("ADMIN")) {
-            throw new IllegalArgumentException("Current user is not author.");
+        if (!isAuthorOrAdmin(blogPost)) {
+            throw new IllegalArgumentException("没有权限查看该文章");
         }
         // set category
         List<BlogPostCategory> categoryList = getCategoryListByPostId(id);
@@ -156,12 +156,8 @@ public class BlogPostService {
             throw new IllegalArgumentException("Target article is under review, cannot modify.");
         }
         Long postId = post.getId();
-        Long curUserId = currentUserProvider.getUserId();
         String curUsername = currentUserProvider.getUsername();
-        List<String> roles = currentUserProvider.getRoles();
-        Boolean isAuthor = post.getAuthorId().equals(curUserId);
-        Boolean isAdmin = roles != null && roles.contains("ADMIN");
-        if (!isAuthor && !isAdmin) {
+        if (!isAuthorOrAdmin(post)) {
             throw new IllegalArgumentException("No permission to update post.");
         }
         BlogPost newPost = new BlogPost();
@@ -285,5 +281,13 @@ public class BlogPostService {
             throw new IllegalStateException("No permission to do it.");
         }
         blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.PUBLISHED);
+    }
+
+    private boolean isAuthorOrAdmin(BlogPost post) {
+        Long curUserId = currentUserProvider.getUserId();
+        List<String> roles = currentUserProvider.getRoles();
+        boolean isAuthor = Objects.equals(post.getAuthorId(), curUserId);
+        boolean isAdmin = roles != null && roles.contains("ADMIN");
+        return isAuthor || isAdmin;
     }
 }
