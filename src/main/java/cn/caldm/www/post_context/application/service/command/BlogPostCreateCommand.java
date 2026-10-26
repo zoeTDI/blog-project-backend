@@ -1,6 +1,5 @@
 package cn.caldm.www.post_context.application.service.command;
 
-import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +27,6 @@ public class BlogPostCreateCommand {
     @Size(max = 500, message = "摘要内容超过限制")
     private String summary;
     private BlogPostTypeEnum type;
-    private BlogPostStatusEnum status;
     @NotNull(message = "置顶状态不允许为空")
     private Boolean isTop;
     @NotNull(message = "原创状态不允许为空")

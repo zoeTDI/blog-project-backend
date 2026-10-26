@@ -1,9 +1,7 @@
 package cn.caldm.www.post_context.application.service.command;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,11 +24,9 @@ public class BlogPostUpdateCommand {
     private String summary;
 
     private BlogPostTypeEnum type;
-    private BlogPostStatusEnum status;
 
     private Boolean isTop;
     private Boolean isOriginal;
-    private LocalDateTime publishedTime;
     private String slug;
     private String seoKeywords;
     private String seoDescription;

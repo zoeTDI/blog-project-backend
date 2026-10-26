@@ -7,6 +7,7 @@ import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostMappe
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
 import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
 import cn.caldm.www.shared_kernel.domain.PageResult;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
  * @author caldm
  */
 @Repository
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class BlogPostRepositoryImpl implements BlogPostRepository {
 
     private final BlogPostMapper postMapper;
@@ -95,15 +97,16 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
     }
 
     @Override
-    public Boolean updateStatusById(Long postId, BlogPostStatusEnum status) {
+    public Boolean updateStatusById(Long postId, BlogPostStatusEnum status, LocalDateTime publishedTime) {
         if (postId == null || status == null) {
             return false;
         }
-        BlogPost cached = this.findById(postId);
-        if (cached == null) {
-            return false;
+        LambdaUpdateWrapper<BlogPostPO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(BlogPostPO::getId, postId)
+                .set(BlogPostPO::getStatus, status);
+        if (publishedTime != null) {
+            wrapper.set(BlogPostPO::getPublishedTime, publishedTime);
         }
-        BlogPost newPost = new BlogPost().setId(postId).setStatus(status);
-        return this.updateById(newPost);
+        return postMapper.update(null, wrapper) == 1;
     }
 }

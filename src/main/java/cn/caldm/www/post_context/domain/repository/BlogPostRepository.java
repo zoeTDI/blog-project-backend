@@ -4,6 +4,7 @@ import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BlogPostRepository {
@@ -40,7 +41,7 @@ public interface BlogPostRepository {
     Boolean updateById(BlogPost post);
 
     /**
-     * 更新文章状态
+     * 更新文章状态（显式更新 status 列；publishedTime 非空时一并更新）
      */
-    Boolean updateStatusById(Long postId, BlogPostStatusEnum status);
+    Boolean updateStatusById(Long postId, BlogPostStatusEnum status, LocalDateTime publishedTime);
 }

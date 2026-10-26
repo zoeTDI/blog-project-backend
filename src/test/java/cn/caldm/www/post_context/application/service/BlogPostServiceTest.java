@@ -1,11 +1,13 @@
 package cn.caldm.www.post_context.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import cn.caldm.www.post_context.application.service.command.BlogPostCreateComma
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
+import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
@@ -63,6 +66,11 @@ public class BlogPostServiceTest {
         Long postId = blogPostService.createPost(command);
 
         assertThat(postId).isEqualTo(10L);
+
+        // 创建恒为草稿（P3：作者禁止自设状态）
+        ArgumentCaptor<BlogPost> postCaptor = ArgumentCaptor.forClass(BlogPost.class);
+        verify(blogPostRepository).save(postCaptor.capture());
+        assertThat(postCaptor.getValue().getStatus()).isEqualTo(BlogPostStatusEnum.DRAFT);
 
         // 标签关联必须落库（P1 防回归：旧实现此处从不调用 batchSave）
         ArgumentCaptor<List<BlogPostTagRelation>> tagCaptor = ArgumentCaptor.forClass(List.class);
@@ -124,5 +132,77 @@ public class BlogPostServiceTest {
         blogPostService.updateBlogPost(command);
 
         verify(blogPostRepository).updateById(any(BlogPost.class));
+    }
+
+    @Test
+    void toReview_shouldSubmitDraft() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(1L);
+        post.setStatus(BlogPostStatusEnum.DRAFT);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        blogPostService.toReview(5L);
+
+        verify(blogPostRepository).updateStatusById(5L, BlogPostStatusEnum.REVIEWING, null);
+    }
+
+    @Test
+    void toReview_shouldRejectNonDraft() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(1L);
+        post.setStatus(BlogPostStatusEnum.PUBLISHED);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.toReview(5L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("draft");
+    }
+
+    @Test
+    void toPublished_shouldRejectDraft() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(1L);
+        post.setStatus(BlogPostStatusEnum.DRAFT);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        // P3 核心回归钉：草稿不得绕过审核直达发布
+        assertThatThrownBy(() -> blogPostService.toPublished(5L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("reviewing");
+    }
+
+    @Test
+    void toPublished_shouldPublishReviewing() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(1L);
+        post.setStatus(BlogPostStatusEnum.REVIEWING);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        blogPostService.toPublished(5L);
+
+        ArgumentCaptor<LocalDateTime> timeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(blogPostRepository)
+                .updateStatusById(org.mockito.ArgumentMatchers.eq(5L),
+                        org.mockito.ArgumentMatchers.eq(BlogPostStatusEnum.PUBLISHED),
+                        timeCaptor.capture());
+        assertThat(timeCaptor.getValue()).isNotNull();
     }
 }

@@ -151,4 +151,15 @@ public class BlogPost implements Serializable {
     public void assignCategories(List<CategoryTreeNode> categoryTrees) {
         this.categories = categoryTrees != null ? categoryTrees : new ArrayList<>();
     }
+
+    /**
+     * 提交审核（仅草稿可提交）
+     */
+    public void submitForReview() {
+        if (this.status == BlogPostStatusEnum.DRAFT) {
+            this.status = BlogPostStatusEnum.REVIEWING;
+        } else {
+            throw new IllegalStateException("Only draft posts can be submitted for review.");
+        }
+    }
 }

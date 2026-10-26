@@ -75,7 +75,7 @@ public class BlogPostService {
         blogPost.setContentHtml(command.getContentHtml());
         blogPost.setSummary(command.getSummary());
         blogPost.setType(command.getType());
-        blogPost.setStatus(command.getStatus());
+        blogPost.setStatus(BlogPostStatusEnum.DRAFT);
         blogPost.setIsTop(command.getIsTop());
         blogPost.setIsOriginal(command.getIsOriginal());
         blogPost.setPublishedTime(null);
@@ -168,10 +168,8 @@ public class BlogPostService {
         newPost.setContentHtml(command.getContentHtml());
         newPost.setSummary(command.getSummary());
         newPost.setType(command.getType());
-        newPost.setStatus(command.getStatus());
         newPost.setIsTop(command.getIsTop());
         newPost.setIsOriginal(command.getIsOriginal());
-        newPost.setPublishedTime(command.getPublishedTime());
         newPost.setSlug(command.getSlug());
         newPost.setSeoKeywords(command.getSeoKeywords());
         newPost.setSeoDescription(command.getSeoDescription());
@@ -265,7 +263,8 @@ public class BlogPostService {
         if (!isAuthor && !isAdmin) {
             throw new IllegalStateException("No permission to do it.");
         }
-        blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.REVIEWING);
+        cached.submitForReview();
+        blogPostRepository.updateStatusById(postId, cached.getStatus(), cached.getPublishedTime());
     }
 
     public void toPublished(Long postId) {
@@ -280,7 +279,8 @@ public class BlogPostService {
         if (!roles.contains("ADMIN") && !roles.contains("AUDITOR")) {
             throw new IllegalStateException("No permission to do it.");
         }
-        blogPostRepository.updateStatusById(postId, BlogPostStatusEnum.PUBLISHED);
+        cached.approve();
+        blogPostRepository.updateStatusById(postId, cached.getStatus(), cached.getPublishedTime());
     }
 
     private boolean isAuthorOrAdmin(BlogPost post) {
