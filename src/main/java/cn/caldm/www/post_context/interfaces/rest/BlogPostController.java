@@ -50,7 +50,7 @@ public class BlogPostController {
     @PreAuthorize("@ss.isContentOperator()")
     public Result<BlogPostEditDTO> getBlogPost(@RequestParam("id") Long id) {
         BlogPost domain = blogPostService.getBlogPostById(id);
-        return Result.success(editAssembler.toPO(domain));
+        return Result.success(editAssembler.toDTO(domain));
     }
 
     @PostMapping("/blogPost/create")
