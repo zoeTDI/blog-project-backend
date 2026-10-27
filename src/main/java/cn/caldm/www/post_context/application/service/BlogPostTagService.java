@@ -117,11 +117,16 @@ public class BlogPostTagService {
 
     @Transactional(rollbackFor = Exception.class)
     public int batchDeleteTags(List<Long> tagIds) {
-        if (CollectionUtils.isEmpty(tagIds)) {
+        Long curUserId = currentUserProvider.getUserId();
+        List<BlogPostTag> ownedTags = tagRepository.findByIds(tagIds).stream()
+                .filter(tag -> tag.getAuthorId().equals(curUserId))
+                .toList();
+        List<Long> ownedIds = ownedTags.stream().map(BlogPostTag::getId).toList();
+        if (ownedIds.isEmpty()) {
             return 0;
         }
-        tagRelationRepository.deleteByTagIds(tagIds);
-        return tagRepository.batchDeleteByIds(tagIds);
+        tagRelationRepository.deleteByTagIds(ownedIds);
+        return tagRepository.batchDeleteByIds(ownedIds);
     }
 
     /**
@@ -139,6 +144,11 @@ public class BlogPostTagService {
 
         BlogPost post = postRepository.findById(postId);
         if (post == null) {
+            return false;
+        }
+
+        Long curUserId = currentUserProvider.getUserId();
+        if (!post.getAuthorId().equals(curUserId)) {
             return false;
         }
 
@@ -178,6 +188,10 @@ public class BlogPostTagService {
 
         BlogPost post = postRepository.findById(postId);
         if (post == null) {
+            return 0;
+        }
+        Long curUserId = currentUserProvider.getUserId();
+        if (!post.getAuthorId().equals(curUserId)) {
             return 0;
         }
 
