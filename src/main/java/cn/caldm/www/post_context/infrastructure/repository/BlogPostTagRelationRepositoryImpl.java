@@ -4,7 +4,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostTagRelationMapper;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
-import cn.caldm.www.post_context.interfaces.assembler.BlogPostTagRelationAssembler;
+import cn.caldm.www.post_context.infrastructure.persistence.assembler.BlogPostTagRelationAssembler;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

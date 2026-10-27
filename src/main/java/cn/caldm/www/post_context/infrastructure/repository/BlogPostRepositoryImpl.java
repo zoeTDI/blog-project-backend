@@ -5,7 +5,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostMapper;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostPO;
-import cn.caldm.www.post_context.interfaces.assembler.BlogPostAssembler;
+import cn.caldm.www.post_context.infrastructure.persistence.assembler.BlogPostAssembler;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;

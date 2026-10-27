@@ -4,7 +4,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.infrastructure.persistence.mapper.BlogPostCategoryRelationMapper;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostCategoryRelationPO;
-import cn.caldm.www.post_context.interfaces.assembler.BlogPostCategoryRelationAssembler;
+import cn.caldm.www.post_context.infrastructure.persistence.assembler.BlogPostCategoryRelationAssembler;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

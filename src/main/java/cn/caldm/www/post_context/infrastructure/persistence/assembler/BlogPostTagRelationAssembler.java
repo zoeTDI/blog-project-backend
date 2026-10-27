@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.interfaces.assembler;
+package cn.caldm.www.post_context.infrastructure.persistence.assembler;
 
 import cn.caldm.www.post_context.domain.model.BlogPostTagRelation;
 import cn.caldm.www.post_context.infrastructure.persistence.po.BlogPostTagRelationPO;
