@@ -29,7 +29,7 @@ public class BlogPostTagController {
     private final BlogPostTagService tagService;
     private final CurrentUserProvider currentUserProvider;
 
-    @GetMapping("/createTag")
+    @PostMapping("/createTag")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
         if (tagName == null || tagName.isBlank()) {
