@@ -284,6 +284,23 @@ public class BlogPostService {
         blogPostRepository.updateStatusById(postId, cached.getStatus(), cached.getPublishedTime());
     }
 
+    public void softDeletePost(Long postId) {
+        if (postId == null) {
+            throw new IllegalArgumentException("Target post id is null.");
+        }
+        BlogPost cached = blogPostRepository.findById(postId);
+        if (cached == null) {
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标文章不存在");
+        }
+        if (!isAuthorOrAdmin(cached)) {
+            throw new IllegalArgumentException("没有权限删除该文章");
+        }
+        cached.archive();
+        if (!blogPostRepository.archiveById(postId)) {
+            throw new IllegalStateException("删除文章失败");
+        }
+    }
+
     private boolean isAuthorOrAdmin(BlogPost post) {
         Long curUserId = currentUserProvider.getUserId();
         List<String> roles = currentUserProvider.getRoles();

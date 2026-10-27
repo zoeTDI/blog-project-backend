@@ -44,4 +44,9 @@ public interface BlogPostRepository {
      * 更新文章状态（显式更新 status 列；publishedTime 非空时一并更新）
      */
     Boolean updateStatusById(Long postId, BlogPostStatusEnum status, LocalDateTime publishedTime);
+
+    /**
+     * 归档文章（软删除，置 deleted=true）
+     */
+    Boolean archiveById(Long postId);
 }

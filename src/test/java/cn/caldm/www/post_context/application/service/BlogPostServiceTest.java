@@ -217,4 +217,46 @@ public class BlogPostServiceTest {
         assertThat(transactional).isNotNull();
         assertThat(transactional.rollbackFor()).contains(Exception.class);
     }
+
+    @Test
+    void softDeletePost_shouldArchiveOwnPost() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(1L);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+        when(blogPostRepository.archiveById(5L)).thenReturn(true);
+
+        blogPostService.softDeletePost(5L);
+
+        verify(blogPostRepository).archiveById(5L);
+        assertThat(post.getDeleted()).isTrue();
+    }
+
+    @Test
+    void softDeletePost_shouldRejectWhenNotAuthorOrAdmin() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.softDeletePost(5L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("没有权限");
+    }
+
+    @Test
+    void softDeletePost_shouldThrowWhenNotFound() {
+        when(blogPostRepository.findById(5L)).thenReturn(null);
+
+        assertThatThrownBy(() -> blogPostService.softDeletePost(5L))
+                .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
+    }
 }

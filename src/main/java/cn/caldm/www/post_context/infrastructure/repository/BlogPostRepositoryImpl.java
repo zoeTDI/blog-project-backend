@@ -109,4 +109,12 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         }
         return postMapper.update(null, wrapper) == 1;
     }
+
+    @Override
+    public Boolean archiveById(Long postId) {
+        if (postId == null) {
+            return false;
+        }
+        return postMapper.deleteById(postId) == 1;
+    }
 }

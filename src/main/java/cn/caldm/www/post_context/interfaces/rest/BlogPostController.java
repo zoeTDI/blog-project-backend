@@ -72,13 +72,8 @@ public class BlogPostController {
 
     @PostMapping("/blogPost/softDelete")
     @PreAuthorize("@ss.isContentOperator()")
-    public Result<Void> softDelete() {
-        return Result.success();
-    }
-
-    @PostMapping("/blogPost/delete")
-    @PreAuthorize("@ss.isContentOperator()")
-    public Result<Void> delete() {
+    public Result<Void> softDelete(@RequestParam("id") Long id) {
+        blogPostService.softDeletePost(id);
         return Result.success();
     }
 }
