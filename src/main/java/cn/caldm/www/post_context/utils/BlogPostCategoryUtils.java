@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 import cn.caldm.www.post_context.domain.model.BlogPostCategory;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
@@ -19,28 +18,31 @@ public class BlogPostCategoryUtils {
      * @return 根节点列表
      */
     public static List<CategoryTreeNode> buildTree(List<BlogPostCategory> categoryList) {
+        if (categoryList == null || categoryList.isEmpty()) {
+            return new ArrayList<>();
+        }
         Map<Long, CategoryTreeNode> map = new HashMap<>();
         categoryList.forEach(category -> {
-            Long id = category.getId();
             CategoryTreeNode node = new CategoryTreeNode()
                     .setCategory(category)
                     .setChildren(new ArrayList<>());
-            map.put(id, node);
+            map.put(category.getId(), node);
         });
+        List<CategoryTreeNode> roots = new ArrayList<>();
         categoryList.forEach(category -> {
-            Long id = category.getId();
+            CategoryTreeNode self = map.get(category.getId());
             Long parentId = category.getParentId();
-            CategoryTreeNode parentNode = map.get(parentId);
-            if (parentNode == null) {
-                return;
+            CategoryTreeNode parentNode = parentId == null ? null : map.get(parentId);
+            // 父节点缺失或自引用时按根处理，避免孤儿被静默丢弃与成环
+            if (parentNode != null && parentNode != self) {
+                parentNode.getChildren().add(self);
+            } else {
+                roots.add(self);
             }
-            parentNode.getChildren().add(map.get(id));
         });
-        return map.values()
-                .stream()
-                .filter(node -> node.getCategory().getParentId() == 0L)
-                .collect(Collectors.toList());
+        return roots;
     }
+
 
     /**
      * 将树形结构的分类节点扁平化

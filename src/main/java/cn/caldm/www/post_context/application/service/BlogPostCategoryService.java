@@ -9,6 +9,7 @@ import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
+import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -197,40 +198,14 @@ public class BlogPostCategoryService {
         }
         List<BlogPostCategory> categoryList = categoryRepository.findListByUserId(authorId);
 
-        // Filter out deleted categories.
+        // Filter out deleted categories.（冗余过滤归 P16 批次处理）
         List<BlogPostCategory> filtered = categoryList.stream()
                 .filter(category -> category.getDeleted() == false)
                 .collect(Collectors.toList());
 
-        // Build id -> node mapping.
-        Map<Long, CategoryTreeNode> map = new HashMap<>();
-        filtered.forEach(category -> {
-            CategoryTreeNode node = new CategoryTreeNode();
-            node.setCategory(category);
-            node.setChildren(new ArrayList<>());
-            map.put(category.getId(), node);
-        });
-        // Attach child nodes to parent node.
-        filtered.forEach(category -> {
-            Long parentId = category.getParentId();
-            if (parentId != null && !parentId.equals(0L)) {
-                CategoryTreeNode parent = map.get(parentId);
-
-                if (parent != null) {
-                    parent.getChildren().add(map.get(category.getId()));
-                }
-            }
-        });
-
-        // Collect all root nodes.
-        return filtered.stream()
-                .filter(category -> {
-                    Long parentId = category.getParentId();
-                    return parentId == null || parentId.equals(0L);
-                })
-                .map(category -> map.get(category.getId()))
-                .collect(Collectors.toList());
+        return BlogPostCategoryUtils.buildTree(filtered);
     }
+
 
     /**
      * 分类移动后刷新同步文章对祖先分类的冗余关联记录
