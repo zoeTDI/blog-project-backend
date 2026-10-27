@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
 import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
@@ -204,5 +206,15 @@ public class BlogPostServiceTest {
                         org.mockito.ArgumentMatchers.eq(BlogPostStatusEnum.PUBLISHED),
                         timeCaptor.capture());
         assertThat(timeCaptor.getValue()).isNotNull();
+    }
+
+    @Test
+    void updateBlogPost_shouldBeTransactional() throws NoSuchMethodException {
+        // P6 回归钉：五步写必须整体事务，防未来误删注解
+        Method method = BlogPostService.class.getMethod("updateBlogPost", BlogPostUpdateCommand.class);
+        Transactional transactional = method.getAnnotation(Transactional.class);
+
+        assertThat(transactional).isNotNull();
+        assertThat(transactional.rollbackFor()).contains(Exception.class);
     }
 }

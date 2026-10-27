@@ -144,6 +144,7 @@ public class BlogPostService {
         return blogPost;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void updateBlogPost(@Validated BlogPostUpdateCommand command) {
         BlogPost post = blogPostRepository.findById(command.getTargetPostId());
         if (post == null) {
