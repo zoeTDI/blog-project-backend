@@ -77,29 +77,6 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
     }
 
     @Override
-    public int incrementPostCountByIds(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return 0;
-        }
-        LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.in(BlogPostTagPO::getId, tagIds)
-                .setSql("post_count = post_count + 1");
-        return tagMapper.update(null, wrapper);
-    }
-
-    @Override
-    public int decrementPostCountByIds(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return 0;
-        }
-        LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.in(BlogPostTagPO::getId, tagIds)
-                .gt(BlogPostTagPO::getPostCount, 0)
-                .setSql("post_count = post_count - 1");
-        return tagMapper.update(null, wrapper);
-    }
-
-    @Override
     public List<BlogPostTag> findByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return new ArrayList<>();

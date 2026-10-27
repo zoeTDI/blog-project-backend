@@ -45,5 +45,4 @@ public interface BlogPostCategoryRepository {
 
     boolean rename(BlogPostCategory category);
 
-    List<BlogPostCategory> selectByAuthorId(Long authorId);
 }

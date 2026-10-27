@@ -38,25 +38,6 @@ public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRep
     }
 
     @Override
-    public int deleteByTagIds(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return 0;
-        }
-        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(BlogPostTagRelationPO::getTagId, tagIds);
-        return tagRelationMapper.delete(wrapper);
-    }
-
-    @Override
-    public boolean save(BlogPostTagRelation relation) {
-        if (relation == null || relation.getPostId() == null || relation.getTagId() == null) {
-            return false;
-        }
-        BlogPostTagRelationPO po = assembler.toPO(relation);
-        return tagRelationMapper.insert(po) == 1;
-    }
-
-    @Override
     public int batchSave(List<BlogPostTagRelation> relations) {
         if (relations == null || relations.isEmpty()) {
             return 0;
@@ -65,44 +46,6 @@ public class BlogPostTagRelationRepositoryImpl implements BlogPostTagRelationRep
                 .map(assembler::toPO)
                 .collect(Collectors.toList());
         return tagRelationMapper.insertBatch(pos);
-    }
-
-    @Override
-    public List<Long> findPostIdsByTagId(Long tagId) {
-        if (tagId == null) {
-            return List.of();
-        }
-        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BlogPostTagRelationPO::getTagId, tagId)
-                .select(BlogPostTagRelationPO::getPostId);
-        return tagRelationMapper.selectList(wrapper).stream()
-                .map(BlogPostTagRelationPO::getPostId)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Long> findPostIdsByTagIds(List<Long> tagIds) {
-        if (tagIds == null || tagIds.isEmpty()) {
-            return List.of();
-        }
-        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(BlogPostTagRelationPO::getTagId, tagIds)
-                .select(BlogPostTagRelationPO::getPostId)
-                .groupBy(BlogPostTagRelationPO::getPostId);
-        return tagRelationMapper.selectList(wrapper).stream()
-                .map(BlogPostTagRelationPO::getPostId)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean existsByPostIdAndTagId(Long postId, Long tagId) {
-        if (postId == null || tagId == null) {
-            return false;
-        }
-        LambdaQueryWrapper<BlogPostTagRelationPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BlogPostTagRelationPO::getPostId, postId)
-                .eq(BlogPostTagRelationPO::getTagId, tagId);
-        return tagRelationMapper.exists(wrapper);
     }
 
     @Override
