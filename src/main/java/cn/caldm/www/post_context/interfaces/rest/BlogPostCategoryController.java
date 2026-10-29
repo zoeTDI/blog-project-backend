@@ -48,10 +48,7 @@ public class BlogPostCategoryController {
 
     @PostMapping("/renameCategory")
     @PreAuthorize("@ss.isContentOperator()")
-    public Result<Void> RenameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
-        if (command == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
+    public Result<Void> renameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
         categoryService.renameCategory(command);
         return Result.success();
     }
