@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.interfaces.dto;
+package cn.caldm.www.post_context.blogpost;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

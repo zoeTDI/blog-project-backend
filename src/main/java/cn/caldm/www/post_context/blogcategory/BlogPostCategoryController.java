@@ -1,8 +1,5 @@
-package cn.caldm.www.post_context.interfaces.rest;
+package cn.caldm.www.post_context.blogcategory;
 
-import cn.caldm.www.post_context.application.service.BlogPostCategoryService;
-import cn.caldm.www.post_context.application.service.command.BlogPostCategoryCreateCommand;
-import cn.caldm.www.post_context.application.service.command.BlogPostCategoryRenameCommand;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;

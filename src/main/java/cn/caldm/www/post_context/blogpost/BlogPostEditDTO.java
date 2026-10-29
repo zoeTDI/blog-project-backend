@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.interfaces.dto;
+package cn.caldm.www.post_context.blogpost;
 
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;
 import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;

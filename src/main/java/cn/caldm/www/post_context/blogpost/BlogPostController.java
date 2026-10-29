@@ -1,14 +1,6 @@
-package cn.caldm.www.post_context.interfaces.rest;
+package cn.caldm.www.post_context.blogpost;
 
-import cn.caldm.www.post_context.application.service.BlogPostService;
-import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
-import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.BlogPost;
-import cn.caldm.www.post_context.interfaces.assembler.BlogPostEditAssembler;
-import cn.caldm.www.post_context.interfaces.assembler.BlogPostSummaryAssembler;
-import cn.caldm.www.post_context.interfaces.dto.BlogPostEditDTO;
-import cn.caldm.www.post_context.interfaces.dto.BlogPostPageQueryDTO;
-import cn.caldm.www.post_context.interfaces.dto.BlogPostSummaryDTO;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.Result;
 import jakarta.validation.Valid;

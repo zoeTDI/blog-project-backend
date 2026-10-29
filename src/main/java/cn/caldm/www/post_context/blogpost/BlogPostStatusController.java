@@ -1,10 +1,9 @@
-package cn.caldm.www.post_context.interfaces.rest;
+package cn.caldm.www.post_context.blogpost;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import cn.caldm.www.post_context.application.service.BlogPostService;
 import cn.caldm.www.shared_kernel.domain.Result;
 
 @RestController

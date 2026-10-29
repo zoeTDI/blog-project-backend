@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.application.service;
+package cn.caldm.www.post_context.blogpost;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -19,8 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
-import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryRelation;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;

@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.application.service.command;
+package cn.caldm.www.post_context.blogcategory;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

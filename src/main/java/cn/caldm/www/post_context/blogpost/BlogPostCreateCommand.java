@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.application.service.command;
+package cn.caldm.www.post_context.blogpost;
 
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostStatusEnum;

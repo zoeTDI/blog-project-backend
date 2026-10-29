@@ -1,6 +1,5 @@
-package cn.caldm.www.post_context.application.service;
+package cn.caldm.www.post_context.blogtag;
 
-import cn.caldm.www.post_context.application.service.command.BlogPostTagRenameCommand;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;

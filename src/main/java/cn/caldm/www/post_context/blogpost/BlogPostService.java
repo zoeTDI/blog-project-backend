@@ -1,14 +1,12 @@
-package cn.caldm.www.post_context.application.service;
+package cn.caldm.www.post_context.blogpost;
 
-import cn.caldm.www.post_context.application.service.command.BlogPostCreateCommand;
-import cn.caldm.www.post_context.application.service.command.BlogPostUpdateCommand;
 import cn.caldm.www.post_context.domain.model.*;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
-import cn.caldm.www.post_context.utils.BlogPostCategoryUtils;
+import cn.caldm.www.post_context.blogcategory.BlogPostCategoryUtils;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;

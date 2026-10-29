@@ -1,9 +1,8 @@
-package cn.caldm.www.post_context.interfaces.assembler;
+package cn.caldm.www.post_context.blogpost;
 
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
-import cn.caldm.www.post_context.interfaces.dto.BlogPostEditDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;

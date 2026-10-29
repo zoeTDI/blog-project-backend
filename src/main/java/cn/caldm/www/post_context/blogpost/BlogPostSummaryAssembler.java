@@ -1,7 +1,6 @@
-package cn.caldm.www.post_context.interfaces.assembler;
+package cn.caldm.www.post_context.blogpost;
 
 import cn.caldm.www.post_context.domain.model.BlogPost;
-import cn.caldm.www.post_context.interfaces.dto.BlogPostSummaryDTO;
 import org.springframework.stereotype.Component;
 
 @Component

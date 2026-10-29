@@ -1,4 +1,4 @@
-package cn.caldm.www.post_context.application.service.command;
+package cn.caldm.www.post_context.blogcategory;
 
 import cn.caldm.www.post_context.domain.model.BlogPostCategoryStatusEnum;
 import jakarta.validation.constraints.NotBlank;
