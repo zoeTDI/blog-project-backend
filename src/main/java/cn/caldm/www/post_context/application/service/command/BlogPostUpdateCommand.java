@@ -2,6 +2,7 @@ package cn.caldm.www.post_context.application.service.command;
 
 import java.util.List;
 
+import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -38,4 +39,28 @@ public class BlogPostUpdateCommand {
 
     private List<Long> tagIds;
     private List<List<Long>> categoryIds;
+
+    /**
+     * 转换为领域对象（仅可编辑字段；未携带的字段保持 null，由仓库跳过）。
+     */
+    public BlogPost toDomain(Long id) {
+        BlogPost post = new BlogPost();
+        post.setId(id);
+        post.setTitle(this.title);
+        post.setSubtitle(this.subtitle);
+        post.setContentMd(this.contentMd);
+        post.setContentHtml(this.contentHtml);
+        post.setSummary(this.summary);
+        post.setType(this.type);
+        post.setIsTop(this.isTop);
+        post.setIsOriginal(this.isOriginal);
+        post.setSlug(this.slug);
+        post.setSeoKeywords(this.seoKeywords);
+        post.setSeoDescription(this.seoDescription);
+        post.setAllowComment(this.allowComment);
+        post.setReprintSource(this.reprintSource);
+        post.setSortWeight(this.sortWeight);
+        return post;
+    }
+
 }

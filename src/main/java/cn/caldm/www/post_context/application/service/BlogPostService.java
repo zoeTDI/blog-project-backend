@@ -63,35 +63,12 @@ public class BlogPostService {
             throw new IllegalArgumentException("创建文章参数不能为空");
         }
 
-        BlogPost blogPost = new BlogPost();
         Long curUserId = currentUserProvider.getUserId();
         String curUsername = currentUserProvider.getUsername();
+        BlogPost blogPost = command.toDomain();
         blogPost.setAuthorId(curUserId);
         blogPost.setCreator(curUsername);
         blogPost.setUpdater(curUsername);
-        blogPost.setTitle(command.getTitle());
-        blogPost.setSubtitle(command.getSubtitle());
-        blogPost.setContentMd(command.getContentMd());
-        blogPost.setContentHtml(command.getContentHtml());
-        blogPost.setSummary(command.getSummary());
-        blogPost.setType(command.getType());
-        blogPost.setStatus(BlogPostStatusEnum.DRAFT);
-        blogPost.setIsTop(command.getIsTop());
-        blogPost.setIsOriginal(command.getIsOriginal());
-        blogPost.setPublishedTime(null);
-        blogPost.setSlug(command.getSlug());
-        blogPost.setSeoKeywords(command.getSeoKeywords());
-        blogPost.setSeoDescription(command.getSeoDescription());
-        blogPost.setPassword(command.getPassword());
-        blogPost.setAllowComment(command.getAllowComment());
-        blogPost.setReprintSource(command.getReprintSource());
-        blogPost.setSortWeight(command.getSortWeight());
-        blogPost.setCreateTime(LocalDateTime.now());
-        blogPost.setUpdateTime(LocalDateTime.now());
-        blogPost.setViews(0);
-        blogPost.setLikes(0);
-        blogPost.setCollects(0);
-        blogPost.setCommentCount(0);
 
         BlogPost savedPost = blogPostRepository.save(blogPost);
         if (savedPost == null || savedPost.getId() == null) {
@@ -155,22 +132,7 @@ public class BlogPostService {
         if (!isAuthorOrAdmin(post)) {
             throw new IllegalArgumentException("No permission to update post.");
         }
-        BlogPost newPost = new BlogPost();
-        newPost.setId(postId);
-        newPost.setTitle(command.getTitle());
-        newPost.setSubtitle(command.getSubtitle());
-        newPost.setContentMd(command.getContentMd());
-        newPost.setContentHtml(command.getContentHtml());
-        newPost.setSummary(command.getSummary());
-        newPost.setType(command.getType());
-        newPost.setIsTop(command.getIsTop());
-        newPost.setIsOriginal(command.getIsOriginal());
-        newPost.setSlug(command.getSlug());
-        newPost.setSeoKeywords(command.getSeoKeywords());
-        newPost.setSeoDescription(command.getSeoDescription());
-        newPost.setAllowComment(command.getAllowComment());
-        newPost.setReprintSource(command.getReprintSource());
-        newPost.setSortWeight(command.getSortWeight());
+        BlogPost newPost = command.toDomain(postId);
         newPost.setUpdater(curUsername);
         newPost.setUpdateTime(LocalDateTime.now());
 
