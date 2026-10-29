@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -69,9 +68,6 @@ public class BlogPostCreateCommand {
         blogPost.setAllowComment(this.allowComment);
         blogPost.setReprintSource(this.reprintSource);
         blogPost.setSortWeight(this.sortWeight);
-        LocalDateTime now = LocalDateTime.now();
-        blogPost.setCreateTime(now);
-        blogPost.setUpdateTime(now);
         blogPost.setViews(0);
         blogPost.setLikes(0);
         blogPost.setCollects(0);

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -134,7 +133,6 @@ public class BlogPostService {
         }
         BlogPost newPost = command.toDomain(postId);
         newPost.setUpdater(curUsername);
-        newPost.setUpdateTime(LocalDateTime.now());
 
         Boolean updateById = blogPostRepository.updateById(newPost);
         if (!updateById) {

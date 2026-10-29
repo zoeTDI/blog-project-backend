@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -117,8 +116,7 @@ public class BlogPostCategoryService {
         BlogPostCategory category = new BlogPostCategory();
         category.setId(targetId)
                 .setName(newName)
-                .setUpdater(currentUserProvider.getUsername())
-                .setUpdateTime(LocalDateTime.now());
+                .setUpdater(currentUserProvider.getUsername());
         boolean renamed = categoryRepository.rename(category);
         if (!renamed) {
             throw new IllegalStateException("Rename operation failed.");

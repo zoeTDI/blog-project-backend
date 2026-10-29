@@ -13,10 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -44,14 +42,11 @@ public class BlogPostTagService {
             throw new IllegalArgumentException("标签已存在");
         }
         String currentUser = currentUserProvider.getUsername();
-        LocalDateTime now = LocalDateTime.now();
         BlogPostTag tag = new BlogPostTag()
                 .setAuthorId(authorId)
                 .setName(trimmedName)
                 .setCreator(currentUser)
-                .setCreateTime(now)
                 .setUpdater(currentUser)
-                .setUpdateTime(now)
                 .setDeleted(false);
         Long tagId = tagRepository.add(tag);
         if (tagId == null) {
@@ -82,7 +77,6 @@ public class BlogPostTagService {
 
         existingTag.setName(newName.trim());
         existingTag.setUpdater(currentUserProvider.getUsername());
-        existingTag.setUpdateTime(LocalDateTime.now());
 
         tagRepository.update(existingTag);
     }

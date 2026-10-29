@@ -4,6 +4,7 @@ import java.util.List;
 
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.post_context.domain.model.BlogPostTypeEnum;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -13,8 +14,10 @@ public class BlogPostUpdateCommand {
     @NotNull(message = "")
     private Long targetPostId;
 
-    @Size(max = 200, message = "")
+    @NotBlank(message = "标题不能为空")
+    @Size(max = 200, message = "标题长度超过限制")
     private String title;
+
 
     @Size(max = 200, message = "")
     private String subtitle;
