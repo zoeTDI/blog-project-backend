@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 public class BlogPostUpdateCommand {
-    @NotNull(message = "")
+    @NotNull(message = "文章ID不能为空")
     private Long targetPostId;
 
     @NotBlank(message = "标题不能为空")
@@ -19,12 +19,12 @@ public class BlogPostUpdateCommand {
     private String title;
 
 
-    @Size(max = 200, message = "")
+    @Size(max = 200, message = "副标题长度超过限制")
     private String subtitle;
 
     private String contentMd;
     private String contentHtml;
-    @Size(max = 500, message = "")
+    @Size(max = 500, message = "摘要内容超过限制")
     private String summary;
 
     private BlogPostTypeEnum type;

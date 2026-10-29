@@ -32,11 +32,7 @@ public class BlogPostCategoryController {
     @PostMapping("/createCategory")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<Long> createCategory(@Valid @RequestBody BlogPostCategoryCreateCommand command) {
-        Long categoryId = categoryService.createCategory(command);
-        if (categoryId == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        return Result.success(categoryId);
+        return Result.success(categoryService.createCategory(command));
     }
 
     @DeleteMapping("/deleteCategory/{id}")

@@ -165,6 +165,8 @@ public class BlogPostPO implements Serializable {
 
     /**
      * 文章阅读密码（非空时表示需要密码访问）
+     * TODO 风险：当前明文存储且无验证入口；上线密码访问功能前需决定
+     * 散列方案（BCrypt/找回策略）或接受明文风险
      */
     @TableField("password")
     private String password;

@@ -48,10 +48,10 @@ public class BlogPostService {
      */
     public PageResult<BlogPost> getCurrentUserPosts(long page, long size) {
         if (page < 1) {
-            throw new IllegalArgumentException("page must be greater than or equal to 1");
+            throw new IllegalArgumentException("page 必须大于等于 1");
         }
         if (size < 1 || size > 100) {
-            throw new IllegalArgumentException("size must be between 1 and 100");
+            throw new IllegalArgumentException("size 必须在 1 到 100 之间");
         }
         return blogPostRepository.findPageByAuthorId(currentUserProvider.getUserId(), page, size);
     }
@@ -99,7 +99,7 @@ public class BlogPostService {
 
     public BlogPost getBlogPostById(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Blog post id must be not null.");
+            throw new IllegalArgumentException("文章 ID 不能为空");
         }
         BlogPost blogPost = blogPostRepository.findById(id);
         if (blogPost == null) {
@@ -121,15 +121,15 @@ public class BlogPostService {
     public void updateBlogPost(@Validated BlogPostUpdateCommand command) {
         BlogPost post = blogPostRepository.findById(command.getTargetPostId());
         if (post == null) {
-            throw new IllegalArgumentException("Target post is null.");
+            throw new IllegalArgumentException("目标文章不存在");
         }
         if (BlogPostStatusEnum.REVIEWING.equals(post.getStatus())) {
-            throw new IllegalArgumentException("Target article is under review, cannot modify.");
+            throw new IllegalArgumentException("文章审核中，无法修改");
         }
         Long postId = post.getId();
         String curUsername = currentUserProvider.getUsername();
         if (!isAuthorOrAdmin(post)) {
-            throw new IllegalArgumentException("No permission to update post.");
+            throw new IllegalArgumentException("没有权限更新该文章");
         }
         BlogPost newPost = command.toDomain(postId);
         newPost.setUpdater(curUsername);
@@ -205,7 +205,7 @@ public class BlogPostService {
 
     public void toReview(Long postId) {
         if (postId == null) {
-            throw new IllegalArgumentException("Target post id is null.");
+            throw new IllegalArgumentException("文章 ID 不能为空");
         }
         BlogPost cached = blogPostRepository.findById(postId);
         Long userId = currentUserProvider.getUserId();
@@ -213,7 +213,7 @@ public class BlogPostService {
         Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains("AUTHOR");
         Boolean isAdmin = roles.contains("ADMIN");
         if (!isAuthor && !isAdmin) {
-            throw new IllegalStateException("No permission to do it.");
+            throw new IllegalStateException("没有权限执行该操作");
         }
         cached.submitForReview();
         blogPostRepository.updateStatusById(postId, cached.getStatus(), cached.getPublishedTime());
@@ -221,12 +221,12 @@ public class BlogPostService {
 
     public void toPublished(Long postId) {
         if (postId == null) {
-            throw new IllegalArgumentException("Target post id is null.");
+            throw new IllegalArgumentException("文章 ID 不能为空");
         }
         BlogPost cached = blogPostRepository.findById(postId);
         List<String> roles = currentUserProvider.getRoles();
         if (!roles.contains("ADMIN") && !roles.contains("AUDITOR")) {
-            throw new IllegalStateException("No permission to do it.");
+            throw new IllegalStateException("没有权限执行该操作");
         }
         cached.approve();
         blogPostRepository.updateStatusById(postId, cached.getStatus(), cached.getPublishedTime());
@@ -234,7 +234,7 @@ public class BlogPostService {
 
     public void softDeletePost(Long postId) {
         if (postId == null) {
-            throw new IllegalArgumentException("Target post id is null.");
+            throw new IllegalArgumentException("文章 ID 不能为空");
         }
         BlogPost cached = blogPostRepository.findById(postId);
         if (cached == null) {

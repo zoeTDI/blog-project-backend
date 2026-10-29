@@ -105,7 +105,7 @@ public class BlogPostTagService {
      */
     public List<BlogPostTag> getTagsByAuthorId(Long authorId) {
         if (authorId == null) {
-            throw new IllegalArgumentException("Author Id is null.");
+            throw new IllegalArgumentException("作者 ID 不能为空");
         }
         List<BlogPostTag> tags = tagRepository.findByAuthorId(authorId);
         return new ArrayList<>(tags);

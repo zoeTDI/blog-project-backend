@@ -107,10 +107,10 @@ public class BlogPostCategoryService {
         Long userId = currentUserProvider.getUserId();
         BlogPostCategory targetCategory = categoryRepository.findById(targetId);
         if (targetCategory == null) {
-            throw new IllegalArgumentException("Target category not exists or already deleted.");
+            throw new IllegalArgumentException("目标分类不存在");
         }
         if (!Objects.equals(userId, targetCategory.getUserId())) {
-            throw new IllegalArgumentException("No permission to modify this category.");
+            throw new IllegalArgumentException("没有权限修改该分类");
         }
 
         BlogPostCategory category = new BlogPostCategory();

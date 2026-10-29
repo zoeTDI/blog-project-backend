@@ -69,7 +69,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
     @Override
     public PageResult<BlogPost> findPageByAuthorId(Long authorId, long page, long size) {
         if (authorId == null) {
-            throw new IllegalArgumentException("Author id cannot be null.");
+            throw new IllegalArgumentException("作者 ID 不能为空");
         }
         Page<BlogPostPO> pageRequest = new Page<>(page, size);
         LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
@@ -88,7 +88,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
     @Override
     public Boolean updateById(BlogPost post) {
         if (post == null || post.getId() == null) {
-            throw new IllegalArgumentException("Article not existe or article ID not existe.");
+            throw new IllegalArgumentException("文章不存在或文章 ID 为空");
         }
         BlogPostPO po = assembler.toPO(post);
         int updateById = postMapper.updateById(po);
