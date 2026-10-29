@@ -8,11 +8,11 @@ import cn.caldm.www.post_context.infrastructure.persistence.assembler.BlogPostTa
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -42,9 +42,7 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
 
     @Override
     public boolean deleteById(Long id) {
-        LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(BlogPostTagPO::getId, id).set(BlogPostTagPO::getDeleted, true);
-        return tagMapper.update(wrapper) == 1;
+        return tagMapper.deleteById(id) == 1;
     }
 
     @Override
@@ -56,13 +54,11 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
 
     @Override
     public int batchDeleteByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty())
+        if (ids == null || ids.isEmpty()) {
             return 0;
-        LambdaUpdateWrapper<BlogPostTagPO> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.in(BlogPostTagPO::getId, ids)
-                .eq(BlogPostTagPO::getDeleted, false)
-                .set(BlogPostTagPO::getDeleted, true);
-        return tagMapper.update(null, wrapper);
+        }
+        List<Long> filtered = ids.stream().filter(Objects::nonNull).toList();
+        return tagMapper.deleteBatchIds(filtered);
     }
 
     @Override
@@ -71,8 +67,7 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
             return new ArrayList<>();
         }
         LambdaQueryWrapper<BlogPostTagPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(BlogPostTagPO::getId, ids)
-                .eq(BlogPostTagPO::getDeleted, false);
+        wrapper.in(BlogPostTagPO::getId, ids);
         return tagMapper.selectList(wrapper).stream()
                 .map(assembler::toDomain)
                 .collect(Collectors.toList());
@@ -85,8 +80,7 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
         }
         LambdaQueryWrapper<BlogPostTagPO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BlogPostTagPO::getAuthorId, authorId)
-                .eq(BlogPostTagPO::getName, name.trim())
-                .eq(BlogPostTagPO::getDeleted, false);
+                .eq(BlogPostTagPO::getName, name.trim());
         BlogPostTagPO po = tagMapper.selectOne(wrapper);
         return assembler.toDomain(po);
     }

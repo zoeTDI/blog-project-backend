@@ -129,14 +129,7 @@ public class BlogPostCategoryService {
         if (authorId == null) {
             return List.of();
         }
-        List<BlogPostCategory> categoryList = categoryRepository.findListByUserId(authorId);
-
-        // Filter out deleted categories.（冗余过滤归 P16 批次处理）
-        List<BlogPostCategory> filtered = categoryList.stream()
-                .filter(category -> category.getDeleted() == false)
-                .collect(Collectors.toList());
-
-        return BlogPostCategoryUtils.buildTree(filtered);
+        return BlogPostCategoryUtils.buildTree(categoryRepository.findListByUserId(authorId));
     }
 
     /**

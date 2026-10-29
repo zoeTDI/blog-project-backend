@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,8 +70,6 @@ public class BlogPostTagService {
         BlogPostTag existingTag = tagRepository.findById(targetTagId);
         if (existingTag == null)
             throw new IllegalArgumentException("目标tag不存在");
-        if (existingTag.getDeleted())
-            throw new IllegalArgumentException("目标tag被软删除");
         if (!existingTag.getAuthorId().equals(curUserId))
             throw new IllegalArgumentException("目标tag不归属当前用户");
         if (existingTag.getName().equals(newName)) {
@@ -102,10 +101,6 @@ public class BlogPostTagService {
         if (!tag.getAuthorId().equals(curUserId)) {
             throw new IllegalArgumentException("目标tag不归属当前用户");
         }
-        if (tag.getDeleted()) {
-            // 无需更改，直接返回
-            return;
-        }
         tagRelationRepository.deleteByTagId(tagId);
 
         tagRepository.deleteById(tagId);
@@ -119,9 +114,7 @@ public class BlogPostTagService {
             throw new IllegalArgumentException("Author Id is null.");
         }
         List<BlogPostTag> tags = tagRepository.findByAuthorId(authorId);
-        return tags.stream()
-                .filter(tag -> tag.getDeleted() == false)
-                .collect(Collectors.toList());
+        return new ArrayList<>(tags);
 
     }
 

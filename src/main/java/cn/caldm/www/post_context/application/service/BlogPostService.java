@@ -147,9 +147,6 @@ public class BlogPostService {
         if (post == null) {
             throw new IllegalArgumentException("Target post is null.");
         }
-        if (post.getDeleted()) {
-            throw new IllegalArgumentException("Target post is deleted.");
-        }
         if (BlogPostStatusEnum.REVIEWING.equals(post.getStatus())) {
             throw new IllegalArgumentException("Target article is under review, cannot modify.");
         }
@@ -251,9 +248,6 @@ public class BlogPostService {
             throw new IllegalArgumentException("Target post id is null.");
         }
         BlogPost cached = blogPostRepository.findById(postId);
-        if (cached == null || cached.getDeleted()) {
-            throw new IllegalStateException("Target post is deleted.");
-        }
         Long userId = currentUserProvider.getUserId();
         List<String> roles = currentUserProvider.getRoles();
         Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains("AUTHOR");
@@ -270,9 +264,6 @@ public class BlogPostService {
             throw new IllegalArgumentException("Target post id is null.");
         }
         BlogPost cached = blogPostRepository.findById(postId);
-        if (cached == null || cached.getDeleted()) {
-            throw new IllegalStateException("Target post is deleted.");
-        }
         List<String> roles = currentUserProvider.getRoles();
         if (!roles.contains("ADMIN") && !roles.contains("AUDITOR")) {
             throw new IllegalStateException("No permission to do it.");

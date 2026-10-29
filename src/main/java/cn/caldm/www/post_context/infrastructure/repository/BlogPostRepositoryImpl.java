@@ -52,8 +52,7 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
             return List.of();
         }
         LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(BlogPostPO::getId, ids)
-                .eq(BlogPostPO::getDeleted, false);
+        wrapper.in(BlogPostPO::getId, ids);
         return postMapper.selectList(wrapper).stream()
                 .map(assembler::toDomain)
                 .collect(Collectors.toList());
