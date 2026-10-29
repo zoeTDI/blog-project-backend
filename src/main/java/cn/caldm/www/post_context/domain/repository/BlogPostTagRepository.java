@@ -15,8 +15,6 @@ public interface BlogPostTagRepository {
 
     int batchDeleteByIds(List<Long> ids);
 
-    boolean existsByName(String name, Long authorId);
-
     /**
      * 根据ID列表批量查询标签
      * 

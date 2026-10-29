@@ -259,4 +259,18 @@ public class BlogPostServiceTest {
         assertThatThrownBy(() -> blogPostService.softDeletePost(5L))
                 .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
     }
+
+    @Test
+    void createPost_shouldThrowWhenSaveFailed() {
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getUsername()).thenReturn("tester");
+        when(blogPostRepository.save(any(BlogPost.class))).thenReturn(null);
+
+        BlogPostCreateCommand command = new BlogPostCreateCommand();
+        command.setTitle("测试标题");
+
+        assertThatThrownBy(() -> blogPostService.createPost(command))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("创建文章失败");
+    }
 }

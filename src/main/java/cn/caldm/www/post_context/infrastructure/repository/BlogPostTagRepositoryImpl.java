@@ -66,17 +66,6 @@ public class BlogPostTagRepositoryImpl implements BlogPostTagRepository {
     }
 
     @Override
-    public boolean existsByName(String name, Long authorId) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        LambdaQueryWrapper<BlogPostTagPO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BlogPostTagPO::getName, name.trim())
-                .eq(BlogPostTagPO::getAuthorId, authorId);
-        return tagMapper.exists(wrapper);
-    }
-
-    @Override
     public List<BlogPostTag> findByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return new ArrayList<>();

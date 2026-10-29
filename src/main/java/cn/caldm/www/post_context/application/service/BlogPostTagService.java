@@ -34,16 +34,13 @@ public class BlogPostTagService {
 
     public Long createTag(String tagName) {
         if (!StringUtils.hasText(tagName)) {
-            return null;
+            throw new IllegalArgumentException("标签名称不能为空");
         }
         String trimmedName = tagName.trim();
         Long authorId = currentUserProvider.getUserId();
         BlogPostTag existingTag = tagRepository.findByAuthorIdAndName(authorId, trimmedName);
         if (existingTag != null) {
-            return null; // 标签已存在
-        }
-        if (tagRepository.existsByName(trimmedName, currentUserProvider.getUserId())) {
-            return null;
+            throw new IllegalArgumentException("标签已存在");
         }
         String currentUser = currentUserProvider.getUsername();
         LocalDateTime now = LocalDateTime.now();
@@ -55,7 +52,12 @@ public class BlogPostTagService {
                 .setUpdater(currentUser)
                 .setUpdateTime(now)
                 .setDeleted(false);
-        return tagRepository.add(tag);
+        Long tagId = tagRepository.add(tag);
+        if (tagId == null) {
+            throw new IllegalStateException("创建标签失败");
+        }
+        return tagId;
+
     }
 
     @Transactional(rollbackFor = Exception.class)

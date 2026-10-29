@@ -11,7 +11,6 @@ import cn.caldm.www.post_context.interfaces.dto.BlogPostPageQueryDTO;
 import cn.caldm.www.post_context.interfaces.dto.BlogPostSummaryDTO;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.Result;
-import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,11 +55,7 @@ public class BlogPostController {
     @PostMapping("/blogPost/create")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<Long> create(@Valid @RequestBody BlogPostCreateCommand command) {
-        Long postId = blogPostService.createPost(command);
-        if (postId == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        return Result.success(postId);
+        return Result.success(blogPostService.createPost(command));
     }
 
     @PostMapping("/blogPost/update")

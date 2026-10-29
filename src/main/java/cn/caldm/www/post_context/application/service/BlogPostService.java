@@ -94,13 +94,10 @@ public class BlogPostService {
         blogPost.setCommentCount(0);
 
         BlogPost savedPost = blogPostRepository.save(blogPost);
-        if (savedPost == null) {
-            return null;
+        if (savedPost == null || savedPost.getId() == null) {
+            throw new IllegalStateException("创建文章失败");
         }
         Long postId = savedPost.getId();
-        if (postId == null) {
-            return null;
-        }
         if (command.getTagIds() != null && !command.getTagIds().isEmpty()) {
             List<BlogPostTagRelation> tagRelations = command.getTagIds().stream()
                     .filter(Objects::nonNull)

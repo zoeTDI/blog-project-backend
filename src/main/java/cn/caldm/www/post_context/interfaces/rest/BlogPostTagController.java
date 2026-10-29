@@ -32,14 +32,7 @@ public class BlogPostTagController {
     @PostMapping("/createTag")
     @PreAuthorize("@ss.isContentOperator()")
     public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
-        if (tagName == null || tagName.isBlank()) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
-        Long tagId = tagService.createTag(tagName);
-        if (tagId == null) {
-            return Result.error(ResultCodeEnum.INTERNAL_SERVER_ERROR);
-        }
-        return Result.success(Collections.singletonMap("tagId", tagId));
+        return Result.success(Collections.singletonMap("tagId", tagService.createTag(tagName)));
     }
 
     @PostMapping("/renameTag")
