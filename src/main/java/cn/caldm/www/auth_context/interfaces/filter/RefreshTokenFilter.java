@@ -2,6 +2,7 @@ package cn.caldm.www.auth_context.interfaces.filter;
 
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.infrastructure.security.JwtTokenProvider;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
@@ -14,6 +15,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,17 +31,13 @@ import java.util.Map;
  *
  * @author caldm
  */
+@RequiredArgsConstructor
 public class RefreshTokenFilter extends OncePerRequestFilter {
 
     private final AuthUserFacadeService authUserFacadeService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
-
-    public RefreshTokenFilter(AuthUserFacadeService authUserFacadeService, JwtTokenProvider jwtTokenProvider) {
-        this.authUserFacadeService = authUserFacadeService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.objectMapper = new ObjectMapper();
-    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final TokenBlacklistRepository blacklistRepository;
 
     @Override
     protected void doFilterInternal(
@@ -58,7 +56,10 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         }
 
         Map<String, Claim> data = jwtTokenProvider.verifyToken(refreshToken);
-        if (data == null || !"refresh".equals(data.get("type").asString())) {
+        if (data == null
+                || !"refresh".equals(data.get("type").asString())
+                || blacklistRepository.isBlacklisted(refreshToken)
+        ) {
             writeErrorResponse(response);
             return;
         }

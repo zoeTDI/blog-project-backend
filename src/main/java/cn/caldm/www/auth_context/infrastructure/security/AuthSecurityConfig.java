@@ -1,6 +1,7 @@
 package cn.caldm.www.auth_context.infrastructure.security;
 
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
+import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.interfaces.filter.AccessTokenFilter;
 import cn.caldm.www.auth_context.interfaces.filter.RefreshTokenFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,8 +32,8 @@ import java.io.IOException;
 public class AuthSecurityConfig {
 
     @Bean
-    public AccessTokenFilter accessTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider) {
-        return new AccessTokenFilter(facade, provider);
+    public AccessTokenFilter accessTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider, TokenBlacklistRepository blacklistRepository) {
+        return new AccessTokenFilter(facade, provider, blacklistRepository);
     }
 
 
@@ -45,8 +46,8 @@ public class AuthSecurityConfig {
 
 
     @Bean
-    public RefreshTokenFilter refreshTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider) {
-        return new RefreshTokenFilter(facade, provider);
+    public RefreshTokenFilter refreshTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider, TokenBlacklistRepository blacklistRepository) {
+        return new RefreshTokenFilter(facade, provider, blacklistRepository);
     }
 
     @Bean

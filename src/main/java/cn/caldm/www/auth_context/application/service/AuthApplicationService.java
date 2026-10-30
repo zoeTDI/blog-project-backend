@@ -43,7 +43,7 @@ public class AuthApplicationService {
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByUsername(username);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new IllegalArgumentException("用户名或密码错误");
         }
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
@@ -58,7 +58,7 @@ public class AuthApplicationService {
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("邮箱或密码错误");
+            throw new IllegalArgumentException("邮箱或密码错误");
         }
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
@@ -74,11 +74,11 @@ public class AuthApplicationService {
         String key = LOGIN_PREFIX + email;
         boolean isValid = verificationCodeRepository.verifyCode(key, code);
         if (!isValid) {
-            throw new RuntimeException("验证码错误或已过期");
+            throw new IllegalArgumentException("验证码错误或已过期");
         }
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null) {
-            throw new RuntimeException("该邮箱尚未注册");
+            throw new IllegalArgumentException("该邮箱尚未注册");
         }
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
@@ -120,20 +120,23 @@ public class AuthApplicationService {
 
     public TokenPair refreshToken(String oldRefreshToken) {
         if (blacklistRepository.isBlacklisted(oldRefreshToken)) {
-            throw new RuntimeException("Refresh Token 已失效");
+            throw new IllegalArgumentException("Refresh Token 已失效");
         }
         var claims = jwtTokenProvider.verifyToken(oldRefreshToken);
         if (claims == null || !"refresh".equals(claims.get("type").asString())) {
-            throw new RuntimeException("非法的 Refresh Token");
+            throw new IllegalArgumentException("非法的 Refresh Token");
         }
 
         Long id = claims.get("id").asLong();
         AuthUser user = authUserFacadeService.getCredentialById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
         // 已封禁或已删除用户不允许刷新 token
         if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
             || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
         ) {
-            return null;
+            throw new IllegalArgumentException("账号已被封禁或注销");
         }
         blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
         long now = System.currentTimeMillis();
@@ -149,7 +152,7 @@ public class AuthApplicationService {
         if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
                 || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
         ) {
-            throw new RuntimeException("账号已被封禁或注销");
+            throw new IllegalArgumentException("账号已被封禁或注销");
         }
         long now = System.currentTimeMillis();
         return new TokenPair(
