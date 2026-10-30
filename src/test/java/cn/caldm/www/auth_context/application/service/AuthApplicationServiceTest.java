@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
+import cn.caldm.www.auth_context.interfaces.dto.LoginECCommand;
+import cn.caldm.www.auth_context.interfaces.dto.SendLoginCodeCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -86,6 +88,35 @@ public class AuthApplicationServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("用户不存在");
     }
+
+    @Test
+    void sendLoginCode_shouldThrow_whenInCooldown() {
+        when(verificationCodeRepository.tryMarkSendCooldown("a@b.com", 60L))
+                .thenReturn(false);
+
+        SendLoginCodeCommand command = new SendLoginCodeCommand();
+        command.setEmail("a@b.com");
+
+        assertThatThrownBy(() -> authApplicationService.sendLoginCode(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("频繁");
+    }
+
+    @Test
+    void loginByEC_shouldUseUnifiedMessage_whenEmailUnregistered() {
+        when(verificationCodeRepository.verifyCode("user:login:code:a@b.com", "123456"))
+                .thenReturn(true);
+        when(authUserFacadeService.getCredentialByEmail("a@b.com")).thenReturn(null);
+
+        LoginECCommand command = new LoginECCommand();
+        command.setEmail("a@b.com");
+        command.setCode("123456");
+
+        assertThatThrownBy(() -> authApplicationService.loginByEC(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("验证码错误或已过期");
+    }
+
 
     private Map<String, Claim> refreshClaims() {
         Claim type = mock(Claim.class);

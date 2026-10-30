@@ -28,4 +28,12 @@ public interface VerificationCodeRepository {
      * @return 是否通过
      */
     boolean verifyCode(String target, String code);
+
+    /**
+     * 原子抢占发送冷却窗口，防止验证码轰炸
+     * @param target
+     * @param ttlSeconds
+     * @return 抢占结果
+     */
+    boolean tryMarkSendCooldown(String target, long ttlSeconds);
 }

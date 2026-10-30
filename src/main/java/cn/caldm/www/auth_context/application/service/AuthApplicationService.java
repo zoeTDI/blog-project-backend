@@ -78,7 +78,7 @@ public class AuthApplicationService {
         }
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null) {
-            throw new IllegalArgumentException("该邮箱尚未注册");
+            throw new IllegalArgumentException("验证码错误或已过期");
         }
         TokenPair tokenPair = generateTokenForUser(user);
         user.setRefreshToken(tokenPair.getRefreshToken());
@@ -93,6 +93,11 @@ public class AuthApplicationService {
      */
     public boolean sendLoginCode(@Validated SendLoginCodeCommand command) {
         String email = command.getEmail();
+
+        if (!verificationCodeRepository.tryMarkSendCooldown(email, 60)) {
+            throw new IllegalArgumentException("发送过于频繁，请稍后再试");
+        }
+
         String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
 
         try {
