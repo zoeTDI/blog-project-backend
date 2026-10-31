@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthApplicationService authService;
+
+    /** Cookie Secure 标记：本地默认 false，生产环境务必配置为 true（HTTPS 下才下发） */
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
+
+    /** Cookie SameSite：Lax / Strict / None，None 必须配合 secure=true 才会被浏览器接受 */
+    @Value("${app.cookie.same-site:Lax}")
+    private String cookieSameSite;
 
     public AuthController(AuthApplicationService authService) {
         this.authService = authService;
@@ -107,10 +116,10 @@ public class AuthController {
     private void setCookie(HttpServletResponse response, String name, String value, long maxAge) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(false) // 生产环境建议设为 true
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(maxAge)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
     }
