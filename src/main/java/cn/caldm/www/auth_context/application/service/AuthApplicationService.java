@@ -12,12 +12,14 @@ import cn.caldm.www.auth_context.interfaces.dto.SendLoginCodeCommand;
 import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.model.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.model.SysUserStatusEnum;
+import com.auth0.jwt.interfaces.Claim;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.security.SecureRandom;
+import java.util.Map;
 
 /**
  *
@@ -124,9 +126,6 @@ public class AuthApplicationService {
     }
 
     public TokenPair refreshToken(String oldRefreshToken) {
-        if (blacklistRepository.isBlacklisted(oldRefreshToken)) {
-            throw new IllegalArgumentException("Refresh Token 已失效");
-        }
         var claims = jwtTokenProvider.verifyToken(oldRefreshToken);
         if (claims == null || !"refresh".equals(claims.get("type").asString())) {
             throw new IllegalArgumentException("非法的 Refresh Token");
@@ -143,7 +142,10 @@ public class AuthApplicationService {
         ) {
             throw new IllegalArgumentException("账号已被封禁或注销");
         }
-        blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
+        long remaining = jwtTokenProvider.getRemainingExpiration(oldRefreshToken);
+        if (remaining <= 0 || !blacklistRepository.tryBlacklist(oldRefreshToken, remaining)) {
+            throw new IllegalArgumentException("Refresh Token 已失效");
+        }
         long now = System.currentTimeMillis();
         return new TokenPair(
                 jwtTokenProvider.createAccessToken(user),

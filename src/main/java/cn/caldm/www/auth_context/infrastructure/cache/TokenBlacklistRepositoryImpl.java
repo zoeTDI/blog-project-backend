@@ -29,6 +29,16 @@ public class TokenBlacklistRepositoryImpl implements TokenBlacklistRepository {
     }
 
     @Override
+    public boolean tryBlacklist(String token, long ttlMillis) {
+        if (ttlMillis <= 0) {
+            return false;
+        }
+        Boolean success = redisTemplate.opsForValue()
+                .setIfAbsent(PREFIX + token, "1", ttlMillis, TimeUnit.MILLISECONDS);
+        return Boolean.TRUE.equals(success);
+    }
+
+    @Override
     public boolean isBlacklisted(String token) {
         return redisTemplate.hasKey(PREFIX + token);
     }
