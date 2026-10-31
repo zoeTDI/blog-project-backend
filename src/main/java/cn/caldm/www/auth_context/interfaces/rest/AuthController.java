@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author caldm
  */
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -36,17 +38,10 @@ public class AuthController {
     @Value("${app.cookie.same-site:Lax}")
     private String cookieSameSite;
 
-    public AuthController(AuthApplicationService authService) {
-        this.authService = authService;
-    }
-
     @PostMapping("/login/username-password")
     @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginUPCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByUP(command);
-        if (authUser == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
         return handleLoginSuccess(response, authUser);
     }
 
@@ -54,9 +49,6 @@ public class AuthController {
     @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginEPCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByEP(command);
-        if (authUser == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
         return handleLoginSuccess(response, authUser);
     }
 
@@ -64,9 +56,6 @@ public class AuthController {
     @Anonymous
     public Result<LoginResDTO> login(@Valid @RequestBody LoginECCommand command, HttpServletResponse response) {
         AuthUser authUser = authService.loginByEC(command);
-        if (authUser == null) {
-            return Result.error(ResultCodeEnum.BAD_REQUEST);
-        }
         return handleLoginSuccess(response, authUser);
     }
 
