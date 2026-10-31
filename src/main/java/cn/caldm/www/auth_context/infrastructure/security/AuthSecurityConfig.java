@@ -59,7 +59,7 @@ public class AuthSecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain refreshChian(HttpSecurity http, RefreshTokenFilter refreshTokenFilter) throws Exception {
+    public SecurityFilterChain refreshChain(HttpSecurity http, RefreshTokenFilter refreshTokenFilter) throws Exception {
         http
                 .securityMatcher("/auth/refresh")
                 .csrf(AbstractHttpConfigurer::disable)

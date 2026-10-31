@@ -38,7 +38,7 @@ public class AuthApplicationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    private final String LOGIN_PREFIX = "user:login:code:";
+    private static final String LOGIN_PREFIX = "user:login:code:";
     /** 过期时间统一提前 1 分钟，防止服务端/客户端时钟偏差导致 token 刚下发即被判过期 */
     private static final long TOKEN_GRACE_MILLIS = 60_000L;
 
