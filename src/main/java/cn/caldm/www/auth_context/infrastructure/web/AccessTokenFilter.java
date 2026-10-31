@@ -1,4 +1,4 @@
-package cn.caldm.www.auth_context.interfaces.filter;
+package cn.caldm.www.auth_context.infrastructure.web;
 
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;

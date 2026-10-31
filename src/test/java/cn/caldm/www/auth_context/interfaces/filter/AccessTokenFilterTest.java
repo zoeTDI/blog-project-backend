@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.caldm.www.auth_context.infrastructure.web.AccessTokenFilter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
