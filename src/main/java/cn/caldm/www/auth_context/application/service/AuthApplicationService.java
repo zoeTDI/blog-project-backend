@@ -12,14 +12,12 @@ import cn.caldm.www.auth_context.interfaces.dto.SendLoginCodeCommand;
 import cn.caldm.www.shared_kernel.utils.LogUtils;
 import cn.caldm.www.user_context.domain.model.SysUserDeletedEnum;
 import cn.caldm.www.user_context.domain.model.SysUserStatusEnum;
-import com.auth0.jwt.interfaces.Claim;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.security.SecureRandom;
-import java.util.Map;
 
 /**
  *
