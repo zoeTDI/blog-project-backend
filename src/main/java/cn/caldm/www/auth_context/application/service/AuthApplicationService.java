@@ -39,6 +39,8 @@ public class AuthApplicationService {
     private final PasswordEncoder passwordEncoder;
 
     private final String LOGIN_PREFIX = "user:login:code:";
+    /** 过期时间统一提前 1 分钟，防止服务端/客户端时钟偏差导致 token 刚下发即被判过期 */
+    private static final long TOKEN_GRACE_MILLIS = 60_000L;
 
     public AuthUser loginByUP(@Validated LoginUPCommand command) {
         String username = command.getUsername();
@@ -47,11 +49,7 @@ public class AuthApplicationService {
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("用户名或密码错误");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -62,11 +60,7 @@ public class AuthApplicationService {
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("邮箱或密码错误");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -82,11 +76,7 @@ public class AuthApplicationService {
         if (user == null) {
             throw new IllegalArgumentException("验证码错误或已过期");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -146,12 +136,31 @@ public class AuthApplicationService {
         if (remaining <= 0 || !blacklistRepository.tryBlacklist(oldRefreshToken, remaining)) {
             throw new IllegalArgumentException("Refresh Token 已失效");
         }
+        return buildTokenPair(user);
+    }
+
+
+    /**
+     * 将 TokenPair 写回 AuthUser，供登录接口返回。
+     */
+    private void applyTokenPair(AuthUser user, TokenPair tokenPair) {
+        user.setAccessToken(tokenPair.getAccessToken());
+        user.setRefreshToken(tokenPair.getRefreshToken());
+        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
+        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+    }
+
+    /**
+     * 构造 TokenPair，不含用户状态校验（调用方负责）。
+     * 过期时间统一减去 TOKEN_GRACE_MILLIS。
+     */
+    private TokenPair buildTokenPair(AuthUser user) {
         long now = System.currentTimeMillis();
         return new TokenPair(
                 jwtTokenProvider.createAccessToken(user),
                 jwtTokenProvider.createRefreshToken(user),
-                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
-                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
+                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - TOKEN_GRACE_MILLIS,
+                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - TOKEN_GRACE_MILLIS
         );
     }
 
@@ -161,12 +170,6 @@ public class AuthApplicationService {
         ) {
             throw new IllegalArgumentException("账号已被封禁或注销");
         }
-        long now = System.currentTimeMillis();
-        return new TokenPair(
-                jwtTokenProvider.createAccessToken(user),
-                jwtTokenProvider.createRefreshToken(user),
-                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
-                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
-        );
+        return buildTokenPair(user);
     }
 }
