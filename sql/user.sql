@@ -134,6 +134,48 @@ CREATE TABLE `system_resource` (
   COLLATE=utf8mb4_unicode_ci
   COMMENT='系统资源及权限原子表';
 
+INSERT INTO `system_resource` (`id`, `name`, `permission`, `type`, `parent_id`, `sort`, `status`) VALUES
+-- ===== 内容管理（目录 1）=====
+(1,  '内容管理',       'router:content',             1, 0,  1, 0),
+-- 文章管理（菜单 2）
+(2,  '文章管理',       'router:content:post',        2, 1,  1, 0),
+(3,  '创建文章',       'post:create',                3, 2,  1, 0),
+(4,  '更新文章',       'post:update',                3, 2,  2, 0),
+(5,  '删除文章',       'post:delete',                3, 2,  3, 0),
+(6,  '提交审核',       'post:submit',                3, 2,  4, 0),
+-- 审核队列（菜单 7，对应端点待实现）
+(7,  '审核队列',       'router:content:review',      2, 1,  2, 0),
+(8,  '发布文章',       'post:publish',               3, 7,  1, 0),
+-- 分类/标签管理（菜单 9）
+(9,  '分类/标签管理',  'router:content:category',    2, 1,  3, 0),
+(10, '分类管理',       'category:manage',            3, 9,  1, 0),
+(11, '标签管理',       'tag:manage',                 3, 9,  2, 0),
+-- ===== 系统管理（目录 12）=====
+(12, '系统管理',       'router:admin',               1, 0,  2, 0),
+-- 用户管理（菜单 13）
+(13, '用户管理',       'router:admin:userManage',    2, 12, 1, 0),
+(14, '用户管理操作',   'user:manage',                3, 13, 1, 0),
+-- 资源管理（菜单 15）
+(15, '资源管理',       'router:admin:resourceManage',2, 12, 2, 0),
+(16, '资源管理操作',   'resource:manage',            3, 15, 1, 0);
+
+INSERT INTO `system_role_resource` (`role_id`, `resource_id`, `creator`, `create_time`) VALUES
+-- 作者（role_id = 2）：内容域菜单 + 创作权限
+(2, 1,  'system', CURRENT_TIMESTAMP),
+(2, 2,  'system', CURRENT_TIMESTAMP),
+(2, 3,  'system', CURRENT_TIMESTAMP),
+(2, 4,  'system', CURRENT_TIMESTAMP),
+(2, 5,  'system', CURRENT_TIMESTAMP),
+(2, 6,  'system', CURRENT_TIMESTAMP),
+(2, 9,  'system', CURRENT_TIMESTAMP),
+(2, 10, 'system', CURRENT_TIMESTAMP),
+(2, 11, 'system', CURRENT_TIMESTAMP),
+-- 审核员（role_id = 3）：文章列表 + 审核队列 + 发布
+(3, 1,  'system', CURRENT_TIMESTAMP),
+(3, 2,  'system', CURRENT_TIMESTAMP),
+(3, 7,  'system', CURRENT_TIMESTAMP),
+(3, 8,  'system', CURRENT_TIMESTAMP);
+
 
 DROP TABLE IF EXISTS `system_user_role`;
 CREATE TABLE `system_user_role` (
