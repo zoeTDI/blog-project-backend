@@ -19,9 +19,10 @@ import java.util.Arrays;
 public class SecurityExpressionService {
 
     private final CurrentUserProvider currentUserProvider;
-    
+
     /**
      * 校验当前用户是否具备任意角色
+     * 
      * @return 是否包含角色
      */
     public boolean hasRole() {
@@ -128,8 +129,7 @@ public class SecurityExpressionService {
     public boolean isManager() {
         return hasAnyRole(
                 new UserRole("ROLE_ADMIN"),
-                new UserRole("ROLE_AUDITOR")
-        );
+                new UserRole("ROLE_AUDITOR"));
     }
 
     /**
@@ -139,8 +139,7 @@ public class SecurityExpressionService {
     public boolean isContentOperator() {
         return hasAnyRole(
                 new UserRole("ROLE_ADMIN"),
-                new UserRole("ROLE_AUTHOR")
-        );
+                new UserRole("ROLE_AUTHOR"));
     }
 
     /**
@@ -149,7 +148,44 @@ public class SecurityExpressionService {
     public boolean isContentUser() {
         return hasAnyRole(
                 new UserRole("ROLE_AUTHOR"),
-                new UserRole("ROLE_AUDITOR")
-        );
+                new UserRole("ROLE_AUDITOR"));
+    }
+
+    public boolean hasPermission(String permissionCode) {
+        if (currentUserProvider.getOptCurrentUser().isEmpty()) {
+            return false;
+        }
+        if (currentUserProvider.getRoles().contains("ADMIN")) {
+            return true;
+        }
+        return currentUserProvider.getPermission().stream()
+                .anyMatch(granted -> matches(granted, permissionCode));
+    }
+
+    public boolean hasAnyPermission(String... permissionCodes) {
+        if (permissionCodes == null || permissionCodes.length == 0) {
+            return false;
+        }
+        return Arrays.stream(permissionCodes).anyMatch(this::hasPermission);
+    }
+
+    public boolean hasAllPermissions(String... permissionCodes) {
+        if (permissionCodes == null || permissionCodes.length == 0) {
+            return false;
+        }
+        return Arrays.stream(permissionCodes).allMatch(this::hasPermission);
+    }
+
+    private boolean matches(String granted, String required) {
+        if (granted == null) {
+            return false;
+        }
+        if (granted.equals(required)) {
+            return true;
+        }
+        if (granted.endsWith(":*")) {
+            return required.startsWith(granted.substring(0, granted.length() - 1));
+        }
+        return false;
     }
 }
