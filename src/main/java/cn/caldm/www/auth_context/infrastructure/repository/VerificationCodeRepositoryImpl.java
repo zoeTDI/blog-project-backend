@@ -53,4 +53,12 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
         }
         return false;
     }
+
+    @Override
+    public boolean tryMarkSendCooldown(String target, long ttlSeconds) {
+        String key = CODE_PREFIX + "cooldown:" + target;
+        Boolean success = stringRedisTemplate.opsForValue()
+                .setIfAbsent(key, "1", ttlSeconds, TimeUnit.SECONDS);
+        return Boolean.TRUE.equals(success);
+    }
 }

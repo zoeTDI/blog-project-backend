@@ -36,20 +36,18 @@ public class AuthApplicationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    private final String LOGIN_PREFIX = "user:login:code:";
+    private static final String LOGIN_PREFIX = "user:login:code:";
+    /** 过期时间统一提前 1 分钟，防止服务端/客户端时钟偏差导致 token 刚下发即被判过期 */
+    private static final long TOKEN_GRACE_MILLIS = 60_000L;
 
     public AuthUser loginByUP(@Validated LoginUPCommand command) {
         String username = command.getUsername();
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByUsername(username);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
+            throw new IllegalArgumentException("用户名或密码错误");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -58,13 +56,9 @@ public class AuthApplicationService {
         String password = command.getPassword();
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("邮箱或密码错误");
+            throw new IllegalArgumentException("邮箱或密码错误");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -74,17 +68,13 @@ public class AuthApplicationService {
         String key = LOGIN_PREFIX + email;
         boolean isValid = verificationCodeRepository.verifyCode(key, code);
         if (!isValid) {
-            throw new RuntimeException("验证码错误或已过期");
+            throw new IllegalArgumentException("验证码错误或已过期");
         }
         AuthUser user = authUserFacadeService.getCredentialByEmail(email);
         if (user == null) {
-            throw new RuntimeException("该邮箱尚未注册");
+            throw new IllegalArgumentException("验证码错误或已过期");
         }
-        TokenPair tokenPair = generateTokenForUser(user);
-        user.setRefreshToken(tokenPair.getRefreshToken());
-        user.setAccessToken(tokenPair.getAccessToken());
-        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
-        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+        applyTokenPair(user, generateTokenForUser(user));
         return user;
     }
 
@@ -93,6 +83,11 @@ public class AuthApplicationService {
      */
     public boolean sendLoginCode(@Validated SendLoginCodeCommand command) {
         String email = command.getEmail();
+
+        if (!verificationCodeRepository.tryMarkSendCooldown(email, 60)) {
+            throw new IllegalArgumentException("发送过于频繁，请稍后再试");
+        }
+
         String code = String.format("%06d", new SecureRandom().nextInt(900000) + 100000);
 
         try {
@@ -119,29 +114,51 @@ public class AuthApplicationService {
     }
 
     public TokenPair refreshToken(String oldRefreshToken) {
-        if (blacklistRepository.isBlacklisted(oldRefreshToken)) {
-            throw new RuntimeException("Refresh Token 已失效");
-        }
         var claims = jwtTokenProvider.verifyToken(oldRefreshToken);
         if (claims == null || !"refresh".equals(claims.get("type").asString())) {
-            throw new RuntimeException("非法的 Refresh Token");
+            throw new IllegalArgumentException("非法的 Refresh Token");
         }
 
         Long id = claims.get("id").asLong();
         AuthUser user = authUserFacadeService.getCredentialById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
         // 已封禁或已删除用户不允许刷新 token
         if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
             || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
         ) {
-            return null;
+            throw new IllegalArgumentException("账号已被封禁或注销");
         }
-        blacklistRepository.addBlacklist(oldRefreshToken, jwtTokenProvider.getRemainingExpiration(oldRefreshToken));
+        long remaining = jwtTokenProvider.getRemainingExpiration(oldRefreshToken);
+        if (remaining <= 0 || !blacklistRepository.tryBlacklist(oldRefreshToken, remaining)) {
+            throw new IllegalArgumentException("Refresh Token 已失效");
+        }
+        return buildTokenPair(user);
+    }
+
+
+    /**
+     * 将 TokenPair 写回 AuthUser，供登录接口返回。
+     */
+    private void applyTokenPair(AuthUser user, TokenPair tokenPair) {
+        user.setAccessToken(tokenPair.getAccessToken());
+        user.setRefreshToken(tokenPair.getRefreshToken());
+        user.setAccessTokenExpiresAt(tokenPair.getAccessTokenExpiresAt());
+        user.setRefreshTokenExpiresAt(tokenPair.getRefreshTokenExpiresAt());
+    }
+
+    /**
+     * 构造 TokenPair，不含用户状态校验（调用方负责）。
+     * 过期时间统一减去 TOKEN_GRACE_MILLIS。
+     */
+    private TokenPair buildTokenPair(AuthUser user) {
         long now = System.currentTimeMillis();
         return new TokenPair(
                 jwtTokenProvider.createAccessToken(user),
                 jwtTokenProvider.createRefreshToken(user),
-                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
-                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
+                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - TOKEN_GRACE_MILLIS,
+                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - TOKEN_GRACE_MILLIS
         );
     }
 
@@ -149,14 +166,8 @@ public class AuthApplicationService {
         if (SysUserStatusEnum.DISABLED.equals(user.getStatus())
                 || SysUserDeletedEnum.DELETED.equals(user.getDeleted())
         ) {
-            throw new RuntimeException("账号已被封禁或注销");
+            throw new IllegalArgumentException("账号已被封禁或注销");
         }
-        long now = System.currentTimeMillis();
-        return new TokenPair(
-                jwtTokenProvider.createAccessToken(user),
-                jwtTokenProvider.createRefreshToken(user),
-                now + (jwtTokenProvider.getAccessTokenExpirationSeconds() * 1000) - 60000,
-                now + (jwtTokenProvider.getRefreshTokenExpirationSeconds() * 1000) - 60000
-        );
+        return buildTokenPair(user);
     }
 }
