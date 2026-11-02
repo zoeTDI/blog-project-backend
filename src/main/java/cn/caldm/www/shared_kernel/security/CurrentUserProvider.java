@@ -27,6 +27,10 @@ public interface CurrentUserProvider {
         return getCurrentUser().roles();
     }
 
+    default List<String> getPermission() {
+        return getCurrentUser().permissions();
+    }
+
     default boolean isAuthenticated() {
         return getOptCurrentUser().isPresent();
     }

@@ -10,8 +10,9 @@ import java.util.List;
  * 保留在 {@code AuthUser} 内部，不通过本类型外泄。
  * </p>
  */
-public record CurrentUser(Long id, String username, List<String> roles) {
+public record CurrentUser(Long id, String username, List<String> roles, List<String> permissions) {
     public CurrentUser {
         roles = roles == null ? List.of() : List.copyOf(roles);
+        permissions = permissions == null ? List.of() : List.copyOf(permissions);
     }
 }

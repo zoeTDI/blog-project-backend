@@ -1,8 +1,10 @@
 package cn.caldm.www.auth_context.infrastructure.security;
 
 import cn.caldm.www.auth_context.domain.model.AuthUser;
+import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.shared_kernel.security.CurrentUser;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
+import cn.caldm.www.shared_kernel.security.PermissionCodes;
 import cn.caldm.www.user_context.domain.model.UserRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +28,8 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
             return Optional.of(new CurrentUser(
                     authUser.getId(),
                     authUser.getUsername(),
-                    authUser.getRoles() == null ? List.of() : authUser.getRoles().stream().map(UserRole::getCode).toList()
+                    authUser.getRoles() == null ? List.of() : authUser.getRoles().stream().map(UserRole::getCode).toList(),
+                    authUser.getPermissions() == null ? List.of() : authUser.getPermissions().stream().filter(per -> per.isEnabled()).map(Permission::getPermission).toList()
             ));
         }
         return Optional.empty();
