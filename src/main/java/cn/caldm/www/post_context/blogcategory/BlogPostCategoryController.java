@@ -4,6 +4,8 @@ import cn.caldm.www.post_context.domain.model.CategoryTreeNode;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
+import cn.caldm.www.shared_kernel.security.PermissionCodes;
+import cn.caldm.www.shared_kernel.security.RequirePermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,20 +29,20 @@ public class BlogPostCategoryController {
     private final CurrentUserProvider currentUserProvider;
 
     @PostMapping("/createCategory")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
+    @RequirePermission(PermissionCodes.CATEGORY_MANAGE)
     public Result<Long> createCategory(@Valid @RequestBody BlogPostCategoryCreateCommand command) {
         return Result.success(categoryService.createCategory(command));
     }
 
     @DeleteMapping("/deleteCategory/{id}")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
+    @RequirePermission(PermissionCodes.CATEGORY_MANAGE)
     public Result<Void> deleteCategory(@PathVariable("id") Long id) {
         categoryService.deleteCategory(id);
         return Result.success();
     }
 
     @PostMapping("/renameCategory")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
+    @RequirePermission(PermissionCodes.CATEGORY_MANAGE)
     public Result<Void> renameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
         categoryService.renameCategory(command);
         return Result.success();

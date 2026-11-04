@@ -1,8 +1,10 @@
 package cn.caldm.www.post_context.blogpost;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import cn.caldm.www.shared_kernel.security.PermissionCodes;
+import cn.caldm.www.shared_kernel.security.RequirePermission;
 
 import cn.caldm.www.shared_kernel.domain.Result;
 
@@ -14,14 +16,14 @@ public class BlogPostStatusController {
     private final BlogPostService postService;
 
     @PostMapping("/status/review")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_SUBMIT)")
+    @RequirePermission(PermissionCodes.POST_SUBMIT)
     public Result<Void> changeStatus(@RequestParam(value = "postId", required = true) Long postId) {
         postService.toReview(postId);
         return Result.success();
     }
 
     @PostMapping("/status/published")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_PUBLISH)")
+    @RequirePermission(PermissionCodes.POST_PUBLISH)
     public Result<Void> toPublished(@RequestParam(value = "postId", required = true) Long postId) {
         postService.toPublished(postId);
         return Result.success();

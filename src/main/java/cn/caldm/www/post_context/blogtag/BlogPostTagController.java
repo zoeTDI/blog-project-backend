@@ -4,6 +4,8 @@ import cn.caldm.www.post_context.domain.model.BlogPostTag;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
+import cn.caldm.www.shared_kernel.security.PermissionCodes;
+import cn.caldm.www.shared_kernel.security.RequirePermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,20 +30,20 @@ public class BlogPostTagController {
     private final CurrentUserProvider currentUserProvider;
 
     @PostMapping("/createTag")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
+    @RequirePermission(PermissionCodes.TAG_MANAGE)
     public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
         return Result.success(Collections.singletonMap("tagId", tagService.createTag(tagName)));
     }
 
     @PostMapping("/renameTag")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
+    @RequirePermission(PermissionCodes.TAG_MANAGE)
     public Result<Void> renameTag(@Valid @RequestBody BlogPostTagRenameCommand command) {
         tagService.renameTag(command);
         return Result.success();
     }
 
     @DeleteMapping("/deleteTag/{id}")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
+    @RequirePermission(PermissionCodes.TAG_MANAGE)
     public Result<Void> deleteTag(@Valid @PathVariable("id") Long targetTagId) {
         tagService.deleteTag(targetTagId);
         return Result.success();

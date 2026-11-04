@@ -3,6 +3,8 @@ package cn.caldm.www.post_context.blogpost;
 import cn.caldm.www.post_context.domain.model.BlogPost;
 import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.Result;
+import cn.caldm.www.shared_kernel.security.PermissionCodes;
+import cn.caldm.www.shared_kernel.security.RequirePermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,20 +47,20 @@ public class BlogPostController {
     }
 
     @PostMapping("/blogPost/create")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_CREATE)")
+    @RequirePermission (PermissionCodes.POST_CREATE)
     public Result<Long> create(@Valid @RequestBody BlogPostCreateCommand command) {
         return Result.success(blogPostService.createPost(command));
     }
 
     @PostMapping("/blogPost/update")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_UPDATE)")
+    @RequirePermission(PermissionCodes.POST_UPDATE)
     public Result<Void> update(@Valid @RequestBody BlogPostUpdateCommand command) {
         blogPostService.updateBlogPost(command);
         return Result.success();
     }
 
     @PostMapping("/blogPost/softDelete")
-    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_DELETE)")
+    @RequirePermission(PermissionCodes.POST_DELETE)
     public Result<Void> softDelete(@RequestParam("id") Long id) {
         blogPostService.softDeletePost(id);
         return Result.success();

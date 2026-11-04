@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -15,51 +14,40 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.caldm.www.shared_kernel.security.PermissionCodes;
 import cn.caldm.www.shared_kernel.security.PermissionType;
+import cn.caldm.www.shared_kernel.security.RequirePermission;
 
 /**
  * 全项目权限守卫扫描规则（防未来破坏约定的回归钉）：
- * 1. @ss.hasPermission 引用的每个常量必须存在于 PermissionCodes 且类型为 BUTTON
+ * 1. @RequirePermission 的枚举值必须为 BUTTON 类型
  *    —— 菜单/目录码（router:*）不得用于端点守卫；
- * 2. 禁止字符串字面量写法（@ss.hasPermission('post:create')），
- *    必须使用 T(PermissionCodes).XXX 编译期常量。
+ * 2. 权限码守卫必须统一走 @RequirePermission，
+ *    禁止在 @PreAuthorize 里写 hasPermission/hasAuthority 或引用 PermissionCodes 常量。
  */
 public class PermissionGuardScanTest {
 
-    /** 提取表达式里所有 T(...PermissionCodes).CONSTANT 的常量名 */
-    private static final Pattern CONSTANT_REFERENCE = Pattern.compile("PermissionCodes\\)\\.([A-Z][A-Z0-9_]*)");
-
-    /** 检出字符串字面量写法 */
-    private static final Pattern STRING_LITERAL = Pattern.compile("@ss\\.has(?:Any|All)?Permission\\('");
+    /** 检出 @PreAuthorize 里的权限码式写法 */
+    private static final Pattern SPEL_PERMISSION_CHECK =
+            Pattern.compile("hasPermission|hasAnyPermission|hasAllPermission|hasAuthority|PermissionCodes");
 
     @Test
-    void everyPermissionGuard_shouldReferenceButtonTypeConstant() throws Exception {
+    void everyPermissionGuard_shouldFollowConventions() throws Exception {
         List<String> violations = new ArrayList<>();
 
         for (Class<?> controller : scanControllers()) {
             for (Method method : controller.getDeclaredMethods()) {
-                PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
-                if (annotation == null) {
-                    continue;
-                }
-                String expression = annotation.value();
-
-                Matcher literal = STRING_LITERAL.matcher(expression);
-                if (literal.find()) {
-                    violations.add(describe(method, "禁止字符串字面量权限码，请使用 T(PermissionCodes).XXX 常量："
-                            + expression));
+                RequirePermission requirePermission = method.getAnnotation(RequirePermission.class);
+                if (requirePermission != null
+                        && requirePermission.value().getType() != PermissionType.BUTTON) {
+                    violations.add(describe(method, "@RequirePermission 引用了非按钮码："
+                            + requirePermission.value().name() + "（类型 "
+                            + requirePermission.value().getType().getDesc() + "）"));
                 }
 
-                Matcher constants = CONSTANT_REFERENCE.matcher(expression);
-                while (constants.find()) {
-                    String constantName = constants.group(1);
-                    PermissionCodes code = PermissionCodes.valueOf(constantName);
-                    if (code.getType() != PermissionType.BUTTON) {
-                        violations.add(describe(method,
-                                "菜单/目录码不得用于端点守卫（当前 " + constantName + " 类型为 "
-                                        + code.getType().getDesc() + "）"));
-                    }
+                PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
+                if (preAuthorize != null && SPEL_PERMISSION_CHECK.matcher(preAuthorize.value()).find()) {
+                    violations.add(describe(method, "权限码守卫必须使用 @RequirePermission，禁止在 @PreAuthorize 中写："
+                            + preAuthorize.value()));
                 }
             }
         }
