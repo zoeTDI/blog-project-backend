@@ -28,20 +28,20 @@ public class BlogPostTagController {
     private final CurrentUserProvider currentUserProvider;
 
     @PostMapping("/createTag")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
     public Result<Map<String, Object>> createTag(@RequestParam("tagName") String tagName) {
         return Result.success(Collections.singletonMap("tagId", tagService.createTag(tagName)));
     }
 
     @PostMapping("/renameTag")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
     public Result<Void> renameTag(@Valid @RequestBody BlogPostTagRenameCommand command) {
         tagService.renameTag(command);
         return Result.success();
     }
 
     @DeleteMapping("/deleteTag/{id}")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).TAG_MANAGE)")
     public Result<Void> deleteTag(@Valid @PathVariable("id") Long targetTagId) {
         tagService.deleteTag(targetTagId);
         return Result.success();

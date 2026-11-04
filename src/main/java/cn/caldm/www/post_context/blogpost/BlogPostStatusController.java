@@ -14,14 +14,14 @@ public class BlogPostStatusController {
     private final BlogPostService postService;
 
     @PostMapping("/status/review")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_SUBMIT)")
     public Result<Void> changeStatus(@RequestParam(value = "postId", required = true) Long postId) {
         postService.toReview(postId);
         return Result.success();
     }
 
     @PostMapping("/status/published")
-    @PreAuthorize("@ss.isManager()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_PUBLISH)")
     public Result<Void> toPublished(@RequestParam(value = "postId", required = true) Long postId) {
         postService.toPublished(postId);
         return Result.success();

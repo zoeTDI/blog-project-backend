@@ -27,20 +27,20 @@ public class BlogPostCategoryController {
     private final CurrentUserProvider currentUserProvider;
 
     @PostMapping("/createCategory")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
     public Result<Long> createCategory(@Valid @RequestBody BlogPostCategoryCreateCommand command) {
         return Result.success(categoryService.createCategory(command));
     }
 
     @DeleteMapping("/deleteCategory/{id}")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
     public Result<Void> deleteCategory(@PathVariable("id") Long id) {
         categoryService.deleteCategory(id);
         return Result.success();
     }
 
     @PostMapping("/renameCategory")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).CATEGORY_MANAGE)")
     public Result<Void> renameCategory(@Valid @RequestBody BlogPostCategoryRenameCommand command) {
         categoryService.renameCategory(command);
         return Result.success();

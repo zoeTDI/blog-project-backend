@@ -45,20 +45,20 @@ public class BlogPostController {
     }
 
     @PostMapping("/blogPost/create")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_CREATE)")
     public Result<Long> create(@Valid @RequestBody BlogPostCreateCommand command) {
         return Result.success(blogPostService.createPost(command));
     }
 
     @PostMapping("/blogPost/update")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_UPDATE)")
     public Result<Void> update(@Valid @RequestBody BlogPostUpdateCommand command) {
         blogPostService.updateBlogPost(command);
         return Result.success();
     }
 
     @PostMapping("/blogPost/softDelete")
-    @PreAuthorize("@ss.isContentOperator()")
+    @PreAuthorize("@ss.hasPermission(T(cn.caldm.www.shared_kernel.security.PermissionCodes).POST_DELETE)")
     public Result<Void> softDelete(@RequestParam("id") Long id) {
         blogPostService.softDeletePost(id);
         return Result.success();
