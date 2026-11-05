@@ -62,4 +62,14 @@ public class ResourceRepositoryImpl implements ResourceRepository {
     public void deleteById(Long id) {
         resourceMapper.deleteById(id);
     }
+
+    @Override
+    public List<Resource> findAll() {
+        List<ResourcePO> pos = resourceMapper.selectList(null);
+        if (pos == null) {
+            return List.of();
+        }
+        return resourceAssembler.toDomainList(pos);
+    }
+
 }

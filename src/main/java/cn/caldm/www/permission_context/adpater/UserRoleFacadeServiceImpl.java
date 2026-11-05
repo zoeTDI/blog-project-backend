@@ -116,7 +116,7 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
         List<Long> relationIds = roleResourceRelationRepository.findResourceIdsByRoleIds(enabledRoleIds);
         List<Resource> resources = resourceRepository.findByIds(relationIds);
         return resources.stream()
-                .filter(Objects::nonNull)
+                .filter(res -> res != null && res.isEnabled())
                 .map(resource -> new Permission(
                         resource.getId(),
                         resource.getName(),

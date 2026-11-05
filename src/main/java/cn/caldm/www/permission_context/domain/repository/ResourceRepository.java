@@ -17,4 +17,6 @@ public interface ResourceRepository {
     Resource update(Resource resource);
 
     void deleteById(Long id);
+
+    List<Resource> findAll();
 }
