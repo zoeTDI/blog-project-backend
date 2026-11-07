@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -96,25 +97,24 @@ public class BlogPostServiceTest {
     }
 
     @Test
-    void getBlogPostById_shouldAllowAdminToViewOthersPost() {
+    void getBlogPostById_shouldRejectAdminViewingOthersPost() {
+        // 职责分离：管理员不可从后台读取他人文章
         BlogPost post = new BlogPost();
         post.setId(5L);
         post.setAuthorId(2L);
         post.setDeleted(false);
 
         when(currentUserProvider.getUserId()).thenReturn(1L);
-        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
-        when(categoryRelationRepository.findByPostId(5L)).thenReturn(List.of());
-        when(tagRelationRepository.findByPostId(5L)).thenReturn(List.of());
 
-        BlogPost result = blogPostService.getBlogPostById(5L);
-
-        assertThat(result).isSameAs(post);
+        assertThatThrownBy(() -> blogPostService.getBlogPostById(5L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("没有权限查看");
     }
 
     @Test
-    void updateBlogPost_shouldAllowAdminToUpdateOthersPost() {
+    void updateBlogPost_shouldRejectAdminUpdatingOthersPost() {
+        // 职责分离：管理员不可修改他人文章，且不得触达持久化
         BlogPost post = new BlogPost();
         post.setId(5L);
         post.setAuthorId(2L);
@@ -125,13 +125,13 @@ public class BlogPostServiceTest {
 
         when(currentUserProvider.getUserId()).thenReturn(1L);
         when(currentUserProvider.getUsername()).thenReturn("admin");
-        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
-        when(blogPostRepository.updateById(any(BlogPost.class))).thenReturn(true);
 
-        blogPostService.updateBlogPost(command);
+        assertThatThrownBy(() -> blogPostService.updateBlogPost(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("没有权限更新");
 
-        verify(blogPostRepository).updateById(any(BlogPost.class));
+        verify(blogPostRepository, never()).updateById(any(BlogPost.class));
     }
 
     @Test
@@ -149,6 +149,24 @@ public class BlogPostServiceTest {
         blogPostService.toReview(5L);
 
         verify(blogPostRepository).updateStatusById(5L, BlogPostStatusEnum.REVIEWING, null);
+    }
+
+    @Test
+    void toReview_shouldRejectAdminSubmittingOthersDraft() {
+        // 职责分离：管理员不可提交他人草稿
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setStatus(BlogPostStatusEnum.DRAFT);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.toReview(5L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("没有权限");
     }
 
     @Test
@@ -176,7 +194,7 @@ public class BlogPostServiceTest {
         post.setStatus(BlogPostStatusEnum.DRAFT);
         post.setDeleted(false);
 
-        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUDITOR"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
 
         // P3 核心回归钉：草稿不得绕过审核直达发布
@@ -193,7 +211,7 @@ public class BlogPostServiceTest {
         post.setStatus(BlogPostStatusEnum.REVIEWING);
         post.setDeleted(false);
 
-        when(currentUserProvider.getRoles()).thenReturn(List.of("ADMIN"));
+        when(currentUserProvider.getRoles()).thenReturn(List.of("AUDITOR"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
 
         blogPostService.toPublished(5L);
@@ -224,7 +242,6 @@ public class BlogPostServiceTest {
         post.setDeleted(false);
 
         when(currentUserProvider.getUserId()).thenReturn(1L);
-        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
         when(blogPostRepository.archiveById(5L)).thenReturn(true);
 
@@ -235,6 +252,22 @@ public class BlogPostServiceTest {
     }
 
     @Test
+    void softDeletePost_shouldRejectAdminDeletingOthersPost() {
+        // 职责分离：管理员不可软删除他人文章
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setDeleted(false);
+
+        when(currentUserProvider.getUserId()).thenReturn(1L);
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.softDeletePost(5L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("没有权限删除");
+    }
+
+    @Test
     void softDeletePost_shouldRejectWhenNotAuthorOrAdmin() {
         BlogPost post = new BlogPost();
         post.setId(5L);
@@ -242,7 +275,6 @@ public class BlogPostServiceTest {
         post.setDeleted(false);
 
         when(currentUserProvider.getUserId()).thenReturn(1L);
-        when(currentUserProvider.getRoles()).thenReturn(List.of("AUTHOR"));
         when(blogPostRepository.findById(5L)).thenReturn(post);
 
         assertThatThrownBy(() -> blogPostService.softDeletePost(5L))

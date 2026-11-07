@@ -3,6 +3,9 @@ package cn.caldm.www.permission_context.domain.model;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.Getter;
+
+@Getter 
 public enum ResourceTypeEnum {
     DIRECTORY(1, "目录"),
     MENU(2, "菜单"),

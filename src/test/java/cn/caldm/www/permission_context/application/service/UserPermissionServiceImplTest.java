@@ -87,10 +87,12 @@ public class UserPermissionServiceImplTest {
     }
 
     @Test
-    void getUserMenuTree_shouldReturnAllEnabledMenusForAdmin() {
-        // ADMIN 集中豁免：全量菜单，不查角色授权关系
+    void getUserMenuTree_admin_shouldReturnOnlyGrantedMenus() {
+        // 职责分离：ADMIN 无全量豁免，菜单同样来自角色授权
         stubRoles(1L, 1L, "ADMIN", true);
-        when(resourceRepository.findAll()).thenReturn(List.of(
+        when(roleResourceRelationRepository.findResourceIdsByRoleIds(anyList()))
+                .thenReturn(List.of(1L, 2L, 3L, 8L));
+        when(resourceRepository.findByIds(anyList())).thenReturn(List.of(
                 resource(1L, ResourceTypeEnum.DIRECTORY, 0L, 1, "router:content", true),
                 resource(2L, ResourceTypeEnum.MENU, 1L, 1, "router:content:post", true),
                 resource(3L, ResourceTypeEnum.BUTTON, 2L, 1, "post:create", true),
@@ -101,8 +103,6 @@ public class UserPermissionServiceImplTest {
         assertThat(tree).hasSize(1);
         assertThat(tree.get(0).getChildren()).hasSize(1);
         assertThat(tree.get(0).getChildren().get(0).getNode().getId()).isEqualTo(2L);
-        // 豁免规则：不依赖授权行
-        verify(roleResourceRelationRepository, never()).findResourceIdsByRoleIds(anyList());
     }
 
     @Test
@@ -153,9 +153,11 @@ public class UserPermissionServiceImplTest {
     }
 
     @Test
-    void getUserPermissionCodes_admin_shouldReturnAllEnabledButtonCodes() {
+    void getUserPermissionCodes_admin_shouldReturnOnlyGrantedButtonCodes() {
         stubRoles(1L, 1L, "ADMIN", true);
-        when(resourceRepository.findAll()).thenReturn(List.of(
+        when(roleResourceRelationRepository.findResourceIdsByRoleIds(anyList()))
+                .thenReturn(List.of(2L, 3L, 4L, 5L));
+        when(resourceRepository.findByIds(anyList())).thenReturn(List.of(
                 resource(2L, ResourceTypeEnum.MENU, 1L, 1, "router:content:post", true),
                 resource(3L, ResourceTypeEnum.BUTTON, 2L, 1, "post:create", true),
                 resource(4L, ResourceTypeEnum.BUTTON, 2L, 2, "tag:manage", true),
@@ -164,7 +166,6 @@ public class UserPermissionServiceImplTest {
         List<String> codes = userPermissionService.getUserPermissionCodes(1L);
 
         assertThat(codes).containsExactly("post:create", "tag:manage");
-        verify(roleResourceRelationRepository, never()).findResourceIdsByRoleIds(anyList());
     }
 
     // ==================== helpers ====================

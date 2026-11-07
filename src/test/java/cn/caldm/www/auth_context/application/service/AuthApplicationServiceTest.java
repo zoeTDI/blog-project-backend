@@ -64,7 +64,7 @@ public class AuthApplicationServiceTest {
     @Test
     void refreshToken_shouldThrowWhenUserDisabled() {
         Map<String, Claim> claims = refreshClaims();
-        when(blacklistRepository.isBlacklisted("rt")).thenReturn(false);
+
         when(jwtTokenProvider.verifyToken("rt")).thenReturn(claims);
 
         AuthUser user = new AuthUser();
@@ -80,7 +80,7 @@ public class AuthApplicationServiceTest {
     @Test
     void refreshToken_shouldThrowWhenUserNotFound() {
         Map<String, Claim> claims = refreshClaims();
-        when(blacklistRepository.isBlacklisted("rt")).thenReturn(false);
+
         when(jwtTokenProvider.verifyToken("rt")).thenReturn(claims);
         when(authUserFacadeService.getCredentialById(1L)).thenReturn(null);
 

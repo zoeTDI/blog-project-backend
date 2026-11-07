@@ -48,9 +48,11 @@ public class AuthUser implements UserDetails {
             }
         }
 
-        for (Permission p : permissions) {
-            if (p.isEnabled() && p.getPermission() != null && !p.getPermission().isBlank()) {
-                authorities.add(new SimpleGrantedAuthority(p.getPermission()));
+        if (permissions != null) {
+            for (Permission p : permissions) {
+                if (p.isEnabled() && p.getPermission() != null && !p.getPermission().isBlank()) {
+                    authorities.add(new SimpleGrantedAuthority(p.getPermission()));
+                }
             }
         }
 

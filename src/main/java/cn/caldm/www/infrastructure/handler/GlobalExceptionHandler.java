@@ -145,7 +145,7 @@ public class GlobalExceptionHandler {
             InfraApiErrorLogPO errorLog = new InfraApiErrorLogPO();
             // 基础信息
             errorLog.setTraceId(traceId);
-            errorLog.setUserId(currentUserProvider.getUserId());
+            errorLog.setUserId(currentUserProvider.isAuthenticated() ? currentUserProvider.getUserId() : 0L);
             errorLog.setUserType(1);
             errorLog.setApplicationName("blog-backend");
 

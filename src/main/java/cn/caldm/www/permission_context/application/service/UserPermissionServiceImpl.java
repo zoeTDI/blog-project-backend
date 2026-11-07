@@ -22,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class UserPermissionServiceImpl implements UserPermissionService {
 
-    private static final String ADMIN_ROLE_CODE = "ADMIN";
-
     private final UserRoleRelationRepository userRoleRelationRepository;
     private final RoleRepository roleRepository;
     private final RoleResourceRelationRepository roleResourceRelationRepository;
@@ -50,19 +48,14 @@ public class UserPermissionServiceImpl implements UserPermissionService {
     }
 
     /**
-     * 用户可访问的资源全集：停用角色与停用资源一律排除。
-     * ADMIN 角色 → 全量（集中豁免，不依赖授权行）；其余 → 角色授权 ∩ 启用。
+     * 用户可访问的资源全集：角色授权 ∩ 启用（停用角色与停用资源一律排除）。
+     * 职责分离：ADMIN 无豁免，管理员同样只返回被显式授权的资源。
      */
     private List<Resource> getAccessibleResources(Long userId) {
         if (userId == null) {
             return List.of();
         }
         List<Role> roles = getEnabledRoles(userId);
-        if (isAdmin(roles)) {
-            return resourceRepository.findAll().stream()
-                    .filter(Resource::isEnabled)
-                    .toList();
-        }
         List<Long> roleIds = roles.stream().map(Role::getId).filter(Objects::nonNull).toList();
         if (roleIds.isEmpty()) {
             return List.of();
@@ -90,15 +83,6 @@ public class UserPermissionServiceImpl implements UserPermissionService {
         return roleRepository.getRolesByIds(roleIds).stream()
                 .filter(Role::isEnabled)
                 .toList();
-    }
-
-    private boolean isAdmin(List<Role> roles) {
-        for (Role role : roles) {
-            if (ADMIN_ROLE_CODE.equals(role.getCode())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

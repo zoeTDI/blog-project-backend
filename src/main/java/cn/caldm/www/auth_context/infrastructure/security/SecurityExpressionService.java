@@ -155,9 +155,6 @@ public class SecurityExpressionService {
         if (currentUserProvider.getOptCurrentUser().isEmpty()) {
             return false;
         }
-        if (currentUserProvider.getRoles().contains("ADMIN")) {
-            return true;
-        }
         return currentUserProvider.getPermission().stream()
                 .anyMatch(granted -> matches(granted, permissionCode));
     }

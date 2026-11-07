@@ -58,12 +58,20 @@ public class SecurityExpressionServiceTest {
     }
 
     @Test
-    void hasPermission_adminRole_shouldBypassWithoutGrant() {
-        // ADMIN 集中豁免：无需任何权限码，且对未来新增的码同样生效
+    void hasPermission_adminWithoutGrant_shouldReturnFalse() {
+        // 职责分离：ADMIN 不再豁免，未授权码一律拒绝
         loginAs(List.of("ADMIN"), null);
 
-        assertThat(securityExpressionService.hasPermission("post:publish")).isTrue();
-        assertThat(securityExpressionService.hasPermission("not:exist")).isTrue();
+        assertThat(securityExpressionService.hasPermission("post:publish")).isFalse();
+        assertThat(securityExpressionService.hasPermission("not:exist")).isFalse();
+    }
+
+    @Test
+    void hasPermission_adminWithGrant_shouldReturnTrue() {
+        // ADMIN 与普通角色同规则：显式授权的码正常放行
+        loginAs(List.of("ADMIN"), List.of("user:manage"));
+
+        assertThat(securityExpressionService.hasPermission("user:manage")).isTrue();
     }
 
     @Test
@@ -122,13 +130,12 @@ public class SecurityExpressionServiceTest {
     }
 
     /**
-     * 模拟已登录用户：stub 两个入口，避免依赖 Mockito 对 default 方法的默认行为。
-     * permissions 传 null 表示该用例不会触达权限列表（如 ADMIN 豁免短路），不提前 stub 以免严格模式报冗余。
+     * 模拟已登录用户：hasPermission 只读取登录态与权限列表（豁免移除后不再读角色），
+     * 故只 stub 这两个入口，避免严格模式报冗余桩。
      */
     private void loginAs(List<String> roles, List<String> permissions) {
         when(currentUserProvider.getOptCurrentUser())
                 .thenReturn(Optional.of(new CurrentUser(1L, "tester", roles, permissions)));
-        when(currentUserProvider.getRoles()).thenReturn(roles == null ? List.of() : roles);
         if (permissions != null) {
             when(currentUserProvider.getPermission()).thenReturn(permissions);
         }

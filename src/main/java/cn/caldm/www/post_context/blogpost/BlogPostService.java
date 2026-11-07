@@ -103,7 +103,7 @@ public class BlogPostService {
         if (blogPost == null) {
             throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "Blog post isn't exist.");
         }
-        if (!isAuthorOrAdmin(blogPost)) {
+        if (!isAuthor(blogPost)) {
             throw new IllegalArgumentException("没有权限查看该文章");
         }
         // set category
@@ -126,7 +126,7 @@ public class BlogPostService {
         }
         Long postId = post.getId();
         String curUsername = currentUserProvider.getUsername();
-        if (!isAuthorOrAdmin(post)) {
+        if (!isAuthor(post)) {
             throw new IllegalArgumentException("没有权限更新该文章");
         }
         BlogPost newPost = command.toDomain(postId);
@@ -209,8 +209,7 @@ public class BlogPostService {
         Long userId = currentUserProvider.getUserId();
         List<String> roles = currentUserProvider.getRoles();
         Boolean isAuthor = cached.getAuthorId().equals(userId) && roles.contains("AUTHOR");
-        Boolean isAdmin = roles.contains("ADMIN");
-        if (!isAuthor && !isAdmin) {
+        if (!isAuthor) {
             throw new IllegalStateException("没有权限执行该操作");
         }
         cached.submitForReview();
@@ -223,7 +222,7 @@ public class BlogPostService {
         }
         BlogPost cached = blogPostRepository.findById(postId);
         List<String> roles = currentUserProvider.getRoles();
-        if (!roles.contains("ADMIN") && !roles.contains("AUDITOR")) {
+        if (!roles.contains("AUDITOR")) {
             throw new IllegalStateException("没有权限执行该操作");
         }
         cached.approve();
@@ -238,7 +237,7 @@ public class BlogPostService {
         if (cached == null) {
             throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标文章不存在");
         }
-        if (!isAuthorOrAdmin(cached)) {
+        if (!isAuthor(cached)) {
             throw new IllegalArgumentException("没有权限删除该文章");
         }
         cached.archive();
@@ -247,11 +246,8 @@ public class BlogPostService {
         }
     }
 
-    private boolean isAuthorOrAdmin(BlogPost post) {
+    private boolean isAuthor(BlogPost post) {
         Long curUserId = currentUserProvider.getUserId();
-        List<String> roles = currentUserProvider.getRoles();
-        boolean isAuthor = Objects.equals(post.getAuthorId(), curUserId);
-        boolean isAdmin = roles != null && roles.contains("ADMIN");
-        return isAuthor || isAdmin;
+        return Objects.equals(post.getAuthorId(), curUserId);
     }
 }
