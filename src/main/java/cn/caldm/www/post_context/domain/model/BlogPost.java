@@ -162,4 +162,15 @@ public class BlogPost implements Serializable {
             throw new IllegalStateException("Only draft posts can be submitted for review.");
         }
     }
+
+    /**
+     * 驳回（退回草稿，仅审核中可驳回）
+     */
+    public void reject() {
+        if (this.status == BlogPostStatusEnum.REVIEWING) {
+            this.status = BlogPostStatusEnum.DRAFT;
+        } else {
+            throw new IllegalStateException("Only reviewing posts can be rejected.");
+        }
+    }
 }

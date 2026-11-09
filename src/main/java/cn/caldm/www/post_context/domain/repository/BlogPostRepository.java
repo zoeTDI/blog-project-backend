@@ -49,4 +49,6 @@ public interface BlogPostRepository {
      * 归档文章（软删除，置 deleted=true）
      */
     Boolean archiveById(Long postId);
+
+    PageResult<BlogPost> findPageByStatus(BlogPostStatusEnum status, long page, long size);
 }

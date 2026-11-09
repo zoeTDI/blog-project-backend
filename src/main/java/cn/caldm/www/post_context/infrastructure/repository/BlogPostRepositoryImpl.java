@@ -116,4 +116,16 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         }
         return postMapper.deleteById(postId) == 1;
     }
+
+    @Override
+    public PageResult<BlogPost> findPageByStatus(BlogPostStatusEnum status, long page, long size) {
+        Page<BlogPostPO> pageRequest = new Page<>(page, size);
+        LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostPO::getStatus, status)
+                .orderByDesc(BlogPostPO::getUpdateTime);
+        Page<BlogPostPO> result = postMapper.selectPage(pageRequest, wrapper);
+        List<BlogPost> records = assembler.toDomainList(result.getRecords());
+        return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
+    }
+
 }

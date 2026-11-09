@@ -246,6 +246,41 @@ public class BlogPostService {
         }
     }
 
+    public PageResult<BlogPost> getReviewQueue(long page, long size) {
+        // page/size 校验与 getCurrentUserPosts 完全一致（page >= 1, 1 <= size <= 100）
+        if (page < 1) {
+            throw new IllegalArgumentException("page 必须大于等于 1");
+        }
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException("size 必须在 1 到 100 之间");
+        }
+        return blogPostRepository.findPageByStatus(BlogPostStatusEnum.REVIEWING, page, size);
+    }
+
+    public BlogPost getReviewDetail(Long postId) {
+        if (postId == null)
+            throw new IllegalArgumentException("文章ID不能为空");
+        BlogPost post = blogPostRepository.findById(postId);
+        if (post == null)
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标文章不存在");
+        if (!BlogPostStatusEnum.REVIEWING.equals(post.getStatus())) {
+            throw new IllegalArgumentException("文章不在审核中，无法审核");
+        }
+        post.setCategories(BlogPostCategoryUtils.buildTree(getCategoryListByPostId(postId)));
+        post.setTags(getTagListByPostId(postId));
+        return post;
+    }
+
+    public void rejectPost(Long postId) {
+        if (postId == null)
+            throw new IllegalArgumentException("文章ID不能为空");
+        BlogPost post = blogPostRepository.findById(postId);
+        if (post == null)
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "目标文章不存在");
+        post.reject();
+        blogPostRepository.updateStatusById(postId, post.getStatus(), post.getPublishedTime());
+    }
+
     private boolean isAuthor(BlogPost post) {
         Long curUserId = currentUserProvider.getUserId();
         return Objects.equals(post.getAuthorId(), curUserId);

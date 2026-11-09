@@ -29,6 +29,7 @@ import cn.caldm.www.post_context.domain.repository.BlogPostCategoryRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRelationRepository;
 import cn.caldm.www.post_context.domain.repository.BlogPostTagRepository;
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
 
 @ExtendWith(MockitoExtension.class)
@@ -302,5 +303,106 @@ public class BlogPostServiceTest {
         assertThatThrownBy(() -> blogPostService.createPost(command))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("创建文章失败");
+    }
+
+    // ==================== 审核队列 ====================
+
+    @Test
+    void getReviewQueue_shouldDelegateToRepository() {
+        PageResult<BlogPost> pageResult = new PageResult<>(List.of(), 0, 1, 10, 0);
+        when(blogPostRepository.findPageByStatus(BlogPostStatusEnum.REVIEWING, 1L, 10L))
+                .thenReturn(pageResult);
+
+        PageResult<BlogPost> result = blogPostService.getReviewQueue(1, 10);
+
+        assertThat(result).isSameAs(pageResult);
+    }
+
+    @Test
+    void getReviewQueue_shouldValidatePagination() {
+        assertThatThrownBy(() -> blogPostService.getReviewQueue(0, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("page");
+        assertThatThrownBy(() -> blogPostService.getReviewQueue(1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("size");
+        assertThatThrownBy(() -> blogPostService.getReviewQueue(1, 101))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("size");
+    }
+
+    @Test
+    void getReviewDetail_shouldReturnPostWithCategoriesAndTags_whenReviewing() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setAuthorId(2L);
+        post.setStatus(BlogPostStatusEnum.REVIEWING);
+
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+        when(categoryRelationRepository.findByPostId(5L)).thenReturn(List.of());
+        when(tagRelationRepository.findByPostId(5L)).thenReturn(List.of());
+
+        BlogPost result = blogPostService.getReviewDetail(5L);
+
+        assertThat(result).isSameAs(post);
+        assertThat(result.getCategories()).isNotNull();
+        assertThat(result.getTags()).isNotNull();
+    }
+
+    @Test
+    void getReviewDetail_shouldRejectNonReviewingPost() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setStatus(BlogPostStatusEnum.PUBLISHED);
+
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.getReviewDetail(5L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("不在审核中");
+    }
+
+    @Test
+    void getReviewDetail_shouldThrowWhenNotFound() {
+        when(blogPostRepository.findById(5L)).thenReturn(null);
+
+        assertThatThrownBy(() -> blogPostService.getReviewDetail(5L))
+                .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
+    }
+
+    @Test
+    void rejectPost_shouldMoveReviewingBackToDraft() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setStatus(BlogPostStatusEnum.REVIEWING);
+
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        blogPostService.rejectPost(5L);
+
+        assertThat(post.getStatus()).isEqualTo(BlogPostStatusEnum.DRAFT);
+        verify(blogPostRepository).updateStatusById(5L, BlogPostStatusEnum.DRAFT, null);
+    }
+
+    @Test
+    void rejectPost_shouldRejectNonReviewingPost() {
+        // 只有审核中的文章可驳回：草稿/已发布都在领域层被拒
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setStatus(BlogPostStatusEnum.PUBLISHED);
+
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+
+        assertThatThrownBy(() -> blogPostService.rejectPost(5L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("reviewing");
+    }
+
+    @Test
+    void rejectPost_shouldThrowWhenNotFound() {
+        when(blogPostRepository.findById(5L)).thenReturn(null);
+
+        assertThatThrownBy(() -> blogPostService.rejectPost(5L))
+                .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
     }
 }

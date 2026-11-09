@@ -54,6 +54,20 @@ public class BlogPostAuthorizationTest {
     }
 
     @Test
+    void reviewEndpoints_shouldUsePostPublish() throws NoSuchMethodException {
+        // 审核工作区统一 POST_PUBLISH：能发布即拥有审核队列、详情与驳回
+        assertPermissionGuard(
+                BlogPostReviewController.class.getMethod("getReviewingPostPage", Integer.class, Integer.class),
+                PermissionCodes.POST_PUBLISH);
+        assertPermissionGuard(
+                BlogPostReviewController.class.getMethod("getReviewingDetail", Long.class),
+                PermissionCodes.POST_PUBLISH);
+        assertPermissionGuard(
+                BlogPostStatusController.class.getMethod("reject", Long.class),
+                PermissionCodes.POST_PUBLISH);
+    }
+
+    @Test
     void tagEndpoints_shouldUseTagManage() throws NoSuchMethodException {
         assertPermissionGuard(
                 BlogPostTagController.class.getMethod("createTag", String.class),

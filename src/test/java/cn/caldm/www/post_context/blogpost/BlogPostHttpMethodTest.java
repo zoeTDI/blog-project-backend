@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import cn.caldm.www.post_context.blogtag.BlogPostTagController;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 /**
@@ -30,5 +31,17 @@ public class BlogPostHttpMethodTest {
         Method createTag = BlogPostTagController.class.getMethod("createTag", String.class);
         assertThat(createTag.getAnnotation(PostMapping.class)).isNotNull();
         assertThat(createTag.getAnnotation(PostMapping.class).value()).containsExactly("/createTag");
+    }
+
+    @Test
+    void reviewEndpoints_shouldBeGetAndRejectShouldBePost() throws NoSuchMethodException {
+        Method list = BlogPostReviewController.class.getMethod("getReviewingPostPage", Integer.class, Integer.class);
+        assertThat(list.getAnnotation(GetMapping.class).value()).containsExactly("/list");
+
+        Method detail = BlogPostReviewController.class.getMethod("getReviewingDetail", Long.class);
+        assertThat(detail.getAnnotation(GetMapping.class).value()).containsExactly("/detail");
+
+        Method reject = BlogPostStatusController.class.getMethod("reject", Long.class);
+        assertThat(reject.getAnnotation(PostMapping.class).value()).containsExactly("/status/reject");
     }
 }

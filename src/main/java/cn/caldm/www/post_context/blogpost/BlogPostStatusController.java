@@ -28,4 +28,11 @@ public class BlogPostStatusController {
         postService.toPublished(postId);
         return Result.success();
     }
+
+    @PostMapping("/status/reject")
+    @RequirePermission(PermissionCodes.POST_PUBLISH)
+    public Result<Void> reject(@RequestParam(value = "postId") Long postId) {
+        postService.rejectPost(postId);
+        return Result.success();
+    }
 }
