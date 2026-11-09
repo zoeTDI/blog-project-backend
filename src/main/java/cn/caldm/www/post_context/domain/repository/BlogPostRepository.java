@@ -51,4 +51,6 @@ public interface BlogPostRepository {
     Boolean archiveById(Long postId);
 
     PageResult<BlogPost> findPageByStatus(BlogPostStatusEnum status, long page, long size);
+
+    PageResult<BlogPost> findPublishedPage(long page, long size);
 }
