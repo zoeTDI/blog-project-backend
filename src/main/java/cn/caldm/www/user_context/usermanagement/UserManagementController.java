@@ -23,17 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserManagementController {
 
     private final UserManagementService userManagementService;
+    private final UserCreateRespAssembler userCreateRespAssembler;
+
 
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")
     @PreAuthorize("@ss.isAdmin()")
-    public Result<SysUser> create(@Valid @RequestBody CreateReqDTO createReqDTO) {
-        return Result.success(userManagementService.create(
+    public Result<UserCreateRespDTO> create(@Valid @RequestBody CreateReqDTO createReqDTO) {
+        return Result.success(userCreateRespAssembler.toDTO(userManagementService.create(
                 createReqDTO.getUsername(),
                 createReqDTO.getPassword(),
                 createReqDTO.getEmail(),
                 createReqDTO.getNickname(),
-                createReqDTO.getRoleIds()));
+                createReqDTO.getRoleIds())));
     }
 
     @PostMapping("/ban")
