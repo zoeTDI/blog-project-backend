@@ -128,4 +128,15 @@ public class BlogPostRepositoryImpl implements BlogPostRepository {
         return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
     }
 
+    @Override
+    public PageResult<BlogPost> findPublishedPage(long page, long size) {
+        Page<BlogPostPO> pageRequest = new Page<>(page, size);
+        LambdaQueryWrapper<BlogPostPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BlogPostPO::getStatus, BlogPostStatusEnum.PUBLISHED)
+                .orderByDesc(BlogPostPO::getPublishedTime)
+                .orderByDesc(BlogPostPO::getId);
+        Page<BlogPostPO> result = postMapper.selectPage(pageRequest, wrapper);
+        List<BlogPost> records = assembler.toDomainList(result.getRecords());
+        return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
+    }
 }

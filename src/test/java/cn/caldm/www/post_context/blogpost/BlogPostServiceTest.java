@@ -405,4 +405,68 @@ public class BlogPostServiceTest {
         assertThatThrownBy(() -> blogPostService.rejectPost(5L))
                 .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
     }
+
+    // ==================== 公开阅读（游客通道） ====================
+
+    @Test
+    void getPublishedPosts_shouldDelegateToRepository() {
+        PageResult<BlogPost> pageResult = new PageResult<>(List.of(), 0, 1, 10, 0);
+        when(blogPostRepository.findPublishedPage(1L, 10L)).thenReturn(pageResult);
+
+        PageResult<BlogPost> result = blogPostService.getPublishedPosts(1, 10);
+
+        assertThat(result).isSameAs(pageResult);
+    }
+
+    @Test
+    void getPublishedPosts_shouldValidatePagination() {
+        assertThatThrownBy(() -> blogPostService.getPublishedPosts(0, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("page");
+        assertThatThrownBy(() -> blogPostService.getPublishedPosts(1, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("size");
+        assertThatThrownBy(() -> blogPostService.getPublishedPosts(1, 101))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("size");
+    }
+
+    @Test
+    void getPublishedPostDetail_shouldReturnPostWithCategoriesAndTags_whenPublished() {
+        BlogPost post = new BlogPost();
+        post.setId(5L);
+        post.setStatus(BlogPostStatusEnum.PUBLISHED);
+
+        when(blogPostRepository.findById(5L)).thenReturn(post);
+        when(categoryRelationRepository.findByPostId(5L)).thenReturn(List.of());
+        when(tagRelationRepository.findByPostId(5L)).thenReturn(List.of());
+
+        BlogPost result = blogPostService.getPublishedPostDetail(5L);
+
+        assertThat(result).isSameAs(post);
+        assertThat(result.getCategories()).isNotNull();
+        assertThat(result.getTags()).isNotNull();
+    }
+
+    @Test
+    void getPublishedPostDetail_shouldTreatDraftAndReviewingAsNotFound() {
+        // 防状态探测：非 PUBLISHED 对游客一律表现为 404，且消息不含状态信息
+        BlogPost draft = new BlogPost();
+        draft.setId(5L);
+        draft.setStatus(BlogPostStatusEnum.DRAFT);
+
+        when(blogPostRepository.findById(5L)).thenReturn(draft);
+
+        assertThatThrownBy(() -> blogPostService.getPublishedPostDetail(5L))
+                .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class)
+                .hasMessageContaining("文章不存在");
+    }
+
+    @Test
+    void getPublishedPostDetail_shouldThrowWhenNotFound() {
+        when(blogPostRepository.findById(5L)).thenReturn(null);
+
+        assertThatThrownBy(() -> blogPostService.getPublishedPostDetail(5L))
+                .isInstanceOf(cn.caldm.www.shared_kernel.domain.ResourceNotFoundException.class);
+    }
 }

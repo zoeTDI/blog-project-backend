@@ -281,6 +281,29 @@ public class BlogPostService {
         blogPostRepository.updateStatusById(postId, post.getStatus(), post.getPublishedTime());
     }
 
+    public PageResult<BlogPost> getPublishedPosts(long page, long size) {
+        // page>=1、1<=size<=100 校验，与既有列表一致
+        if (page < 1) {
+            throw new IllegalArgumentException("page 必须大于等于 1");
+        }
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException("size 必须在 1 到 100 之间");
+        }
+        return blogPostRepository.findPublishedPage(page, size);
+    }
+
+    public BlogPost getPublishedPostDetail(Long postId) {
+        if (postId == null) throw new IllegalArgumentException("文章ID不能为空");
+        BlogPost post = blogPostRepository.findById(postId);
+        if (post == null || !BlogPostStatusEnum.PUBLISHED.equals(post.getStatus())) {
+            // 防状态探测：草稿/审核中/已删除对游客一律表现为"不存在"
+            throw new ResourceNotFoundException(ResultCodeEnum.NOT_FOUND, "文章不存在");
+        }
+        post.setCategories(BlogPostCategoryUtils.buildTree(getCategoryListByPostId(postId)));
+        post.setTags(getTagListByPostId(postId));
+        return post;
+    }
+
     private boolean isAuthor(BlogPost post) {
         Long curUserId = currentUserProvider.getUserId();
         return Objects.equals(post.getAuthorId(), curUserId);

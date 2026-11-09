@@ -37,17 +37,15 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String accessToken = getAccessToken(request);
             if (accessToken != null) {
                 Map<String, Claim> data = jwtTokenProvider.verifyToken(accessToken);
                 if (data != null
                         && "access".equals(data.get("type").asString())
-                        && !blacklistRepository.isBlacklisted(accessToken)
-                ) {
+                        && !blacklistRepository.isBlacklisted(accessToken)) {
                     Long userId = data.get("id").asLong();
                     AuthUser authUser = authUserFacadeService.getCredentialById(userId);
 
@@ -57,8 +55,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 authUser,
                                 null,
-                                authUser.getAuthorities()
-                        );
+                                authUser.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
@@ -69,14 +66,15 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             SecurityContextHolder.clearContext();
         }
 
-
     }
-    
+
     private String getAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) return null;
+        if (cookies == null)
+            return null;
         for (Cookie cookie : cookies) {
-            if ("accessToken".equals(cookie.getName())) return cookie.getValue();
+            if (AuthCookieManager.ACCESS_TOKEN_COOKIE.equals(cookie.getName()))
+                return cookie.getValue();
         }
         return null;
     }
