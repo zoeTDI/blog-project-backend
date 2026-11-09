@@ -16,4 +16,11 @@ public interface RoleRepository {
 
     boolean existsRole(Long roleId);
 
+    /**
+     * 查询全部角色（按显示顺序升序）。
+     *
+     * @return 角色列表；无数据时返回空列表
+     */
+    List<Role> findAll();
+
 }

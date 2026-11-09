@@ -1,7 +1,10 @@
 package cn.caldm.www.permission_context.application.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,5 +56,24 @@ public class RolePermissionServiceImplTest {
         assertThatThrownBy(() -> rolePermissionService.revokeResourceFromRole(1L, 5L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("停用");
+    }
+
+    // ==================== getAllRoles ====================
+
+    @Test
+    void getAllRoles_shouldReturnRolesFromRepository() {
+        Role admin = Role.reconstitute(1L, "管理员", "ADMIN", 1, "", true);
+        when(roleRepository.findAll()).thenReturn(List.of(admin));
+
+        List<Role> result = rolePermissionService.getAllRoles();
+
+        assertThat(result).containsExactly(admin);
+    }
+
+    @Test
+    void getAllRoles_shouldReturnEmpty_whenNoRoles() {
+        when(roleRepository.findAll()).thenReturn(List.of());
+
+        assertThat(rolePermissionService.getAllRoles()).isEmpty();
     }
 }

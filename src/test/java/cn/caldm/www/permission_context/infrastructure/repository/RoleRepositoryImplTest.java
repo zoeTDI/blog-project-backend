@@ -101,4 +101,46 @@ public class RoleRepositoryImplTest {
         assertThat(result).isSameAs(domain);
     }
 
+    // ==================== findAll ====================
+
+    @Test
+    void findAll_shouldReturnEmpty_whenNoRows() {
+        when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+
+        List<Role> result = roleRepository.findAll();
+
+        assertThat(result).isEmpty();
+        verify(roleAssembler, never()).toDomainList(any());
+    }
+
+    @Test
+    void findAll_shouldReturnEmpty_whenMapperReturnsNull() {
+        when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(null);
+
+        List<Role> result = roleRepository.findAll();
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findAll_shouldQueryAndMapAllRoles() {
+        RolePO po1 = new RolePO();
+        po1.setId(1L);
+        RolePO po2 = new RolePO();
+        po2.setId(2L);
+        List<RolePO> pos = List.of(po1, po2);
+
+        Role admin = new Role();
+        admin.setId(1L);
+        Role author = new Role();
+        author.setId(2L);
+
+        when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(pos);
+        when(roleAssembler.toDomainList(pos)).thenReturn(List.of(admin, author));
+
+        List<Role> result = roleRepository.findAll();
+
+        assertThat(result).containsExactly(admin, author);
+    }
+
 }
