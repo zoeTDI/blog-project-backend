@@ -40,6 +40,27 @@ public class UserRoleRelationRepositoryImpl implements UserRoleRelationRepositor
     }
 
     @Override
+    public List<UserRoleRelation> getRoleRelationsByUserIds(List<Long> userIds) {
+        Assert.notNull(userIds, "UserIds must not be null.");
+        List<Long> validIds = userIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (validIds.isEmpty()) {
+            return List.of();
+        }
+
+        LambdaQueryWrapper<UserRoleRelationPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(UserRoleRelationPO::getUserId, validIds);
+        List<UserRoleRelationPO> pos = userRoleRelationMapper.selectList(wrapper);
+        if (pos.isEmpty()) {
+            return List.of();
+        }
+        List<UserRoleRelation> domains = userRoleRelationAssembler.toDomainList(pos);
+        return List.copyOf(domains);
+    }
+
+    @Override
     public void assignRoleToUser(Long userId, Long roleId) {
         Assert.notNull(userId, "UserId must not be null");
         Assert.notNull(roleId, "RoleId must not be null");

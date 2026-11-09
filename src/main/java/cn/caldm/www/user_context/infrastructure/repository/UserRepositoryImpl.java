@@ -1,17 +1,20 @@
 package cn.caldm.www.user_context.infrastructure.repository;
 
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.user_context.domain.model.*;
 import cn.caldm.www.user_context.domain.repository.UserRepository;
 import cn.caldm.www.user_context.infrastructure.persistence.mapper.SysUserMapper;
 import cn.caldm.www.user_context.infrastructure.persistence.po.SysUserPO;
 import cn.caldm.www.user_context.infrastructure.persistence.assembler.UserAssembler;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  *
@@ -110,5 +113,17 @@ public class UserRepositoryImpl implements UserRepository {
         wrapper.set(SysUserPO::getUpdater, updater);
         wrapper.set(SysUserPO::getUpdateTime, LocalDateTime.now());
         return userMapper.update(wrapper) == 1;
+    }
+
+    @Override
+    public PageResult<SysUser> findPage(long page, long size) {
+        Page<SysUserPO> pageRequest = new Page<>(page, size);
+        // SysUserPO.deleted 无 @TableLogic，软删除用户必须显式过滤
+        LambdaQueryWrapper<SysUserPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserPO::getDeleted, SysUserDeletedEnum.NORMAL)
+                .orderByAsc(SysUserPO::getId);
+        Page<SysUserPO> result = userMapper.selectPage(pageRequest, wrapper);
+        List<SysUser> records = userAssembler.toDomainList(result.getRecords());
+        return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize(), result.getPages());
     }
 }

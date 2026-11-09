@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,5 +90,79 @@ public class UserRoleFacadeServiceImplTest {
                 .hasMessageContaining("停用");
 
         verify(userRoleRelationRepository, never()).assignRoleToUser(100L, 1L);
+    }
+
+    // ==================== getUserRolesByUserIds ====================
+
+    @Test
+    void getUserRolesByUserIds_shouldReturnEmpty_whenUserIdsEmpty() {
+        assertThat(userRoleFacadeService.getUserRolesByUserIds(List.of())).isEmpty();
+        verify(userRoleRelationRepository, never()).getRoleRelationsByUserIds(List.of());
+    }
+
+    @Test
+    void getUserRolesByUserIds_shouldReturnEmpty_whenNoRelations() {
+        when(userRoleRelationRepository.getRoleRelationsByUserIds(List.of(100L, 200L)))
+                .thenReturn(List.of());
+
+        assertThat(userRoleFacadeService.getUserRolesByUserIds(List.of(100L, 200L))).isEmpty();
+    }
+
+    @Test
+    void getUserRolesByUserIds_shouldGroupRolesByUser() {
+        UserRoleRelation r1 = new UserRoleRelation();
+        r1.setUserId(100L);
+        r1.setRoleId(1L);
+        UserRoleRelation r2 = new UserRoleRelation();
+        r2.setUserId(200L);
+        r2.setRoleId(2L);
+        UserRoleRelation r3 = new UserRoleRelation();
+        r3.setUserId(200L);
+        r3.setRoleId(3L);
+
+        Role role1 = new Role();
+        role1.setId(1L);
+        role1.setCode("ADMIN");
+        Role role2 = new Role();
+        role2.setId(2L);
+        role2.setCode("AUTHOR");
+        Role role3 = new Role();
+        role3.setId(3L);
+        role3.setCode("REVIEWER");
+
+        when(userRoleRelationRepository.getRoleRelationsByUserIds(List.of(100L, 200L)))
+                .thenReturn(List.of(r1, r2, r3));
+        when(roleRepository.getRolesByIds(List.of(1L, 2L, 3L)))
+                .thenReturn(List.of(role1, role2, role3));
+
+        var result = userRoleFacadeService.getUserRolesByUserIds(List.of(100L, 200L));
+
+        assertThat(result).containsOnlyKeys(100L, 200L);
+        assertThat(result.get(100L)).extracting(UserRole::getCode).containsExactly("ADMIN");
+        assertThat(result.get(200L)).extracting(UserRole::getCode).containsExactly("AUTHOR", "REVIEWER");
+    }
+
+    @Test
+    void getUserRolesByUserIds_shouldSkipRelationWhoseRoleMissing() {
+        UserRoleRelation r1 = new UserRoleRelation();
+        r1.setUserId(100L);
+        r1.setRoleId(1L);
+        // roleId=99 的脏关系：角色已不存在
+        UserRoleRelation r2 = new UserRoleRelation();
+        r2.setUserId(100L);
+        r2.setRoleId(99L);
+
+        Role role1 = new Role();
+        role1.setId(1L);
+        role1.setCode("ADMIN");
+
+        when(userRoleRelationRepository.getRoleRelationsByUserIds(List.of(100L)))
+                .thenReturn(List.of(r1, r2));
+        when(roleRepository.getRolesByIds(List.of(1L, 99L)))
+                .thenReturn(List.of(role1));
+
+        var result = userRoleFacadeService.getUserRolesByUserIds(List.of(100L));
+
+        assertThat(result.get(100L)).extracting(UserRole::getCode).containsExactly("ADMIN");
     }
 }

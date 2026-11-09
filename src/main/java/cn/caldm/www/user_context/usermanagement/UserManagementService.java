@@ -1,5 +1,6 @@
 package cn.caldm.www.user_context.usermanagement;
 
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.ResourceNotFoundException;
 import cn.caldm.www.shared_kernel.domain.ResultCodeEnum;
 import cn.caldm.www.shared_kernel.security.CurrentUserProvider;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -124,5 +126,37 @@ public class UserManagementService {
         }
 
         userRepository.markDeleted(targetUserId, updater.getUsername());
+    }
+
+    /**
+     * 分页获取全部用户（不含已删除），每行附带角色信息（批量加载）。
+     *
+     * <p>合同：</p>
+     * <ul>
+     *   <li>page 必须大于等于 1，size 必须在 1 到 100 之间，否则抛出 {@link IllegalArgumentException}；</li>
+     *   <li>结果按用户主键升序排列；</li>
+     *   <li>每行用户附带其角色列表（无角色时为空列表）。</li>
+     * </ul>
+     *
+     * @param page 页码，从 1 开始
+     * @param size 每页条数
+     * @return 用户分页结果
+     */
+    public PageResult<SysUser> getUserPage(long page, long size) {
+        if (page < 1) {
+            throw new IllegalArgumentException("page 必须大于等于 1");
+        }
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException("size 必须在 1 到 100 之间");
+        }
+        PageResult<SysUser> pageResult = userRepository.findPage(page, size);
+        List<SysUser> users = pageResult.getRecords();
+        if (users.isEmpty()) {
+            return pageResult;
+        }
+        Map<Long, List<UserRole>> rolesByUserId = userRoleFacadeService.getUserRolesByUserIds(
+                users.stream().map(SysUser::getId).filter(Objects::nonNull).toList());
+        users.forEach(user -> user.setRoles(rolesByUserId.getOrDefault(user.getId(), List.of())));
+        return pageResult;
     }
 }

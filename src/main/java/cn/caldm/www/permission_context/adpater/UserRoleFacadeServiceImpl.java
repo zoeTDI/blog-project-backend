@@ -1,7 +1,9 @@
 package cn.caldm.www.permission_context.adpater;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import cn.caldm.www.auth_context.domain.model.Permission;
 import cn.caldm.www.permission_context.domain.model.Resource;
@@ -41,6 +43,38 @@ public class UserRoleFacadeServiceImpl implements UserRoleFacadeService {
         return roles.stream()
                 .map(role -> new UserRole(role.getId(), role.getCode()))
                 .toList();
+    }
+
+    @Override
+    @Nonnull
+    public Map<Long, List<UserRole>> getUserRolesByUserIds(List<Long> userIds) {
+        Assert.notNull(userIds, "The list of user id must not be null.");
+        List<Long> validIds = userIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (validIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UserRoleRelation> relations = userRoleRelationRepository.getRoleRelationsByUserIds(validIds);
+        if (relations.isEmpty()) {
+            return Map.of();
+        }
+        List<Long> roleIds = relations.stream()
+                .map(UserRoleRelation::getRoleId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        Map<Long, Role> rolesById = roleRepository.getRolesByIds(roleIds).stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Role::getId, role -> role, (a, b) -> a));
+        return relations.stream()
+                .filter(relation -> relation.getUserId() != null)
+                .collect(Collectors.groupingBy(
+                        UserRoleRelation::getUserId,
+                        Collectors.mapping(
+                                relation -> rolesById.get(relation.getRoleId()),
+                                Collectors.filtering(Objects::nonNull,
+                                        Collectors.mapping(
+                                                role -> new UserRole(role.getId(), role.getCode()),
+                                                Collectors.toList())))));
     }
 
     @Override

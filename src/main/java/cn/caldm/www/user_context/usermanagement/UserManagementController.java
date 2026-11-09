@@ -1,14 +1,17 @@
 package cn.caldm.www.user_context.usermanagement;
 
 import cn.caldm.www.infrastructure.annotation.ApiAccessLog;
+import cn.caldm.www.shared_kernel.domain.PageResult;
 import cn.caldm.www.shared_kernel.domain.Result;
 import cn.caldm.www.user_context.domain.model.SysUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -24,7 +27,15 @@ public class UserManagementController {
 
     private final UserManagementService userManagementService;
     private final UserCreateRespAssembler userCreateRespAssembler;
+    private final UserPageAssembler userPageAssembler;
 
+    @GetMapping("/page")
+    @PreAuthorize("@ss.isAdmin()")
+    public Result<PageResult<UserPageDTO>> getUserPage(
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        return Result.success(userManagementService.getUserPage(page, size).map(userPageAssembler::toDTO));
+    }
 
     @ApiAccessLog(operateModule = "用户管理", operateName = "创建用户", operateType = 2)
     @PostMapping("/create")

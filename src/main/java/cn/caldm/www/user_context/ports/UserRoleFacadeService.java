@@ -5,6 +5,7 @@ import cn.caldm.www.user_context.domain.model.UserRole;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserRoleFacadeService {
 
@@ -21,6 +22,13 @@ public interface UserRoleFacadeService {
      * @return the role codes assigned to the user
      */
     List<UserRole> getUserRolesById(Long userId);
+
+    /**
+     * 批量查询多个用户的角色（一次查询，避免 N+1）。
+     * @param userIds the IDs of the users
+     * @return userId -> 角色列表 的映射；无任何关系的用户不出现在映射中
+     */
+    Map<Long, List<UserRole>> getUserRolesByUserIds(List<Long> userIds);
 
     /**
      * Assigns a role to the specified user.
