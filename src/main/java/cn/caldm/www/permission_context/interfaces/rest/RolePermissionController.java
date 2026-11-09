@@ -2,6 +2,8 @@ package cn.caldm.www.permission_context.interfaces.rest;
 
 import cn.caldm.www.permission_context.application.service.RolePermissionService;
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
+import cn.caldm.www.permission_context.interfaces.assembler.RoleDtoAssembler;
+import cn.caldm.www.permission_context.interfaces.dto.role.RoleResponse;
 import cn.caldm.www.shared_kernel.domain.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RolePermissionController {
     private final RolePermissionService rolePermissionService;
+    private final RoleDtoAssembler roleDtoAssembler;
+
+    @GetMapping("/roles")
+    @PreAuthorize("@ss.isAdmin()")
+    public Result<List<RoleResponse>> getAllRoles() {
+        return Result.success(roleDtoAssembler.toResponseList(rolePermissionService.getAllRoles()));
+    }
 
     @GetMapping("/resource/{id}")
     @PreAuthorize("@ss.isAdmin()")

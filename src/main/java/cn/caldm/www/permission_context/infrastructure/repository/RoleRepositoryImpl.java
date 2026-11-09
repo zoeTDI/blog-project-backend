@@ -92,4 +92,16 @@ public class RoleRepositoryImpl implements RoleRepository {
         return roleMapper.exists(wrapper);
     }
 
+    @Override
+    @Nonnull
+    public List<Role> findAll() {
+        List<RolePO> pos = roleMapper.selectList(Wrappers.<RolePO>lambdaQuery()
+                .orderByAsc(RolePO::getSort));
+        if (pos == null || pos.isEmpty()) {
+            return List.of();
+        }
+        List<Role> domainList = roleAssembler.toDomainList(pos);
+        return List.copyOf(domainList);
+    }
+
 }

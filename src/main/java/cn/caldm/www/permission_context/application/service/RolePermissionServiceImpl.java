@@ -93,4 +93,10 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     private Resource getResource(Long id) {
         return resourceRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("资源不存在：" + id));
     }
+
+    @Override
+    @Nonnull
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
 }

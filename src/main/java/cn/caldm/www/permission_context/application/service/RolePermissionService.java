@@ -3,6 +3,7 @@ package cn.caldm.www.permission_context.application.service;
 import java.util.List;
 
 import cn.caldm.www.permission_context.domain.model.ResourceNode;
+import cn.caldm.www.permission_context.domain.model.Role;
 
 public interface RolePermissionService {
 
@@ -25,4 +26,17 @@ public interface RolePermissionService {
     void grantResourceToRole(Long roleId, Long resourceId);
 
     void revokeResourceFromRole(Long roleId, Long resourceId);
+
+    /**
+     * 查询全部角色。
+     *
+     * <p>合同：</p>
+     * <ul>
+     *   <li>返回全部角色（含停用角色），按显示顺序升序排列；</li>
+     *   <li>无角色时返回空列表。</li>
+     * </ul>
+     *
+     * @return 角色列表
+     */
+    List<Role> getAllRoles();
 }
