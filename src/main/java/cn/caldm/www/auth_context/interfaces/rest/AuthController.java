@@ -3,6 +3,7 @@ package cn.caldm.www.auth_context.interfaces.rest;
 import cn.caldm.www.auth_context.application.service.AuthApplicationService;
 import cn.caldm.www.auth_context.domain.model.AuthUser;
 import cn.caldm.www.auth_context.domain.model.TokenPair;
+import cn.caldm.www.auth_context.infrastructure.web.AuthCookieManager;
 import cn.caldm.www.auth_context.interfaces.dto.*;
 import cn.caldm.www.infrastructure.annotation.Anonymous;
 import cn.caldm.www.shared_kernel.domain.Result;
@@ -12,8 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,14 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthApplicationService authService;
-
-    /** Cookie Secure 标记：本地默认 false，生产环境务必配置为 true（HTTPS 下才下发） */
-    @Value("${app.cookie.secure:false}")
-    private boolean cookieSecure;
-
-    /** Cookie SameSite：Lax / Strict / None，None 必须配合 secure=true 才会被浏览器接受 */
-    @Value("${app.cookie.same-site:Lax}")
-    private String cookieSameSite;
+    private final AuthCookieManager cookieManager;
 
     @PostMapping("/login/username-password")
     @Anonymous
@@ -70,21 +62,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @PreAuthorize("isAuthenticated()")
+    @Anonymous 
     public Result<String> logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = extractCookie(request, "accessToken");
         String refreshToken = extractCookie(request, "refreshToken");
 
         authService.logout(accessToken, refreshToken);
-
-        // 清除客户端 Cookie
-        if (accessToken != null) {
-            setCookie(response, "accessToken", "", 0);
-        }
-        if (refreshToken != null) {
-            setCookie(response, "refreshToken", "", 0);
-        }
-
+        cookieManager.clearTokenCookies(response);
         return Result.successMsg("登出成功");
     }
 
@@ -96,21 +80,11 @@ public class AuthController {
         // todo 处理用户假登录状态（详情见Gemini对话页面）target date 2025-8-25 record date 2025-8-25
         long accessMaxAge = (tokenPair.getAccessTokenExpiresAt() - System.currentTimeMillis()) / 1000;
         long refreshMaxAge = (tokenPair.getRefreshTokenExpiresAt() - System.currentTimeMillis()) / 1000;
-        setCookie(response, "accessToken", tokenPair.getAccessToken(), accessMaxAge);
-        setCookie(response, "refreshToken", tokenPair.getRefreshToken(), refreshMaxAge);
+        cookieManager.setTokenCookies(response,
+                tokenPair.getAccessToken(), accessMaxAge,
+                tokenPair.getRefreshToken(), refreshMaxAge);
 
         return Result.successMsg("Token 刷新成功");
-    }
-
-    private void setCookie(HttpServletResponse response, String name, String value, long maxAge) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/")
-                .maxAge(maxAge)
-                .sameSite(cookieSameSite)
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     private String extractCookie(HttpServletRequest request, String name) {
@@ -129,8 +103,9 @@ public class AuthController {
         Long refreshTokenExpiresAt = authUser.getRefreshTokenExpiresAt();
         long accessMaxAge = (accessTokenExpiresAt - System.currentTimeMillis()) / 1000;
         long refreshMaxAge = (refreshTokenExpiresAt - System.currentTimeMillis()) / 1000;
-        setCookie(response, "accessToken", authUser.getAccessToken(), accessMaxAge);
-        setCookie(response, "refreshToken", authUser.getRefreshToken(), refreshMaxAge);
+        cookieManager.setTokenCookies(response,
+                authUser.getAccessToken(), accessMaxAge,
+                authUser.getRefreshToken(), refreshMaxAge);
         LoginResDTO resDTO = new LoginResDTO();
         resDTO.setId(authUser.getId());
         resDTO.setEmail(authUser.getEmail());

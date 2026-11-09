@@ -3,6 +3,7 @@ package cn.caldm.www.auth_context.infrastructure.security;
 import cn.caldm.www.auth_context.application.service.AuthUserFacadeService;
 import cn.caldm.www.auth_context.domain.repository.TokenBlacklistRepository;
 import cn.caldm.www.auth_context.infrastructure.web.AccessTokenFilter;
+import cn.caldm.www.auth_context.infrastructure.web.AuthCookieManager;
 import cn.caldm.www.auth_context.infrastructure.web.RefreshTokenFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -32,10 +33,10 @@ import java.io.IOException;
 public class AuthSecurityConfig {
 
     @Bean
-    public AccessTokenFilter accessTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider, TokenBlacklistRepository blacklistRepository) {
+    public AccessTokenFilter accessTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider,
+            TokenBlacklistRepository blacklistRepository) {
         return new AccessTokenFilter(facade, provider, blacklistRepository);
     }
-
 
     @Bean
     public FilterRegistrationBean<AccessTokenFilter> accessTokenFilterRegistration(AccessTokenFilter filter) {
@@ -44,10 +45,10 @@ public class AuthSecurityConfig {
         return registration;
     }
 
-
     @Bean
-    public RefreshTokenFilter refreshTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider, TokenBlacklistRepository blacklistRepository) {
-        return new RefreshTokenFilter(facade, provider, blacklistRepository);
+    public RefreshTokenFilter refreshTokenFilter(AuthUserFacadeService facade, JwtTokenProvider provider,
+            TokenBlacklistRepository blacklistRepository, AuthCookieManager cookieManager) {
+        return new RefreshTokenFilter(facade, provider, blacklistRepository, cookieManager);
     }
 
     @Bean
@@ -69,17 +70,15 @@ public class AuthSecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) -> writeJson(res, 486, "Refresh failed."))
-                        .accessDeniedHandler((req, res, e) -> writeJson(res, 403, "Forbidden."))
-                );
+                        .accessDeniedHandler((req, res, e) -> writeJson(res, 403, "Forbidden.")));
         return http.build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           AccessTokenFilter accessTokenFilter,
-                                           AnonymousAuthorizationManager anonymousAuthorizationManager
-    ) throws Exception {
+            AccessTokenFilter accessTokenFilter,
+            AnonymousAuthorizationManager anonymousAuthorizationManager) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().access(anonymousAuthorizationManager))

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
+import cn.caldm.www.auth_context.infrastructure.web.AuthCookieManager;
 import cn.caldm.www.auth_context.infrastructure.web.RefreshTokenFilter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,8 @@ public class RefreshTokenFilterTest {
     private final AuthUserFacadeService facade = mock(AuthUserFacadeService.class);
     private final JwtTokenProvider provider = mock(JwtTokenProvider.class);
     private final TokenBlacklistRepository blacklist = mock(TokenBlacklistRepository.class);
-    private final RefreshTokenFilter filter = new RefreshTokenFilter(facade, provider, blacklist);
+    private final AuthCookieManager cookieManager = mock(AuthCookieManager.class);
+    private final RefreshTokenFilter filter = new RefreshTokenFilter(facade, provider, blacklist, cookieManager);
 
     @AfterEach
     void tearDown() {
@@ -58,6 +60,39 @@ public class RefreshTokenFilterTest {
         filter.doFilter(request, response, chain);
 
         assertThat(response.getStatus()).isEqualTo(401);
+        // 刷新失败即强制登出：必须清除客户端双 Cookie
+        verify(cookieManager).clearTokenCookies(response);
+        verify(chain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    void shouldRejectAndClearCookies_whenTokenMissing() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        verify(cookieManager).clearTokenCookies(response);
+        verify(chain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    void shouldRejectAndClearCookies_whenTokenInvalid() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("refreshToken", "rt-expired"));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        when(provider.verifyToken("rt-expired")).thenReturn(null);
+
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        // 前端依赖 486 码切换到未登录态
+        assertThat(response.getContentAsString()).contains("486");
+        verify(cookieManager).clearTokenCookies(response);
         verify(chain, never()).doFilter(any(), any());
     }
 
@@ -75,8 +110,9 @@ public class RefreshTokenFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        // 用户不存在时同样拒绝（401），链不放行
+        // 用户不存在时同样拒绝（401），链不放行，并清除 Cookie
         assertThat(response.getStatus()).isEqualTo(401);
+        verify(cookieManager).clearTokenCookies(response);
         verify(chain, never()).doFilter(any(), any());
     }
 }

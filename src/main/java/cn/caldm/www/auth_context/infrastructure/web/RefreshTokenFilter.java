@@ -38,6 +38,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TokenBlacklistRepository blacklistRepository;
+    private final AuthCookieManager cookieManager;
 
     @Override
     protected void doFilterInternal(
@@ -88,6 +89,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     }
 
     private void writeErrorResponse(HttpServletResponse response) throws IOException {
+        cookieManager.clearTokenCookies(response);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Result<Object> result = Result.error(ResultCodeEnum.REFRESH_FAILED, "Authentication failed.");
         response.getWriter().write(objectMapper.writeValueAsString(result));
@@ -97,7 +99,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
         for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) return cookie.getValue();
+            if (AuthCookieManager.REFRESH_TOKEN_COOKIE.equals(cookie.getName())) return cookie.getValue();
         }
         return null;
     }
